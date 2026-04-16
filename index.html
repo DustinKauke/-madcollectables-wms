@@ -115,6 +115,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 <div class="sarea" id="sarea">
 
     <div class="view active" id="view-dashboard">
+      <div id="viewer-dash" style="display:none"></div>
       <div style="margin-bottom:12px"><button id="btn-viewer-mode" style="width:100%;padding:11px;background:rgba(184,134,11,0.1);color:#b8860b;border:1.5px solid rgba(184,134,11,0.4);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">&#128065; Viewer-Modus aktivieren</button></div>
       <div class="kgrid">
         <div class="kpi" style="border-top-color:#b8860b"><div class="klbl">Bestand</div><div class="kval" id="d-b">0</div><div class="ksub" id="d-bs">0 graded</div></div>
@@ -411,21 +412,46 @@ function renderAll(){rDash();rKarten();rTrans();rGrading();}
 
 function rDash(){
   if(viewerMode){
-    // VIEWER MODE: only show card count and total marktwert
     var bestand=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
     var totalMW=bestand.reduce(function(s,k){return s+parseFloat(k.marktwert||k.ek||0);},0);
-    if(el('d-b'))el('d-b').textContent=bestand.length;
-    if(el('d-bs'))el('d-bs').textContent='Karten im Bestand';
-    if(el('d-u'))el('d-u').textContent=fmt(totalMW);
-    if(el('d-us'))el('d-us').textContent='Gesamtmarktwert';
-    if(el('d-g'))el('d-g').innerHTML='<a href="https://www.cardmarket.com" target="_blank" style="color:var(--gold);font-size:11px;text-decoration:none;font-family:JetBrains Mono,monospace">Cardmarket \u2197</a>';
-    if(el('d-r'))el('d-r').textContent='';
-    if(el('d-gr'))el('d-gr').innerHTML='<a href="https://www.ebay.de" target="_blank" style="color:var(--gold);font-size:11px;text-decoration:none;font-family:JetBrains Mono,monospace">eBay \u2197</a>';
-    if(el('d-grs'))el('d-grs').textContent='';
-    if(el('d-letzte'))el('d-letzte').innerHTML='';
-    if(el('d-send'))el('d-send').innerHTML='';
+    var vd=el('viewer-dash');
+    if(vd){
+      vd.style.display='block';
+      vd.innerHTML=
+        '<div class="card" style="text-align:center;padding:20px">'+
+          '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:6px">KARTEN IM BESTAND</div>'+
+          '<div style="font-family:Syne,sans-serif;font-size:40px;font-weight:800;color:var(--dark)">'+bestand.length+'</div>'+
+        '</div>'+
+        '<div class="card" style="text-align:center;padding:20px">'+
+          '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:6px">GESAMTMARKTWERT</div>'+
+          '<div style="font-family:Syne,sans-serif;font-size:36px;font-weight:800;color:var(--gold)">'+fmt(totalMW)+' \u20ac</div>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">'+
+          '<a href="https://www.cardmarket.com" target="_blank" style="display:block;padding:14px;background:rgba(184,134,11,0.1);border:1.5px solid rgba(184,134,11,0.35);border-radius:12px;text-align:center;text-decoration:none">'+
+            '<div style="font-size:20px;margin-bottom:4px">&#128200;</div>'+
+            '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#b8860b">Cardmarket</div>'+
+            '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-top:2px">\u2197 Preise ansehen</div>'+
+          '</a>'+
+          '<a href="https://www.ebay.de/sch/i.html?_nkw=trading+cards&LH_Sold=1" target="_blank" style="display:block;padding:14px;background:rgba(26,82,118,0.06);border:1.5px solid rgba(26,82,118,0.25);border-radius:12px;text-align:center;text-decoration:none">'+
+            '<div style="font-size:20px;margin-bottom:4px">&#128722;</div>'+
+            '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#1a5276">eBay</div>'+
+            '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-top:2px">\u2197 Verk\u00e4ufe ansehen</div>'+
+          '</a>'+
+        '</div>';
+    }
+    // Hide normal dashboard elements
+    ['d-b','d-bs','d-u','d-us','d-g','d-r','d-gr','d-grs'].forEach(function(id){var e=el(id);if(e)e.closest('.kpi')&&(e.closest('.kpi').style.display='none');});
+    var lg=el('d-letzte');if(lg)lg.closest('.card')&&(lg.closest('.card').style.display='none');
+    var sd=el('d-send');if(sd)sd.closest('.card')&&(sd.closest('.card').style.display='none');
+    var vb=el('btn-viewer-mode');if(vb)vb.style.display='none';
     return;
   }
+  // Normal mode: show everything
+  var vd2=el('viewer-dash');if(vd2)vd2.style.display='none';
+  document.querySelectorAll('#view-dashboard .kpi').forEach(function(e){e.style.display='';});
+  var lg2=el('d-letzte');if(lg2&&lg2.closest('.card'))lg2.closest('.card').style.display='';
+  var sd2=el('d-send');if(sd2&&sd2.closest('.card'))sd2.closest('.card').style.display='';
+  var vb2=el('btn-viewer-mode');if(vb2)vb2.style.display='';
   var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;var gr=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;var zg=db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});var um=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);var gw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);var ek=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);var roi=ek>0?(gw/ek*100).toFixed(0):0;var as=db.sendungen.filter(function(s){return s&&s.status==='Unterwegs';});if(el('d-b'))el('d-b').textContent=b;if(el('d-bs'))el('d-bs').textContent=gr+' graded';if(el('d-u'))el('d-u').textContent=fmt(um);if(el('d-us'))el('d-us').textContent=vk.length+' VK';if(el('d-g'))el('d-g').textContent=fmt(gw);if(el('d-r'))el('d-r').textContent='ROI '+roi+'%';if(el('d-gr'))el('d-gr').textContent=zg;if(el('d-grs'))el('d-grs').textContent=as.length+' aktiv';
   var lt=db.transaktionen.slice(-5).reverse();if(el('d-letzte')){if(!lt.length){el('d-letzte').innerHTML='<div class="rph"><div>Noch keine Aktivit\u00e4ten</div></div>';return;}el('d-letzte').innerHTML=lt.map(function(tx){var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));return '<div class="li"><span class="bd '+(tx.typ==='verkauf'?'bg':'bp')+'">'+(tx.typ==='verkauf'?'VK':'TR')+'</span><div class="lim"><div class="lit">'+(tx.kartenName||'-')+'</div><div class="lis">'+(tx.datum||'-')+'</div></div><div class="liamt" style="color:'+(g>=0?'var(--green)':'var(--red)')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';}).join('');}
   if(el('d-send')){var ak=db.sendungen.filter(function(s){return s&&(s.status==='Unterwegs'||s.status==='Zurueck');});if(!ak.length){el('d-send').innerHTML='<div class="rph"><div>Keine aktiven Sendungen</div></div>';return;}el('d-send').innerHTML=ak.map(function(s){return '<div class="li"><span class="bd by">'+s.dienst+'</span><div class="lim"><div class="lit">'+s.name+'</div><div class="lis">'+s.karten.length+' Karten \u00b7 '+fmt(s.gesamt)+' EUR</div></div><span class="bd '+(s.status==='Unterwegs'?'by':'bb')+'">'+s.status+'</span></div>';}).join('');}}
@@ -433,41 +459,62 @@ function rDash(){
 function rKarten(){
   var sv=(el('ks')?el('ks').value:'').toLowerCase();
   var lv=(el('kl')?el('kl').value:'').toLowerCase();
-  var li=el('klist');if(!li)return;
-  var f=db.karten.filter(function(k){if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;return true;});
-  if(!f.length){li.innerHTML='<div class="rph"><div>'+(!db.karten.length?'Noch keine Karten':'Keine Treffer')+'</div></div>';return;}
+  var li=el('klist');
+  if(!li)return;
+  var f=db.karten.filter(function(k){
+    if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;
+    if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;
+    if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;
+    return true;
+  });
+  if(!f.length){
+    li.innerHTML='<div class="rph"><div>'+(!db.karten.length?'Noch keine Karten':'Keine Treffer')+'</div></div>';
+    return;
+  }
   var rows=[];
   f.forEach(function(k){
-    var ek=parseFloat(k.ek||0),mw=parseFloat(k.marktwert||0),di=mw-ek,pv=mw>0?mw:ek;
+    var ek=parseFloat(k.ek||0),mw=parseFloat(k.marktwert||0),pv=mw>0?mw:ek;
     var h='<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(184,134,11,.06)">';
-    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
-    h+='<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+k.name+'</div>';
-    h+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap"><span class="bd by">'+k.serie+'</span>'+(k.kondition!=='Raw'?'<span class="bd by">'+k.kondition+' '+k.note+'</span>':'')+(k.lager?'<span class="bd bb">'+k.lager+'</span>':'')+'</div></div>';
-    h+='<div style="text-align:right;flex-shrink:0"><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">MW: '+fmt(pv)+' \u20ac</div>';
-    if(!viewerMode)h+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
-    if(mw>0&&di!==0)h+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+(di>=0?'#1a7a3c':'#c0392b')+'">'+(di>=0?'+':'')+fmt(di)+'</div>';
-    if(!viewerMode)h+='</div>';
-h+='</div>';
-    h+='<div style="display:flex;gap:8px;margin-top:2px">';
-    h+='<button id="edit-'+k.id+'" style="flex:1;padding:7px 8px;background:rgba(184,134,11,0.12);color:#b8860b;border:1px solid rgba(184,134,11,0.35);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">\u270e Bearbeiten</button>';
-    h+='<button id="del-'+k.id+'" style="padding:7px 14px;background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">&#128465; L\u00f6schen</button>';
+    h+='<div style="display:flex;align-items:center;gap:10px">';
+    // Left: name + badges
+    h+='<div style="flex:1;min-width:0">';
+    h+='<div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+k.name+'</div>';
+    h+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">';
+    h+='<span class="bd by">'+k.serie+'</span>';
+    if(k.kondition!=='Raw')h+='<span class="bd by">'+k.kondition+' '+k.note+'</span>';
+    if(k.lager&&!viewerMode)h+='<span class="bd bb">'+k.lager+'</span>';
     h+='</div></div>';
-    if(viewerMode){
-      var cmQ=encodeURIComponent((k.nr||k.name)+(k.set?' '+k.set:''));
-      var cmSerie=k.serie==='Pokemon'?'Pokemon':(k.serie==='One Piece'?'OnePiece':'YuGiOh');
-      h+='<div style="display:flex;gap:8px;margin-top:6px">';
-      h+='<a href="https://www.cardmarket.com/de/'+cmSerie+'/Products/Search?searchString='+cmQ+'" target="_blank" style="flex:1;padding:7px;background:rgba(184,134,11,0.1);color:#b8860b;border:1px solid rgba(184,134,11,0.3);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;text-align:center;text-decoration:none">CM \u2197</a>';
-      h+='<a href="https://www.ebay.de/sch/i.html?_nkw='+encodeURIComponent(k.name+' trading card')+'" target="_blank" style="flex:1;padding:7px;background:rgba(26,82,118,0.08);color:#1a5276;border:1px solid rgba(26,82,118,0.25);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;text-align:center;text-decoration:none">eBay \u2197</a>';
+    // Right: price
+    h+='<div style="text-align:right;flex-shrink:0">';
+    h+='<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">MW: '+fmt(pv)+' \u20ac</div>';
+    if(!viewerMode){
+      h+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
+      var di=mw-ek;
+      if(mw>0&&di!==0)h+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+(di>=0?'#1a7a3c':'#c0392b')+'">'+(di>=0?'+':'')+fmt(di)+'</div>';
+    }
+    h+='</div>';
+    h+='</div>'; // end flex row
+    // Buttons: only in normal mode
+    if(!viewerMode){
+      h+='<div style="display:flex;gap:8px;margin-top:8px">';
+      h+='<button id="edit-'+k.id+'" style="flex:1;padding:7px 8px;background:rgba(184,134,11,0.12);color:#b8860b;border:1px solid rgba(184,134,11,0.35);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">\u270e Bearbeiten</button>';
+      h+='<button id="del-'+k.id+'" style="padding:7px 12px;background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:12px;font-weight:700;cursor:pointer">\uD83D\uDDD1</button>';
       h+='</div>';
     }
+    h+='</div>';
     rows.push({id:k.id,html:h});
   });
   li.innerHTML=rows.map(function(r){return r.html;}).join('');
-  rows.forEach(function(r){
-    var eb=document.getElementById('edit-'+r.id);if(eb)eb.onclick=function(){openKM(''+r.id);};
-    var db2=document.getElementById('del-'+r.id);if(db2)db2.onclick=function(){openDelKarte(''+r.id);};
-  });
+  if(!viewerMode){
+    rows.forEach(function(r){
+      var eb=document.getElementById('edit-'+r.id);
+      if(eb)eb.onclick=function(){openKM(''+r.id);};
+      var db2=document.getElementById('del-'+r.id);
+      if(db2)db2.onclick=function(){openDelKarte(''+r.id);};
+    });
+  }
 }
+
 
 function openKM(id){_keid=id||null;if(el('stK'))el('stK').textContent=id?'Karte bearbeiten':'Karte erfassen';
   if(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('kfn'))el('kfn').value=k.name||'';if(el('kfs'))el('kfs').value=k.serie||'Pokemon';if(el('kfset'))el('kfset').value=k.set||'';if(el('kflag'))el('kflag').value=k.lager||'';if(el('kfek'))el('kfek').value=k.ek||'';if(el('kfmw'))el('kfmw').value=k.marktwert||'';if(el('kfq'))el('kfq').value=k.quelle||'';if(el('kfei'))el('kfei').value=k.einkauf||'privat';setK(k.kondition||'Raw');if(k.note&&el('kfnote'))el('kfnote').value=k.note;}
