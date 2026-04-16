@@ -106,9 +106,16 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <div class="tright"><div class="tusr" id="tusr"></div><button class="tlout" id="btn-logout">Logout</button></div>
   </div>
   <div class="syncbar"><div class="sdot" id="sdot"></div><span class="stxt" id="stxt">Verbinde...</span></div>
-  <div class="sarea" id="sarea">
+  
+<div id="viewer-banner" style="display:none;background:linear-gradient(135deg,#b8860b,#d4a017);padding:8px 14px;align-items:center;justify-content:space-between;flex-shrink:0">
+  <div style="font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;color:#1a1208">&#128065; VIEWER-MODUS AKTIV</div>
+  <button id="btn-exit-viewer" style="background:rgba(26,18,8,0.2);color:#1a1208;border:none;border-radius:6px;padding:4px 10px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">Beenden</button>
+</div>
+
+<div class="sarea" id="sarea">
 
     <div class="view active" id="view-dashboard">
+      <div style="margin-bottom:12px"><button id="btn-viewer-mode" style="width:100%;padding:11px;background:rgba(184,134,11,0.1);color:#b8860b;border:1.5px solid rgba(184,134,11,0.4);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">&#128065; Viewer-Modus aktivieren</button></div>
       <div class="kgrid">
         <div class="kpi" style="border-top-color:#b8860b"><div class="klbl">Bestand</div><div class="kval" id="d-b">0</div><div class="ksub" id="d-bs">0 graded</div></div>
         <div class="kpi" style="border-top-color:#1a7a3c"><div class="klbl">Umsatz</div><div class="kval" id="d-u">0</div><div class="ksub" id="d-us">0 VK</div></div>
@@ -328,6 +335,41 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 </div>
 
 <script>
+var viewerMode = false;
+
+function activateViewerMode() {
+  viewerMode = true;
+  // Hide nav items not needed
+  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){
+    b.style.display='none';
+  });
+  // Show viewer banner
+  var banner = el('viewer-banner');
+  if(banner) banner.style.display='flex';
+  // Go to karten view
+  go('karten');
+  // Re-render with viewer mode
+  rDash();
+  rKarten();
+}
+
+function deactivateViewerMode() {
+  viewerMode = false;
+  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){
+    b.style.display='';
+  });
+  var banner = el('viewer-banner');
+  if(banner) banner.style.display='none';
+  rDash();
+  rKarten();
+}
+
+function openViewerConfirm() {
+  var ov = el('ovViewer');
+  if(ov){ ov.classList.add('open'); ov.style.display='flex'; }
+}
+
+
 var SB_URL='https://wswzqvmcqpvhnvfxguet.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzd3pxdm1jcXB2aG52ZnhndWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjIxMjUsImV4cCI6MjA4OTkzODEyNX0.fpB8eeLZ1qCrvsug7yw3WBXSVFAGHedX5pnLGwXdqdQ';
 var PROXY='https://api.allorigins.win/get?url=';
@@ -367,7 +409,24 @@ function doLogout(){cu=null;el('app').style.display='none';el('loginScreen').sty
 function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='profil')rProfil();}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
 
-function rDash(){var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;var gr=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;var zg=db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});var um=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);var gw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);var ek=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);var roi=ek>0?(gw/ek*100).toFixed(0):0;var as=db.sendungen.filter(function(s){return s&&s.status==='Unterwegs';});if(el('d-b'))el('d-b').textContent=b;if(el('d-bs'))el('d-bs').textContent=gr+' graded';if(el('d-u'))el('d-u').textContent=fmt(um);if(el('d-us'))el('d-us').textContent=vk.length+' VK';if(el('d-g'))el('d-g').textContent=fmt(gw);if(el('d-r'))el('d-r').textContent='ROI '+roi+'%';if(el('d-gr'))el('d-gr').textContent=zg;if(el('d-grs'))el('d-grs').textContent=as.length+' aktiv';
+function rDash(){
+  if(viewerMode){
+    // VIEWER MODE: only show card count and total marktwert
+    var bestand=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
+    var totalMW=bestand.reduce(function(s,k){return s+parseFloat(k.marktwert||k.ek||0);},0);
+    if(el('d-b'))el('d-b').textContent=bestand.length;
+    if(el('d-bs'))el('d-bs').textContent='Karten im Bestand';
+    if(el('d-u'))el('d-u').textContent=fmt(totalMW);
+    if(el('d-us'))el('d-us').textContent='Gesamtmarktwert';
+    if(el('d-g'))el('d-g').innerHTML='<a href="https://www.cardmarket.com" target="_blank" style="color:var(--gold);font-size:11px;text-decoration:none;font-family:JetBrains Mono,monospace">Cardmarket \u2197</a>';
+    if(el('d-r'))el('d-r').textContent='';
+    if(el('d-gr'))el('d-gr').innerHTML='<a href="https://www.ebay.de" target="_blank" style="color:var(--gold);font-size:11px;text-decoration:none;font-family:JetBrains Mono,monospace">eBay \u2197</a>';
+    if(el('d-grs'))el('d-grs').textContent='';
+    if(el('d-letzte'))el('d-letzte').innerHTML='';
+    if(el('d-send'))el('d-send').innerHTML='';
+    return;
+  }
+  var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;var gr=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;var zg=db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});var um=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);var gw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);var ek=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);var roi=ek>0?(gw/ek*100).toFixed(0):0;var as=db.sendungen.filter(function(s){return s&&s.status==='Unterwegs';});if(el('d-b'))el('d-b').textContent=b;if(el('d-bs'))el('d-bs').textContent=gr+' graded';if(el('d-u'))el('d-u').textContent=fmt(um);if(el('d-us'))el('d-us').textContent=vk.length+' VK';if(el('d-g'))el('d-g').textContent=fmt(gw);if(el('d-r'))el('d-r').textContent='ROI '+roi+'%';if(el('d-gr'))el('d-gr').textContent=zg;if(el('d-grs'))el('d-grs').textContent=as.length+' aktiv';
   var lt=db.transaktionen.slice(-5).reverse();if(el('d-letzte')){if(!lt.length){el('d-letzte').innerHTML='<div class="rph"><div>Noch keine Aktivit\u00e4ten</div></div>';return;}el('d-letzte').innerHTML=lt.map(function(tx){var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));return '<div class="li"><span class="bd '+(tx.typ==='verkauf'?'bg':'bp')+'">'+(tx.typ==='verkauf'?'VK':'TR')+'</span><div class="lim"><div class="lit">'+(tx.kartenName||'-')+'</div><div class="lis">'+(tx.datum||'-')+'</div></div><div class="liamt" style="color:'+(g>=0?'var(--green)':'var(--red)')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';}).join('');}
   if(el('d-send')){var ak=db.sendungen.filter(function(s){return s&&(s.status==='Unterwegs'||s.status==='Zurueck');});if(!ak.length){el('d-send').innerHTML='<div class="rph"><div>Keine aktiven Sendungen</div></div>';return;}el('d-send').innerHTML=ak.map(function(s){return '<div class="li"><span class="bd by">'+s.dienst+'</span><div class="lim"><div class="lit">'+s.name+'</div><div class="lis">'+s.karten.length+' Karten \u00b7 '+fmt(s.gesamt)+' EUR</div></div><span class="bd '+(s.status==='Unterwegs'?'by':'bb')+'">'+s.status+'</span></div>';}).join('');}}
 
@@ -385,13 +444,22 @@ function rKarten(){
     h+='<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+k.name+'</div>';
     h+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap"><span class="bd by">'+k.serie+'</span>'+(k.kondition!=='Raw'?'<span class="bd by">'+k.kondition+' '+k.note+'</span>':'')+(k.lager?'<span class="bd bb">'+k.lager+'</span>':'')+'</div></div>';
     h+='<div style="text-align:right;flex-shrink:0"><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">MW: '+fmt(pv)+' \u20ac</div>';
-    h+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
+    if(!viewerMode)h+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
     if(mw>0&&di!==0)h+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+(di>=0?'#1a7a3c':'#c0392b')+'">'+(di>=0?'+':'')+fmt(di)+'</div>';
-    h+='</div></div>';
+    if(!viewerMode)h+='</div>';
+h+='</div>';
     h+='<div style="display:flex;gap:8px;margin-top:2px">';
     h+='<button id="edit-'+k.id+'" style="flex:1;padding:7px 8px;background:rgba(184,134,11,0.12);color:#b8860b;border:1px solid rgba(184,134,11,0.35);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">\u270e Bearbeiten</button>';
     h+='<button id="del-'+k.id+'" style="padding:7px 14px;background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">&#128465; L\u00f6schen</button>';
     h+='</div></div>';
+    if(viewerMode){
+      var cmQ=encodeURIComponent((k.nr||k.name)+(k.set?' '+k.set:''));
+      var cmSerie=k.serie==='Pokemon'?'Pokemon':(k.serie==='One Piece'?'OnePiece':'YuGiOh');
+      h+='<div style="display:flex;gap:8px;margin-top:6px">';
+      h+='<a href="https://www.cardmarket.com/de/'+cmSerie+'/Products/Search?searchString='+cmQ+'" target="_blank" style="flex:1;padding:7px;background:rgba(184,134,11,0.1);color:#b8860b;border:1px solid rgba(184,134,11,0.3);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;text-align:center;text-decoration:none">CM \u2197</a>';
+      h+='<a href="https://www.ebay.de/sch/i.html?_nkw='+encodeURIComponent(k.name+' trading card')+'" target="_blank" style="flex:1;padding:7px;background:rgba(26,82,118,0.08);color:#1a5276;border:1px solid rgba(26,82,118,0.25);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;text-align:center;text-decoration:none">eBay \u2197</a>';
+      h+='</div>';
+    }
     rows.push({id:k.id,html:h});
   });
   li.innerHTML=rows.map(function(r){return r.html;}).join('');
@@ -447,6 +515,10 @@ function changeP(){if(!cu)return;var op=el('ppold')?el('ppold').value:'';var np=
 
 document.addEventListener('DOMContentLoaded',function(){
   el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
+  el('btn-viewer-mode')&&el('btn-viewer-mode').addEventListener('click',openViewerConfirm);
+  el('btn-viewer-yes')&&el('btn-viewer-yes').addEventListener('click',function(){cs('ovViewer');activateViewerMode();});
+  el('btn-viewer-no')&&el('btn-viewer-no').addEventListener('click',function(){cs('ovViewer');});
+  el('btn-exit-viewer')&&el('btn-exit-viewer').addEventListener('click',deactivateViewerMode);
   [el('inp-user'),el('inp-pass')].forEach(function(i){i&&i.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});});
   el('btn-logout')&&el('btn-logout').addEventListener('click',doLogout);
   document.querySelectorAll('.nbtn').forEach(function(b){b.addEventListener('click',function(){go(this.dataset.v);});});
@@ -484,5 +556,22 @@ document.addEventListener('DOMContentLoaded',function(){
   loadDB();
 });
 </script>
+
+<!-- VIEWER MODE CONFIRM -->
+<div class="sov" id="ovViewer" style="display:none">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stit">&#128065; Viewer-Modus</div>
+    <div style="background:#fdf5e0;border:1px solid rgba(184,134,11,0.3);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.7">
+      Im Viewer-Modus werden ausschlie&szlig;lich die <b>Karten und Marktwerte</b> angezeigt.<br>
+      <span style="font-size:11px;color:var(--text3)">EK-Preise, Gewinne und Transaktionen werden ausgeblendet.</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button id="btn-viewer-yes" style="flex:1;padding:13px;background:#1a7a3c;color:#fff;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:15px;font-weight:800;cursor:pointer">Ja, aktivieren</button>
+      <button id="btn-viewer-no" style="flex:1;padding:13px;background:rgba(192,57,43,0.1);color:#c0392b;border:1.5px solid rgba(192,57,43,0.3);border-radius:10px;font-family:Syne,sans-serif;font-size:15px;font-weight:800;cursor:pointer">Nein</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
