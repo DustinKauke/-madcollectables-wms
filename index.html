@@ -181,6 +181,92 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       <div id="kk-res-card" style="display:none" class="card"><div class="ctit">Ergebnis</div><div id="kk-res"></div></div>
     </div>
 
+
+    <!-- ANKAUF -->
+    <div class="view" id="view-ankauf">
+      <div class="vtit">Ankauf</div>
+
+      <!-- Einstellungen -->
+      <div class="card">
+        <div class="ctit">&#9881; Ankauf-Einstellungen</div>
+        <div class="fg2">
+          <div class="fg">
+            <label class="flbl">Ankaufspreis (%)</label>
+            <input id="ank-pct" class="fi" type="number" value="60" min="1" max="99" placeholder="60">
+          </div>
+          <div class="fg">
+            <label class="flbl">Basis</label>
+            <select id="ank-basis" class="fi">
+              <option value="cardmarket">Cardmarket</option>
+              <option value="ebay">eBay (30T)</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);padding:6px 8px;background:var(--surface2);border-radius:7px">
+          Ankaufspreis = <span id="ank-pct-display">60</span>% des Marktwertes
+        </div>
+      </div>
+
+      <!-- Tabs: Einzeln / Masse -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button id="ank-tab-einzel" onclick="ankTab('einzel')" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">Einzelankauf</button>
+        <button id="ank-tab-masse" onclick="ankTab('masse')" style="flex:1;padding:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer">Massenankauf</button>
+      </div>
+
+      <!-- EINZELANKAUF -->
+      <div id="ank-einzel-panel">
+        <div class="card">
+          <div class="ctit">&#128269; Karte suchen</div>
+          <div class="fg">
+            <label class="flbl">Kartenname / Nummer</label>
+            <input id="ank-search" class="fi" placeholder="z.B. Charizard Base Set oder OP01-120">
+          </div>
+          <div class="fg">
+            <label class="flbl">Serie</label>
+            <select id="ank-serie" class="fi">
+              <option value="Pokemon">Pokemon</option>
+              <option value="One Piece">One Piece</option>
+              <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
+            </select>
+          </div>
+          <button class="btn bgold" id="btn-ank-search">Preis ermitteln</button>
+        </div>
+        <div id="ank-result" style="display:none" class="card">
+          <div class="ctit">Ankaufsergebnis</div>
+          <div id="ank-result-content"></div>
+          <button class="btn bgrn" id="btn-ank-accept" style="margin-top:10px;display:none">&#10003; Karte ankaufen &amp; ins Inventar</button>
+        </div>
+      </div>
+
+      <!-- MASSENANKAUF -->
+      <div id="ank-masse-panel" style="display:none">
+        <div class="card">
+          <div class="ctit">&#128221; Karten-Liste</div>
+          <div class="fg2">
+            <div class="fg">
+              <label class="flbl">Kartenname</label>
+              <input id="ank-m-name" class="fi" placeholder="z.B. Pikachu">
+            </div>
+            <div class="fg">
+              <label class="flbl">Serie</label>
+              <select id="ank-m-serie" class="fi">
+                <option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn bgrn bsm" id="btn-ank-m-add" style="margin-bottom:4px">+ Hinzuf&uuml;gen</button>
+          <div id="ank-masse-list" style="margin-top:8px"></div>
+        </div>
+        <div id="ank-masse-results" style="display:none" class="card">
+          <div class="ctit">Gesamtergebnis</div>
+          <div id="ank-masse-result-content"></div>
+          <button class="btn bgrn" id="btn-ank-masse-accept" style="margin-top:10px">&#10003; Alle ankaufen &amp; ins Inventar</button>
+        </div>
+        <button class="btn bgold" id="btn-ank-masse-search" style="display:none">Alle Preise ermitteln</button>
+      </div>
+
+    </div>
+
     <div class="view" id="view-profil">
       <div class="vtit">Mein Profil</div>
       <div id="del-log-btn-wrap" style="display:none;margin-bottom:12px">
@@ -217,6 +303,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <button class="nbtn" data-v="grading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Grading</span></button>
     <button class="nbtn" data-v="research"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Research</span></button>
     <button class="nbtn" data-v="kalkulation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg><span>Kalkul.</span></button>
+    <button class="nbtn" data-v="ankauf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Ankauf</span></button>
     <button class="nbtn" data-v="profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Profil</span></button>
   </nav>
 </div>
@@ -271,7 +358,8 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       <div class="fg"><label class="flbl">Wert raus (EUR)</label><input id="tfr" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
       <div class="fg"><label class="flbl">Wert rein (EUR)</label><input id="tfe" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
     </div>
-    <div class="fg"><label class="flbl">Differenz</label><div class="gbox" id="tfdd">-</div></div>
+    <div class="fg"><label class="flbl">Differenz</label><div class="gbox" id="tfdd">-</div>
+    </div>
     <div class="fg"><label class="flbl">Datum</label><input id="tfd" class="fi" type="date"></div>
     <div class="divider"></div>
     <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px">+ Neue Karte erfassen</div>
@@ -287,53 +375,6 @@ button{transition:opacity .1s}button:active{opacity:0.75}
   </div>
 </div>
 
-<!-- SHEET: GRADING -->
-<div class="sov" id="ovSDG" style="display:none">
-  <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit">Grading-Sendung</div>
-    <div class="fg"><label class="flbl">Name *</label><input id="sfn" class="fi" placeholder="z.B. PSA Batch #5"></div>
-    <div class="fg2">
-      <div class="fg"><label class="flbl">Dienst</label><select id="sfd" class="fi"><option value="PSA">PSA</option><option value="BGS">BGS</option></select></div>
-      <div class="fg"><label class="flbl">Datum</label><input id="sfdat" class="fi" type="date"></div>
-      <div class="fg"><label class="flbl">Versand (EUR)</label><input id="sfv" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-      <div class="fg"><label class="flbl">Geb&uuml;hr (EUR)</label><input id="sfg" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-    </div>
-    <div class="fg"><label class="flbl">Karte hinzuf&uuml;gen</label>
-      <div class="srow"><select id="sfka" class="fi"></select><button class="btn bgold bsm" id="btn-asdgk">+</button></div>
-    </div>
-    <div id="sfkl" style="margin-bottom:10px"></div>
-    <button class="btn bgold" id="btn-ssdg">Speichern</button>
-    <button class="btn bout" id="btn-asdg" style="margin-top:8px">Abbrechen</button>
-  </div>
-</div>
-
-<!-- SHEET: LOESCHGRUND -->
-<div class="sov" id="ovDelKarte" style="display:none">
-  <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit" style="color:#c0392b">&#128465; Karte l&ouml;schen</div>
-    <div style="background:#fef2f2;border:1px solid rgba(192,57,43,0.3);border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px;color:var(--text2)">
-      <b id="del-karte-name">-</b><br>
-      <span style="font-size:11px;color:var(--text3)">Diese Aktion kann nicht r&uuml;ckg&auml;ngig gemacht werden.</span>
-    </div>
-    <input type="hidden" id="del-karte-id-hidden">
-    <div class="fg"><label class="flbl">Grund der L&ouml;schung *</label><textarea id="del-grund" class="fi" placeholder="z.B. Fehleingabe, Verlust..." style="height:90px;resize:none"></textarea></div>
-    <div id="del-err" style="display:none;background:#fef2f2;border:1px solid rgba(192,57,43,0.3);border-radius:8px;padding:9px;font-size:12px;color:#c0392b;margin-bottom:8px"></div>
-    <button class="btn" id="btn-confirm-del" style="background:#c0392b;color:#fff;font-family:Syne,sans-serif;font-weight:800">Endg&uuml;ltig l&ouml;schen</button>
-    <button class="btn bout" id="btn-cancel-del" style="margin-top:8px">Abbrechen</button>
-  </div>
-</div>
-
-<!-- SHEET: LOESCHPROTOKOLL -->
-<div class="sov" id="ovDelLog" style="display:none">
-  <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit">&#128221; L&ouml;schprotokoll</div>
-    <div id="del-log-content"></div>
-    <button class="btn bout" id="btn-close-dellog" style="margin-top:12px">Schlie&szlig;en</button>
-  </div>
-</div>
 
 <script>
 var viewerMode = false;
@@ -341,7 +382,7 @@ var viewerMode = false;
 function activateViewerMode() {
   viewerMode = true;
   // Hide nav items not needed
-  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){
+  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){
     b.style.display='none';
   });
   // Show viewer banner
@@ -356,7 +397,7 @@ function activateViewerMode() {
 
 function deactivateViewerMode() {
   viewerMode = false;
-  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){
+  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){
     b.style.display='';
   });
   var banner = el('viewer-banner');
@@ -407,7 +448,8 @@ function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-p
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
 function doLogout(){cu=null;el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
 
-function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='profil')rProfil();}
+function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='profil')rProfil();
+  if(v==='ankauf')rAnkauf();}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
 
 function rDash(){
@@ -560,6 +602,285 @@ function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltu
 function saveP(){if(!cu)return;var n=el('pname')?el('pname').value.trim():'';if(!n){toast('Name darf nicht leer',false);return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;u.name=n;u.email=el('pemail')?el('pemail').value.trim():'';cu.name=n;var av=el('pav');if(av)av.textContent=n[0].toUpperCase();if(el('pnd'))el('pnd').textContent=n;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(n||u.username)+' \u00b7 '+(R[u.rolle]||'');saveDB();toast('Profil gespeichert!');}
 function changeP(){if(!cu)return;var op=el('ppold')?el('ppold').value:'';var np=el('ppnew')?el('ppnew').value:'';var np2=el('ppnew2')?el('ppnew2').value:'';var err=el('pperr');if(err)err.style.display='none';function se(m){if(err){err.textContent=m;err.style.display='block';}}if(!op||!np||!np2){se('Alle Felder ausf\u00fcllen');return;}if(np.length<4){se('Mind. 4 Zeichen');return;}if(np!==np2){se('Nicht \u00fcbereinstimmend');return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;if(hashPass(op,u.salt)!==u.passHash){se('Aktuelles PW falsch');return;}var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(np,ns);cu.salt=ns;cu.passHash=u.passHash;['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});saveDB();toast('Passwort ge\u00e4ndert!');}
 
+
+// ═══════════════════════════════════════
+// ANKAUF MODUL
+// ═══════════════════════════════════════
+var _ankMasseList = [];
+var _ankLastResult = null;
+
+function ankTab(tab) {
+  var isEinzel = tab === 'einzel';
+  el('ank-einzel-panel').style.display = isEinzel ? 'block' : 'none';
+  el('ank-masse-panel').style.display  = isEinzel ? 'none'  : 'block';
+  el('ank-tab-einzel').style.background = isEinzel ? 'linear-gradient(135deg,#b8860b,#d4a017)' : 'var(--surface2)';
+  el('ank-tab-einzel').style.color      = isEinzel ? '#1a1208' : 'var(--text2)';
+  el('ank-tab-einzel').style.border     = isEinzel ? 'none' : '1px solid var(--border)';
+  el('ank-tab-masse').style.background  = isEinzel ? 'var(--surface2)' : 'linear-gradient(135deg,#b8860b,#d4a017)';
+  el('ank-tab-masse').style.color       = isEinzel ? 'var(--text2)' : '#1a1208';
+  el('ank-tab-masse').style.border      = isEinzel ? '1px solid var(--border)' : 'none';
+}
+
+function getAnkPct() {
+  return parseFloat(el('ank-pct') ? el('ank-pct').value : 60) || 60;
+}
+
+function calcAnkaufspreis(marktpreis) {
+  return Math.round(marktpreis * getAnkPct()) / 100;
+}
+
+function fetchAnkaufPreis(name, serie, cb) {
+  var basis = el('ank-basis') ? el('ank-basis').value : 'cardmarket';
+  var serieSlug = serie === 'Pokemon' ? 'Pokemon' : (serie === 'One Piece' ? 'OnePiece' : 'YuGiOh');
+  var searchUrl = '';
+
+  if (basis === 'cardmarket') {
+    searchUrl = 'https://www.cardmarket.com/de/' + serieSlug + '/Products/Search?searchString=' + encodeURIComponent(name);
+    fetch(PROXY + encodeURIComponent(searchUrl))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var h = d.contents || '';
+        var re = /([0-9]+[,\.][0-9]{2})\s*\u20ac/g, m, ps = [];
+        while((m = re.exec(h)) !== null){ var p = parseFloat(m[1].replace(',','.')); if(p > 0.5 && p < 50000) ps.push(p); }
+        if(!ps.length){ cb(null, 0, searchUrl); return; }
+        ps.sort(function(a,b){return a-b;});
+        var avg = ps.slice(0,5).reduce(function(s,v){return s+v;},0) / Math.min(ps.length,5);
+        cb(avg, calcAnkaufspreis(avg), searchUrl);
+      }).catch(function(){ cb(null, 0, searchUrl); });
+  } else {
+    searchUrl = 'https://www.ebay.de/sch/i.html?_nkw=' + encodeURIComponent(name + ' trading card') + '&LH_Sold=1&LH_Complete=1&_sop=13&LH_DAYS=30&_ipg=25';
+    fetch(PROXY + encodeURIComponent(searchUrl))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var h = d.contents || '';
+        var re = /([0-9]+[,\.][0-9]{2})\s*EUR/g, m, ps = [];
+        while((m = re.exec(h)) !== null){ var p = parseFloat(m[1].replace(',','.')); if(p > 0.5 && p < 50000) ps.push(p); }
+        if(!ps.length){ cb(null, 0, searchUrl); return; }
+        var avg = ps.reduce(function(s,v){return s+v;},0) / ps.length;
+        cb(avg, calcAnkaufspreis(avg), searchUrl);
+      }).catch(function(){ cb(null, 0, searchUrl); });
+  }
+}
+
+function doAnkaufSearch() {
+  var name  = el('ank-search') ? el('ank-search').value.trim() : '';
+  var serie = el('ank-serie')  ? el('ank-serie').value : 'Pokemon';
+  if(!name){ toast('Name eingeben', false); return; }
+
+  var resCard = el('ank-result');
+  var resContent = el('ank-result-content');
+  var accBtn = el('btn-ank-accept');
+  if(resCard) resCard.style.display = 'block';
+  if(accBtn) accBtn.style.display = 'none';
+  if(resContent) resContent.innerHTML = '<div class="rph"><div class="rphi">\u23f3</div><div>Preise werden ermittelt...</div></div>';
+
+  fetchAnkaufPreis(name, serie, function(markt, ankauf, url) {
+    _ankLastResult = markt ? { name: name, serie: serie, markt: markt, ankauf: ankauf } : null;
+    if(!markt) {
+      if(resContent) resContent.innerHTML =
+        '<div class="rph"><div>Kein Preis gefunden</div></div>' +
+        '<a href="' + url + '" target="_blank" style="display:block;text-align:center;padding:10px;margin-top:8px;background:var(--surface2);border-radius:8px;color:#b8860b;font-family:JetBrains Mono,monospace;font-size:11px;text-decoration:none">Manuell auf Marktplatz suchen \u2197</a>';
+      return;
+    }
+    if(resContent) resContent.innerHTML =
+      '<div style="background:linear-gradient(135deg,rgba(26,122,60,0.08),rgba(26,122,60,0.03));border:1px solid rgba(26,122,60,0.25);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">' +
+        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:4px">ANKAUFSPREIS (' + getAnkPct() + '% von MW)</div>' +
+        '<div style="font-family:Syne,sans-serif;font-size:34px;font-weight:800;color:#1a7a3c">' + fmt(ankauf) + ' \u20ac</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
+        '<div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center">' +
+          '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">MARKTWERT</div>' +
+          '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:15px;color:var(--gold)">' + fmt(markt) + ' \u20ac</div>' +
+        '</div>' +
+        '<div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center">' +
+          '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">MARGE (EK\u2192VK)</div>' +
+          '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:15px;color:#1a5276">+' + fmt(markt - ankauf) + ' \u20ac</div>' +
+        '</div>' +
+      '</div>' +
+      '<a href="' + url + '" target="_blank" style="display:block;text-align:center;padding:9px;background:var(--surface2);border-radius:8px;color:#b8860b;font-family:JetBrains Mono,monospace;font-size:11px;text-decoration:none;margin-bottom:4px">Preis auf Marktplatz pr\u00fcfen \u2197</a>';
+    if(accBtn) accBtn.style.display = 'block';
+  });
+}
+
+function doAnkaufAccept() {
+  if(!_ankLastResult) return;
+  var r = _ankLastResult;
+  var newK = { id: 'K'+Date.now(), name: r.name, serie: r.serie, set: '', lager: '', kondition: 'Raw', note: '', einkauf: 'privat', ek: r.ankauf, marktwert: r.markt, quelle: 'Ankauf', notizen: '', status: 'Im Bestand', kaufdatum: today() };
+  db.karten.push(newK);
+  saveDB(); rKarten(); rDash();
+  toast('"' + r.name + '" f\u00fcr ' + fmt(r.ankauf) + ' \u20ac ins Inventar aufgenommen!');
+  // Reset
+  if(el('ank-search')) el('ank-search').value = '';
+  var resCard = el('ank-result');
+  if(resCard) resCard.style.display = 'none';
+  _ankLastResult = null;
+}
+
+// ── MASSENANKAUF ─────────────────────────────────────────────────────
+function ankMasseAdd() {
+  var name  = el('ank-m-name')  ? el('ank-m-name').value.trim() : '';
+  var serie = el('ank-m-serie') ? el('ank-m-serie').value : 'Pokemon';
+  if(!name){ toast('Name eingeben', false); return; }
+  _ankMasseList.push({ name: name, serie: serie, markt: null, ankauf: null });
+  if(el('ank-m-name')) el('ank-m-name').value = '';
+  renderAnkMasseList();
+  var sb = el('btn-ank-masse-search');
+  if(sb) sb.style.display = 'block';
+}
+
+function renderAnkMasseList() {
+  var li = el('ank-masse-list'); if(!li) return;
+  if(!_ankMasseList.length){ li.innerHTML = ''; return; }
+  li.innerHTML = _ankMasseList.map(function(item, i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface2);border-radius:8px;margin-bottom:6px">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.name + '</div>' +
+        '<div style="font-size:10px;color:var(--text3)">' + item.serie + (item.markt ? ' \u00b7 MW: ' + fmt(item.markt) + ' \u20ac \u00b7 Ankauf: <b style="color:#1a7a3c">' + fmt(item.ankauf) + ' \u20ac</b>' : '') + '</div>' +
+      '</div>' +
+      '<button data-rm="' + i + '" style="background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;flex-shrink:0">X</button>' +
+    '</div>';
+  }).join('');
+  li.querySelectorAll('[data-rm]').forEach(function(b){
+    b.addEventListener('click', function(){
+      _ankMasseList.splice(parseInt(this.dataset.rm), 1);
+      renderAnkMasseList();
+      if(!_ankMasseList.length){ var sb=el('btn-ank-masse-search');if(sb)sb.style.display='none'; var rr=el('ank-masse-results');if(rr)rr.style.display='none'; }
+    });
+  });
+}
+
+function doAnkaufMasseSearch() {
+  if(!_ankMasseList.length){ toast('Liste ist leer', false); return; }
+  var btn = el('btn-ank-masse-search');
+  if(btn){ btn.textContent = 'Laden...'; btn.disabled = true; }
+  var done = 0, total = _ankMasseList.length;
+
+  function next(i) {
+    if(i >= total) {
+      if(btn){ btn.textContent = 'Alle Preise ermitteln'; btn.disabled = false; }
+      renderAnkMasseList();
+      showAnkMasseResults();
+      return;
+    }
+    fetchAnkaufPreis(_ankMasseList[i].name, _ankMasseList[i].serie, function(markt, ankauf){
+      _ankMasseList[i].markt  = markt  || 0;
+      _ankMasseList[i].ankauf = ankauf || 0;
+      done++;
+      renderAnkMasseList();
+      setTimeout(function(){ next(i+1); }, 600);
+    });
+  }
+  next(0);
+}
+
+function showAnkMasseResults() {
+  var res = el('ank-masse-results'); if(!res) return;
+  var content = el('ank-masse-result-content'); if(!content) return;
+  res.style.display = 'block';
+
+  var totalMarkt  = _ankMasseList.reduce(function(s,k){return s+(k.markt||0);},0);
+  var totalAnkauf = _ankMasseList.reduce(function(s,k){return s+(k.ankauf||0);},0);
+  var totalMarge  = totalMarkt - totalAnkauf;
+
+  content.innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">' +
+      ankStatBox('GESAMTANKAUF', fmt(totalAnkauf)+' \u20ac', '#1a7a3c') +
+      ankStatBox('GESAMTMARKTWERT', fmt(totalMarkt)+' \u20ac', 'var(--gold)') +
+      ankStatBox('POTENZ. MARGE', '+'+fmt(totalMarge)+' \u20ac', '#1a5276') +
+    '</div>' +
+    '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px">' + _ankMasseList.length + ' KARTEN \u00b7 ' + getAnkPct() + '% ANKAUFSQUOTE</div>' +
+    _ankMasseList.map(function(k){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%">' + k.name + '</div>' +
+        '<div style="text-align:right;flex-shrink:0">' +
+          (k.markt ? '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3)">MW: '+fmt(k.markt)+'</div>' : '') +
+          '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:#1a7a3c">' + (k.ankauf ? fmt(k.ankauf)+' \u20ac' : 'n/v') + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+}
+
+function ankStatBox(lbl, val, color) {
+  return '<div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center">' +
+    '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">' + lbl + '</div>' +
+    '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:' + color + '">' + val + '</div>' +
+  '</div>';
+}
+
+function doAnkaufMasseAccept() {
+  var added = 0;
+  _ankMasseList.forEach(function(item){
+    if(!item.name) return;
+    var newK = { id: 'K'+Date.now()+added, name: item.name, serie: item.serie, set: '', lager: '', kondition: 'Raw', note: '', einkauf: 'privat', ek: item.ankauf||0, marktwert: item.markt||0, quelle: 'Ankauf', notizen: '', status: 'Im Bestand', kaufdatum: today() };
+    db.karten.push(newK);
+    added++;
+  });
+  saveDB(); rKarten(); rDash();
+  toast(added + ' Karten ins Inventar aufgenommen!');
+  _ankMasseList = [];
+  renderAnkMasseList();
+  var rr = el('ank-masse-results'); if(rr) rr.style.display='none';
+  var sb = el('btn-ank-masse-search'); if(sb) sb.style.display='none';
+}
+
+function rAnkauf() {
+  // Update % display
+  var pct = el('ank-pct'); var disp = el('ank-pct-display');
+  if(pct && disp) {
+    pct.addEventListener('input', function(){ disp.textContent = this.value; });
+  }
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
+  el('btn-ank-search')&&el('btn-ank-search').addEventListener('click',doAnkaufSearch);
+  el('btn-ank-accept')&&el('btn-ank-accept').addEventListener('click',doAnkaufAccept);
+  el('btn-ank-m-add')&&el('btn-ank-m-add').addEventListener('click',ankMasseAdd);
+  el('btn-ank-masse-search')&&el('btn-ank-masse-search').addEventListener('click',doAnkaufMasseSearch);
+  el('btn-ank-masse-accept')&&el('btn-ank-masse-accept').addEventListener('click',doAnkaufMasseAccept);
+  el('ank-search')&&el('ank-search').addEventListener('keydown',function(e){if(e.key==='Enter')doAnkaufSearch();});
+  el('ank-m-name')&&el('ank-m-name').addEventListener('keydown',function(e){if(e.key==='Enter')ankMasseAdd();});
+  el('btn-viewer-mode')&&el('btn-viewer-mode').addEventListener('click',openViewerConfirm);
+  el('btn-viewer-yes')&&el('btn-viewer-yes').addEventListener('click',function(){cs('ovViewer');activateViewerMode();});
+  el('btn-viewer-no')&&el('btn-viewer-no').addEventListener('click',function(){cs('ovViewer');});
+  el('btn-exit-viewer')&&el('btn-exit-viewer').addEventListener('click',deactivateViewerMode);
+  [el('inp-user'),el('inp-pass')].forEach(function(i){i&&i.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});});
+  el('btn-logout')&&el('btn-logout').addEventListener('click',doLogout);
+  document.querySelectorAll('.nbtn').forEach(function(b){b.addEventListener('click',function(){go(this.dataset.v);});});
+  el('btn-nk')&&el('btn-nk').addEventListener('click',function(){openKM(null);});
+  el('btn-sk')&&el('btn-sk').addEventListener('click',saveK);
+  el('btn-ak')&&el('btn-ak').addEventListener('click',function(){cs('ovK');});
+  document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.addEventListener('click',function(){setK(this.dataset.val);});});
+  el('ks')&&el('ks').addEventListener('input',rKarten);
+  el('kl')&&el('kl').addEventListener('input',rKarten);
+  el('btn-nvk')&&el('btn-nvk').addEventListener('click',openVK);
+  el('btn-svk')&&el('btn-svk').addEventListener('click',saveVK);
+  el('btn-avk')&&el('btn-avk').addEventListener('click',function(){cs('ovVK');});
+  el('vfvk')&&el('vfvk').addEventListener('input',function(){var ek=parseFloat(el('vfek')?el('vfek').value:0)||0;var vk=parseFloat(this.value)||0;var d=el('vfgd');if(d){if(!vk){d.textContent='VK eingeben';d.style.color='var(--text3)';}else{var g=vk-ek;d.textContent=(g>=0?'+':'')+fmt(g)+' EUR';d.style.color=g>=0?'#1a7a3c':'#c0392b';}}});
+  el('vfk')&&el('vfk').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k&&el('vfek'))el('vfek').value=k.ek||'';});
+  el('btn-ntr')&&el('btn-ntr').addEventListener('click',openTradeSheet);
+  el('btn-str')&&el('btn-str').addEventListener('click',saveTR);
+  el('btn-atr')&&el('btn-atr').addEventListener('click',function(){cs('ovTR');});
+  [el('tfr'),el('tfe')].forEach(function(i){i&&i.addEventListener('input',function(){var r2=parseFloat(el('tfr')?el('tfr').value:0)||0;var e2=parseFloat(el('tfe')?el('tfe').value:0)||0;var d=el('tfdd');if(d){var di=e2-r2;d.textContent=(di>=0?'+':'')+fmt(di)+' EUR';d.style.color=di>=0?'#1a7a3c':'#c0392b';}});});
+  el('btn-nsdg')&&el('btn-nsdg').addEventListener('click',openSDG);
+  el('btn-ssdg')&&el('btn-ssdg').addEventListener('click',saveSDG);
+  el('btn-asdg')&&el('btn-asdg').addEventListener('click',function(){cs('ovSDG');});
+  el('btn-asdgk')&&el('btn-asdgk').addEventListener('click',function(){var s=el('sfka');if(!s||!s.value)return;if(_sk.find(function(ki){return ki.id===s.value;})){toast('Bereits drin',false);return;}_sk.push({id:s.value,note:null});rSKL();s.value='';});
+  el('btn-rs')&&el('btn-rs').addEventListener('click',doSearch);
+  el('rtxt')&&el('rtxt').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+  el('btn-kk')&&el('btn-kk').addEventListener('click',doKalk);
+  el('kk-karte')&&el('kk-karte').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k){if(el('kk-ek'))el('kk-ek').value=k.ek||'';if(el('kk-einkauf'))el('kk-einkauf').value=k.einkauf||'privat';}});
+  el('btn-confirm-del')&&el('btn-confirm-del').addEventListener('click',confirmDelKarte);
+  el('btn-cancel-del')&&el('btn-cancel-del').addEventListener('click',function(){cs('ovDelKarte');});
+  el('btn-show-dellog')&&el('btn-show-dellog').addEventListener('click',showDeleteLog);
+  el('btn-close-dellog')&&el('btn-close-dellog').addEventListener('click',function(){cs('ovDelLog');});
+  el('btn-sp')&&el('btn-sp').addEventListener('click',saveP);
+  el('btn-cp')&&el('btn-cp').addEventListener('click',changeP);
+  el('btn-lop')&&el('btn-lop').addEventListener('click',doLogout);
+  document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
+  loadDB();
+});
+
 document.addEventListener('DOMContentLoaded',function(){
   el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
   el('btn-viewer-mode')&&el('btn-viewer-mode').addEventListener('click',openViewerConfirm);
@@ -619,6 +940,7 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
   </div>
 </div>
+
 
 </body>
 </html>
