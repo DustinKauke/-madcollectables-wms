@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MADCollectables">
+<meta name="theme-color" content="#1a1208">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="app-version" content="2.1.0">
+<title>MADCollectables</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f0e8;--surface:#fffdf7;--surface2:#f0ead8;--border:#ddd5bc;
+  --gold:#b8860b;--gold2:#d4a017;--dark:#1a1208;--text:#1a1208;
+  --text2:#4a3f2a;--text3:#8c7a5a;--green:#1a7a3c;--red:#c0392b;--purple:#6c3483;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:Outfit,sans-serif;display:flex;flex-direction:column;max-width:480px;margin:0 auto}
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(160deg,#1a1208,#2d2010);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
+.lbox{background:var(--surface);border:2px solid var(--gold);border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lico{width:52px;height:52px;background:linear-gradient(135deg,#b8860b,#f0c040);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:#1a1208;margin:0 auto 14px}
+.ltit{font-family:Syne,sans-serif;font-size:20px;font-weight:800;text-align:center;color:var(--dark);margin-bottom:4px}
+.lsub{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);text-align:center;letter-spacing:1.5px;margin-bottom:22px}
+.lerr{background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red);margin-bottom:12px;display:none;text-align:center}
+.llbl{font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);font-weight:600;margin:12px 0 5px;display:block}
+.linp{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:Outfit,sans-serif;background:#fff;color:var(--dark);outline:none}
+.linp:focus{border-color:var(--gold)}
+.lbtn{width:100%;padding:14px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:12px;font-family:Syne,sans-serif;font-size:16px;font-weight:800;cursor:pointer;margin-top:16px}
+/* TOPBAR */
+.topbar{flex-shrink:0;background:rgba(255,253,247,.97);border-bottom:2px solid var(--gold);padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
+.tlogo{font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--dark)}
+.tlogo span{color:var(--gold)}
+.tright{display:flex;align-items:center;gap:7px}
+.tusr{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text2);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tlout{background:rgba(192,57,43,.1);color:var(--red);border:1px solid rgba(192,57,43,.25);border-radius:16px;font-size:10px;font-family:JetBrains Mono,monospace;cursor:pointer;padding:4px 9px}
+/* SYNC */
+.syncbar{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:4px 14px;background:rgba(26,18,8,.04);border-bottom:1px solid var(--border)}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.stxt{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)}
+/* SCROLL */
+.sarea{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:72px}
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--dark);border-top:2px solid var(--gold);display:flex;z-index:100}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 1px 11px;cursor:pointer;color:#5a4a2a;font-family:JetBrains Mono,monospace;font-size:7.5px;letter-spacing:.2px;gap:3px;border:none;background:none;min-width:0;overflow:hidden}
+.nbtn.active{color:var(--gold2)}
+.nbtn svg{width:19px;height:19px;flex-shrink:0}
+.nbtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center}
+/* VIEWS */
+.view{display:none;padding:14px}
+.view.active{display:block}
+.vtit{font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:14px;color:var(--dark)}
+.vrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.vrow .vtit{margin:0}
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(184,134,11,.06)}
+.ctit{font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;color:var(--dark)}
+/* KPI */
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px;border-top:3px solid var(--gold)}
+.klbl{font-family:JetBrains Mono,monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.kval{font-family:Syne,sans-serif;font-size:19px;font-weight:800;color:var(--dark);line-height:1}
+.ksub{font-size:10px;color:var(--text3);margin-top:2px}
+/* FORM */
+.fg{margin-bottom:11px}
+.flbl{font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);font-weight:600;margin-bottom:5px;display:block}
+.fi{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:Outfit,sans-serif;background:#fff;color:var(--dark);outline:none;-webkit-appearance:none}
+.fi:focus{border-color:var(--gold)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* BUTTONS */
+.btn{padding:11px 16px;border:none;border-radius:10px;font-family:Outfit,sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:4px}
+.bgold{background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;font-family:Syne,sans-serif;font-weight:800}
+.bgrn{background:#1a7a3c;color:#fff}
+.bpur{background:rgba(108,52,131,.12);color:#6c3483;border:1.5px solid rgba(108,52,131,.3)}
+.bout{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.bsm{padding:7px 13px;font-size:12px;width:auto;border-radius:8px;margin-top:0}
+.brow{display:flex;gap:10px;margin-bottom:12px}
+.brow .btn{flex:1;margin-top:0}
+/* BADGES */
+.bd{display:inline-block;padding:2px 8px;border-radius:16px;font-family:JetBrains Mono,monospace;font-size:9px;font-weight:700}
+.bg{background:rgba(26,122,60,.1);color:#1a7a3c;border:1px solid rgba(26,122,60,.25)}
+.br{background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25)}
+.by{background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.25)}
+.bp{background:rgba(108,52,131,.1);color:#6c3483;border:1px solid rgba(108,52,131,.25)}
+.bb{background:rgba(26,82,118,.1);color:#1a5276;border:1px solid rgba(26,82,118,.25)}
+/* LIST */
+.li{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.lim{flex:1;min-width:0}
+.lit{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lis{font-size:10px;color:var(--text3);margin-top:2px}
+.liamt{font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;flex-shrink:0}
+/* SEARCH ROW */
+.srow{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.srow .fi{flex:1;margin:0}
+/* SHEET */
+.sov{position:fixed;inset:0;background:rgba(26,18,8,.65);z-index:500;display:none;align-items:flex-end;justify-content:center;padding:0}
+.sov.open{display:flex;align-items:flex-end;justify-content:center}
+button{transition:opacity .1s}button:active{opacity:0.75}
+[data-kid]:active{opacity:0.7;transform:scale(0.98);}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:14px 16px 30px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-top:2px solid var(--gold)}
+.shandle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px}
+.stit{font-family:Syne,sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;color:var(--dark)}
+/* RADIO */
+.rgrp{display:flex;gap:8px;flex-wrap:wrap}
+.rbtn{padding:8px 13px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-family:Outfit,sans-serif;background:#fff;color:var(--text2);font-weight:500}
+.rbtn.on{border-color:var(--gold);background:rgba(184,134,11,.1);color:var(--gold);font-weight:700}
+/* GEWINN */
+.gbox{padding:10px 13px;background:var(--surface2);border-radius:10px;font-family:JetBrains Mono,monospace;font-weight:700;font-size:14px;color:var(--text3)}
+/* INFO */
+.ibox{background:#fdf5e0;border:1px solid rgba(184,134,11,.3);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+/* KALK */
+.kmain{background:linear-gradient(135deg,rgba(184,134,11,.1),rgba(212,160,23,.05));border:1px solid rgba(184,134,11,.3);border-radius:12px;padding:14px;text-align:center;margin-bottom:10px}
+.kprice{font-family:Syne,sans-serif;font-size:30px;font-weight:800;color:var(--gold)}
+.kksub{font-size:10px;color:var(--text3);margin-top:3px}
+.kkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.kkkpi{padding:9px;background:var(--surface2);border-radius:8px;text-align:center}
+.kkklbl{font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);letter-spacing:.5px;margin-bottom:2px}
+.kkkval{font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px}
+/* RESULT PH */
+.rph{text-align:center;padding:24px 14px;color:var(--text3)}
+.rphi{font-size:26px;margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="lbox">
+    <div class="lico">M</div>
+    <div class="ltit">MADCollectables</div>
+    <div class="lsub">CARD.WMS MOBILE</div>
+    <div id="lerr" class="lerr"></div>
+    <label class="llbl">Benutzername</label>
+    <input id="inp-user" class="linp" type="text" autocomplete="username" placeholder="benutzername">
+    <label class="llbl">Passwort</label>
+    <input id="inp-pass" class="linp" type="password" autocomplete="current-password" placeholder="passwort">
+    <button class="lbtn" id="loginBtn" type="button">Anmelden</button>
+  </div>
+</div>
+
+<div id="app" style="display:none;flex-direction:column;height:100%">
+  <div class="topbar">
+    <div class="tlogo">MAD<span>Collectables</span></div>
+    <div class="tright">
+      <div class="tusr" id="tusr"></div>
+      <button class="tlout" id="btn-logout">Logout</button>
+    </div>
+  </div>
+  <div class="syncbar"><div class="sdot" id="sdot"></div><span class="stxt" id="stxt">Verbinde...</span></div>
+  <div class="sarea" id="sarea">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="kgrid">
+        <div class="kpi" style="border-top-color:#b8860b"><div class="klbl">Bestand</div><div class="kval" id="d-b">0</div><div class="ksub" id="d-bs">0 graded</div></div>
+        <div class="kpi" style="border-top-color:#1a7a3c"><div class="klbl">Umsatz</div><div class="kval" id="d-u">0</div><div class="ksub" id="d-us">0 VK</div></div>
+        <div class="kpi" style="border-top-color:#d4a017"><div class="klbl">Gewinn</div><div class="kval" id="d-g">0</div><div class="ksub" id="d-r">ROI 0%</div></div>
+        <div class="kpi" style="border-top-color:#1a5276"><div class="klbl">Grading</div><div class="kval" id="d-gr">0</div><div class="ksub" id="d-grs">0 aktiv</div></div>
+      </div>
+      <div class="card"><div class="ctit">Letzte Aktivit&auml;ten</div><div id="d-letzte"></div></div>
+      <div class="card"><div class="ctit">Aktive Grading-Sendungen</div><div id="d-send"></div></div>
+    </div>
+
+    <!-- KARTEN -->
+    <div class="view" id="view-karten">
+      <div class="vrow"><div class="vtit">Karten</div><button class="btn bgold bsm" id="btn-nk">+ Karte</button></div>
+      <div class="srow">
+        <input id="ks" class="fi" placeholder="Suche...">
+        <input id="kl" class="fi" placeholder="Lager..." style="max-width:100px">
+      </div>
+      <div id="klist"></div>
+    </div>
+
+    <!-- TRANS -->
+    <div class="view" id="view-trans">
+      <div class="vtit">Verkauf &amp; Trade</div>
+      <div class="brow"><button class="btn bgrn" id="btn-nvk">+ Verkauf</button><button class="btn bpur" id="btn-ntr">+ Trade</button></div>
+      <div id="tlist"></div>
+    </div>
+
+    <!-- GRADING -->
+    <div class="view" id="view-grading">
+      <div class="vrow"><div class="vtit">Grading</div><button class="btn bgold bsm" id="btn-nsdg">+ Sendung</button></div>
+      <div id="glist"></div>
+    </div>
+
+    <!-- RESEARCH -->
+    <div class="view" id="view-research">
+      <div class="vtit">KI-Research</div>
+      <div class="card">
+        <div class="ctit">Karte suchen</div>
+        <div class="fg"><label class="flbl">Aus Inventar</label><select id="rsel" class="fi"><option value="">-- ausw&auml;hlen --</option></select></div>
+        <div class="fg"><label class="flbl">Oder manuell</label><input id="rtxt" class="fi" placeholder="z.B. Charizard Base Set"></div>
+        <button class="btn bgold" id="btn-rs">Suchen</button>
+      </div>
+      <div class="card"><div class="ctit">&#128200; Cardmarket</div><div id="rcm"><div class="rph"><div class="rphi">&#128200;</div><div>Karte ausw&auml;hlen</div></div></div></div>
+      <div class="card"><div class="ctit">&#128722; eBay letzte Verk&auml;ufe</div><div id="rebay"><div class="rph"><div class="rphi">&#128722;</div><div>Karte ausw&auml;hlen</div></div></div></div>
+      <div class="card" id="rempf" style="display:none"><div class="ctit">&#129302; Auswertung</div><div id="rempfc"></div></div>
+    </div>
+
+    <!-- KALKULATION -->
+    <div class="view" id="view-kalkulation">
+      <div class="vtit">Kalkulation</div>
+      <div class="card">
+        <div class="ctit">VK-Preis berechnen</div>
+        <div class="fg"><label class="flbl">Karte (optional)</label><select id="kk-karte" class="fi"><option value="">-- Manuell --</option></select></div>
+        <div class="fg2">
+          <div class="fg"><label class="flbl">EK (EUR) *</label><input id="kk-ek" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+          <div class="fg"><label class="flbl">Grading (EUR)</label><input id="kk-grade" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+          <div class="fg"><label class="flbl">Versand (EUR)</label><input id="kk-versand" class="fi" type="number" value="1.50" inputmode="decimal"></div>
+          <div class="fg"><label class="flbl">Zielmarge (%)</label><input id="kk-marge" class="fi" type="number" value="30"></div>
+        </div>
+        <div class="fg"><label class="flbl">Plattform</label>
+          <select id="kk-plattform" class="fi">
+            <option value="cardmarket">Cardmarket (5% + 0,30)</option>
+            <option value="ebay">eBay (12,8% + 0,35)</option>
+            <option value="vinted">Vinted (5%)</option>
+            <option value="instagram">Privat (0%)</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">Einkaufsart</label>
+          <select id="kk-einkauf" class="fi"><option value="privat">Privat (&sect;25a)</option><option value="gewerbe">Gewerbe (19%)</option></select>
+        </div>
+        <button class="btn bgold" id="btn-kk">Berechnen</button>
+      </div>
+      <div id="kk-res-card" style="display:none" class="card"><div class="ctit">Ergebnis</div><div id="kk-res"></div></div>
+    </div>
+
+    <!-- PROFIL -->
+    <div class="view" id="view-profil">
+      <div class="vtit">Mein Profil</div>
+      <div class="card" style="display:flex;align-items:center;gap:12px">
+        <div id="pav" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:#1a1208;flex-shrink:0">?</div>
+        <div style="min-width:0"><div id="pnd" style="font-family:Syne,sans-serif;font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">-</div><div id="prd" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);margin-top:2px">-</div></div>
+      </div>
+      <div class="card">
+        <div class="ctit">Profildaten</div>
+        <div class="fg"><label class="flbl">Name</label><input id="pname" class="fi" placeholder="Vor- und Nachname"></div>
+        <div class="fg"><label class="flbl">Benutzername</label><input id="puser" class="fi" readonly style="background:var(--surface2);color:var(--text3)"></div>
+        <div class="fg"><label class="flbl">E-Mail</label><input id="pemail" class="fi" type="email" placeholder="deine@email.de"></div>
+        <button class="btn bgold" id="btn-sp">Speichern</button>
+      </div>
+      <div class="card">
+        <div class="ctit">Passwort &auml;ndern</div>
+        <div class="fg"><label class="flbl">Aktuelles PW</label><input id="ppold" class="fi" type="password"></div>
+        <div class="fg"><label class="flbl">Neues PW</label><input id="ppnew" class="fi" type="password" placeholder="mind. 4 Zeichen"></div>
+        <div class="fg"><label class="flbl">Wiederholen</label><input id="ppnew2" class="fi" type="password"></div>
+        <div id="pperr" style="display:none;background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:9px;font-size:12px;color:var(--red);margin-bottom:8px"></div>
+        <button class="btn bgrn" id="btn-cp">Passwort &auml;ndern</button>
+      </div>
+      <button class="btn bout" id="btn-lop" style="border-color:rgba(192,57,43,.3);color:var(--red);margin-top:4px">Abmelden</button>
+    </div>
+
+  </div><!-- sarea -->
+
+  <nav class="bnav">
+    <button class="nbtn active" data-v="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Board</span></button>
+    <button class="nbtn" data-v="karten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span>Karten</span></button>
+    <button class="nbtn" data-v="trans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg><span>Verkauf</span></button>
+    <button class="nbtn" data-v="grading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Grading</span></button>
+    <button class="nbtn" data-v="research"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Research</span></button>
+    <button class="nbtn" data-v="kalkulation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg><span>Kalkul.</span></button>
+    <button class="nbtn" data-v="profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Profil</span></button>
+  </nav>
+</div>
+
+<!-- SHEETS -->
+<div class="sov" id="ovK" style="display:none">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stit" id="stK">Karte erfassen</div>
+    <div class="fg"><label class="flbl">Name *</label><input id="kfn" class="fi" placeholder="z.B. Charizard Base Set"></div>
+    <div class="fg"><label class="flbl">Serie</label><select id="kfs" class="fi"><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option><option>Sonstige</option></select></div>
+    <div class="fg"><label class="flbl">Set / Edition</label><input id="kfset" class="fi" placeholder="z.B. Base Set 1st Ed."></div>
+    <div class="fg"><label class="flbl">Lagerort</label><input id="kflag" class="fi" placeholder="z.B. Binder A, Fach 3"></div>
+    <div class="fg"><label class="flbl">Kondition</label><div class="rgrp" id="kfkg"><div class="rbtn on" data-val="Raw">Raw</div><div class="rbtn" data-val="PSA">PSA</div><div class="rbtn" data-val="BGS">BGS</div></div></div>
+    <div id="kfnb" style="display:none" class="fg"><label class="flbl">Note</label><select id="kfnote" class="fi"><option value="10">10 - Gem Mint</option><option value="9.5">9.5</option><option value="9">9 - Mint</option><option value="8.5">8.5</option><option value="8">8 - NM-MT</option><option value="7">7 - NM</option><option value="6">6 - EX-MT</option><option value="5">5 - EX</option><option value="4">4 - VG-EX</option><option value="3">3 - VG</option></select></div>
+    <div class="fg"><label class="flbl">Einkaufsart</label><select id="kfei" class="fi"><option value="privat">Privat (&sect;25a)</option><option value="gewerbe">Gewerbe (19%)</option></select></div>
+    <div class="fg2">
+      <div class="fg"><label class="flbl">EK (EUR) *</label><input id="kfek" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+      <div class="fg"><label class="flbl">Marktwert</label><input id="kfmw" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+    </div>
+    <div class="fg"><label class="flbl">Quelle</label><input id="kfq" class="fi" placeholder="Cardmarket, eBay..."></div>
+    <button class="btn bgold" id="btn-sk">Speichern</button>
+    <button class="btn bout" id="btn-ak" style="margin-top:8px">Abbrechen</button>
+  </div>
+</div>
+
+<div class="sov" id="ovVK" style="display:none">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stit">Verkauf eintragen</div>
+    <div class="fg"><label class="flbl">Karte *</label><select id="vfk" class="fi"></select></div>
+    <div class="fg"><label class="flbl">Plattform</label><select id="vfp" class="fi"><option>Cardmarket</option><option>eBay</option><option>Vinted</option><option>Instagram</option><option>Privat</option><option>Sonstiges</option></select></div>
+    <div class="fg2">
+      <div class="fg"><label class="flbl">EK (EUR)</label><input id="vfek" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+      <div class="fg"><label class="flbl">VK (EUR) *</label><input id="vfvk" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+    <div class="fg"><label class="flbl">Gewinn</label><div class="gbox" id="vfgd">VK eingeben</div></div>
+    <div class="fg"><label class="flbl">Datum</label><input id="vfd" class="fi" type="date"></div>
+    <button class="btn bgrn" id="btn-svk">Speichern</button>
+    <button class="btn bout" id="btn-avk" style="margin-top:8px">Abbrechen</button>
+  </div>
+</div>
+
+<div class="sov" id="ovTR" style="display:none">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stit">Trade dokumentieren</div>
+    <div class="fg"><label class="flbl">Karte abgegeben *</label><select id="tfk" class="fi"></select></div>
+    <div class="fg2">
+      <div class="fg"><label class="flbl">Wert raus (EUR)</label><input id="tfr" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+      <div class="fg"><label class="flbl">Wert rein (EUR)</label><input id="tfe" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+    <div class="fg"><label class="flbl">Erhaltene Karte</label><input id="tft" class="fi" placeholder="z.B. Pikachu Illustrator"></div>
+    <div class="fg"><label class="flbl">Differenz</label><div class="gbox" id="tfdd">-</div></div>
+    <div class="fg"><label class="flbl">Datum</label><input id="tfd" class="fi" type="date"></div>
+    <button class="btn bpur" id="btn-str">Speichern</button>
+    <button class="btn bout" id="btn-atr" style="margin-top:8px">Abbrechen</button>
+  </div>
+</div>
+
+<div class="sov" id="ovSDG" style="display:none">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="stit">Grading-Sendung</div>
+    <div class="fg"><label class="flbl">Name *</label><input id="sfn" class="fi" placeholder="z.B. PSA Batch #5"></div>
+    <div class="fg2">
+      <div class="fg"><label class="flbl">Dienst</label><select id="sfd" class="fi"><option value="PSA">PSA</option><option value="BGS">BGS</option></select></div>
+      <div class="fg"><label class="flbl">Datum</label><input id="sfdat" class="fi" type="date"></div>
+      <div class="fg"><label class="flbl">Versand (EUR)</label><input id="sfv" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+      <div class="fg"><label class="flbl">Geb&uuml;hr (EUR)</label><input id="sfg" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+    </div>
+    <div class="fg">
+      <label class="flbl">Karte hinzuf&uuml;gen</label>
+      <div class="srow"><select id="sfka" class="fi"></select><button class="btn bgold bsm" id="btn-asdgk" style="flex-shrink:0">+</button></div>
+    </div>
+    <div id="sfkl" style="margin-bottom:10px"></div>
+    <button class="btn bgold" id="btn-ssdg">Speichern</button>
+    <button class="btn bout" id="btn-asdg" style="margin-top:8px">Abbrechen</button>
+  </div>
+</div>
+
+<script>
+var SB_URL='https://wswzqvmcqpvhnvfxguet.supabase.co';
+var SB_KEY='sb_publishable_56jBWWLVnDzy9TNYY9yGYA_OGM4cidc';
+var PROXY='https://api.allorigins.win/get?url=';
+var db={karten:[],transaktionen:[],sendungen:[],ausgaben:[],benutzer:[],einstellungen:{}};
+var cu=null,_sk=[],_keid=null;
+var FEES={cardmarket:{pct:.05,fix:.30},ebay:{pct:.128,fix:.35},vinted:{pct:.05,fix:0},instagram:{pct:0,fix:0}};
+
+function el(id){return document.getElementById(id);}
+function fmt(n){return parseFloat(n||0).toFixed(2);}
+function today(){return new Date().toISOString().split('T')[0];}
+function pSort(d){if(!d)return 0;return new Date(d).getTime()||0;}
+function hashPass(p,s){var str=s+p+'MAD_WMS_SALT_2025',h=5381;for(var i=0;i<str.length;i++){h=((h<<5)+h)+str.charCodeAt(i);h=h&h;}return Math.abs(h).toString(16).padStart(8,'0')+str.length.toString(16);}
+
+function toast(m,ok){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:'+(ok===false?'#c0392b':'#1a7a3c')+';color:#fff;padding:9px 16px;border-radius:20px;font-family:JetBrains Mono,monospace;font-size:11px;z-index:9999;max-width:85vw;text-align:center';document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
+function os(id){var e=el(id);if(e){e.classList.add('open');e.style.display='flex';}}
+function cs(id){var e=el(id);if(e){e.classList.remove('open');e.style.display='none';}}
+function sync(s){var d=el('sdot'),t=el('stxt');if(s==='ok'){if(d)d.style.background='#1a7a3c';if(t)t.textContent='Synchronisiert';}if(s==='load'){if(d)d.style.background='#b8860b';if(t)t.textContent='Laden...';}if(s==='err'){if(d)d.style.background='#c0392b';if(t)t.textContent='Fehler';}}
+
+function sbF(m,tb,q,b){return fetch(SB_URL+'/rest/v1/'+tb+(q?'?'+q:''),{method:m,headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates'},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json();});}
+function sbGA(t){return sbF('GET',t,'select=id,data').catch(function(){return[];});}
+function sbU(t,id,d){return sbF('POST',t,null,{id:id,data:d,updated_at:new Date().toISOString()}).catch(function(){});}
+function sbD(t,id){return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){});}
+
+function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};sync('ok');}).catch(function(){sync('err');});}
+function saveDB(){sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
+
+function doLogin(){
+  var un=el('inp-user').value.trim().toLowerCase();
+  var pw=el('inp-pass').value;
+  var err=el('lerr');
+  if(!un||!pw){err.textContent='Felder ausf\u00fcllen';err.style.display='block';return;}
+  var btn=el('loginBtn');
+  if(btn){btn.textContent='Laden...';btn.disabled=true;}
+  if(err)err.style.display='none';
+  function tryLogin(){
+    var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});
+    if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}
+    if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}
+    cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();
+    el('loginScreen').style.display='none';el('app').style.display='flex';
+    var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};
+    if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');
+    if(btn){btn.textContent='Anmelden';btn.disabled=false;}
+    renderAll();setInterval(function(){loadDB().then(renderAll);},30000);
+  }
+  if(db.benutzer.length>0){tryLogin();}
+  else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true,erstellt:new Date().toLocaleDateString('de-DE'),letzterLogin:null}];}tryLogin();}).catch(function(){tryLogin();});}
+}
+function doLogout(){cu=null;el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
+
+function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='profil')rProfil();}
+function renderAll(){rDash();rKarten();rTrans();rGrading();}
+
+function rDash(){var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;var gr=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;var zg=db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});var um=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);var gw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);var ek=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);var roi=ek>0?(gw/ek*100).toFixed(0):0;var as=db.sendungen.filter(function(s){return s&&s.status==='Unterwegs';});if(el('d-b'))el('d-b').textContent=b;if(el('d-bs'))el('d-bs').textContent=gr+' graded';if(el('d-u'))el('d-u').textContent=fmt(um);if(el('d-us'))el('d-us').textContent=vk.length+' VK';if(el('d-g'))el('d-g').textContent=fmt(gw);if(el('d-r'))el('d-r').textContent='ROI '+roi+'%';if(el('d-gr'))el('d-gr').textContent=zg;if(el('d-grs'))el('d-grs').textContent=as.length+' aktiv';var lt=db.transaktionen.slice(-5).reverse();if(el('d-letzte')){if(!lt.length){el('d-letzte').innerHTML='<div class="rph" style="padding:16px"><div>Noch keine Aktivit\u00e4ten</div></div>';return;}el('d-letzte').innerHTML=lt.map(function(tx){var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));return '<div class="li"><span class="bd '+(tx.typ==='verkauf'?'bg':'bp')+'">'+(tx.typ==='verkauf'?'VK':'TR')+'</span><div class="lim"><div class="lit">'+(tx.kartenName||'-')+'</div><div class="lis">'+(tx.datum||'-')+'</div></div><div class="liamt" style="color:'+(g>=0?'var(--green)':'var(--red)')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';}).join('');}if(el('d-send')){var ak=db.sendungen.filter(function(s){return s&&(s.status==='Unterwegs'||s.status==='Zurueck');});if(!ak.length){el('d-send').innerHTML='<div class="rph" style="padding:16px"><div>Keine aktiven Sendungen</div></div>';return;}el('d-send').innerHTML=ak.map(function(s){return '<div class="li"><span class="bd by">'+s.dienst+'</span><div class="lim"><div class="lit">'+s.name+'</div><div class="lis">'+s.karten.length+' Karten \u00b7 '+fmt(s.gesamt)+' EUR</div></div><span class="bd '+(s.status==='Unterwegs'?'by':'bb')+'">'+s.status+'</span></div>';}).join('');}}
+
+function rKarten(){
+  var sv=(el('ks')?el('ks').value:'').toLowerCase();
+  var lv=(el('kl')?el('kl').value:'').toLowerCase();
+  var li=el('klist');
+  if(!li)return;
+  var f=db.karten.filter(function(k){
+    if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;
+    if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;
+    if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;
+    return true;
+  });
+  if(!f.length){
+    li.innerHTML='<div class="rph"><div>'+(!db.karten.length?'Noch keine Karten':'Keine Treffer')+'</div></div>';
+    return;
+  }
+  var rows=[];
+  f.forEach(function(k){
+    var ek=parseFloat(k.ek||0),mw=parseFloat(k.marktwert||0),di=mw-ek;
+    var priceVal=mw>0?mw:ek;
+    var html='<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(184,134,11,0.06)">';
+    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+    html+='<div style="flex:1;min-width:0">';
+    html+='<div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+k.name+'</div>';
+    html+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">';
+    html+='<span class="bd by">'+k.serie+'</span>';
+    if(k.kondition!=='Raw')html+='<span class="bd by">'+k.kondition+' '+k.note+'</span>';
+    if(k.lager)html+='<span class="bd bb">'+k.lager+'</span>';
+    html+='</div></div>';
+    html+='<div style="text-align:right;flex-shrink:0">';
+    html+='<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">MW: '+fmt(priceVal)+' \u20ac</div>';
+    html+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
+if(mw>0&&di!==0)html+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+(di>=0?'#1a7a3c':'#c0392b')+'">'+(di>=0?'+':'')+fmt(di)+'</div>';
+    html+='</div></div>';
+    html+='<div style="display:flex;justify-content:flex-start">';
+    html+='<button id="edit-'+k.id+'" style="padding:5px 14px;background:rgba(184,134,11,0.12);color:#b8860b;border:1px solid rgba(184,134,11,0.35);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">\u270e Bearbeiten</button>';
+    html+='</div></div>';
+    rows.push({id:k.id,html:html});
+  });
+  li.innerHTML=rows.map(function(r){return r.html;}).join('');
+  rows.forEach(function(r){
+    var btn=document.getElementById('edit-'+r.id);
+    if(btn)btn.onclick=function(){openKM(''+r.id);};
+  });
+}
+
+
+window._editKarte=function(idx){
+  var k=db.karten[idx];
+  if(!k)return;
+  openKM(k.id);
+};
+
+function openKM(id){_keid=id||null;if(el('stK'))el('stK').textContent=id?'Karte bearbeiten':'Karte erfassen';if(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('kfn'))el('kfn').value=k.name||'';if(el('kfs'))el('kfs').value=k.serie||'Pokemon';if(el('kfset'))el('kfset').value=k.set||'';if(el('kflag'))el('kflag').value=k.lager||'';if(el('kfek'))el('kfek').value=k.ek||'';if(el('kfmw'))el('kfmw').value=k.marktwert||'';if(el('kfq'))el('kfq').value=k.quelle||'';if(el('kfei'))el('kfei').value=k.einkauf||'privat';setK(k.kondition||'Raw');if(k.note&&el('kfnote'))el('kfnote').value=k.note;}else{['kfn','kfset','kflag','kfek','kfmw','kfq'].forEach(function(f){if(el(f))el(f).value='';});if(el('kfs'))el('kfs').value='Pokemon';if(el('kfei'))el('kfei').value='privat';setK('Raw');}os('ovK');}
+function setK(v){document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.classList.toggle('on',b.dataset.val===v);});if(el('kfnb'))el('kfnb').style.display=v==='Raw'?'none':'block';}
+function saveK(){var n=el('kfn')?el('kfn').value.trim():'';var ek=el('kfek')?el('kfek').value:'';if(!n){toast('Name erforderlich',false);return;}if(!ek){toast('EK erforderlich',false);return;}var kv='Raw';document.querySelectorAll('#kfkg .rbtn.on').forEach(function(b){kv=b.dataset.val;});var k={id:_keid||('K'+Date.now()),name:n,serie:el('kfs')?el('kfs').value:'Pokemon',set:el('kfset')?el('kfset').value:'',lager:el('kflag')?el('kflag').value:'',kondition:kv,note:(kv!=='Raw'&&el('kfnote'))?el('kfnote').value:'',einkauf:el('kfei')?el('kfei').value:'privat',ek:parseFloat(ek)||0,marktwert:parseFloat(el('kfmw')?el('kfmw').value:0)||0,quelle:el('kfq')?el('kfq').value:'',status:'Im Bestand',kaufdatum:today()};if(_keid){var idx=db.karten.findIndex(function(x){return x.id===_keid;});if(idx>=0)db.karten[idx]=k;}else db.karten.push(k);cs('ovK');saveDB();rKarten();rDash();toast(_keid?'Aktualisiert!':'Gespeichert!');_keid=null;}
+
+function rTrans(){var li=el('tlist');if(!li)return;var s=db.transaktionen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);}).slice(0,30);if(!s.length){li.innerHTML='<div class="rph"><div>Noch keine Transaktionen</div></div>';return;}li.innerHTML=s.map(function(tx){var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));return '<div class="li"><span class="bd '+(tx.typ==='verkauf'?'bg':'bp')+'">'+(tx.typ==='verkauf'?'VK':'TR')+'</span><div class="lim"><div class="lit">'+(tx.kartenName||'-')+'</div><div class="lis">'+(tx.typ==='verkauf'?tx.plattform:('Rein: '+(tx.karteRein||'-')))+' \u00b7 '+(tx.datum||'-')+'</div></div><div class="liamt" style="color:'+(g>=0?'var(--green)':'var(--red)')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';}).join('');}
+
+function openVK(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('vfk'))el('vfk').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+'</option>';}).join('');if(el('vfd'))el('vfd').value=today();['vfek','vfvk'].forEach(function(f){if(el(f))el(f).value='';});if(el('vfgd')){el('vfgd').textContent='VK eingeben';el('vfgd').style.color='var(--text3)';}os('ovVK');}
+function saveVK(){var kid=el('vfk')?el('vfk').value:'';if(!kid){toast('Karte w\u00e4hlen',false);return;}var vv=el('vfvk')?el('vfvk').value:'';if(!vv){toast('VK eingeben',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var ek=parseFloat(el('vfek')?el('vfek').value:0)||(k?parseFloat(k.ek||0):0);var vkn=parseFloat(vv)||0;var tx={id:'T'+Date.now(),typ:'verkauf',kartenId:kid,kartenName:k?k.name:kid,plattform:el('vfp')?el('vfp').value:'',ek:ek,vk:vkn,gewinn:vkn-ek,datum:el('vfd')?el('vfd').value:today()};if(k)k.status='Verkauft';db.transaktionen.push(tx);cs('ovVK');saveDB();rTrans();rDash();toast('Verkauf gespeichert!');}
+
+function openTR(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('tfk'))el('tfk').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(el('tfd'))el('tfd').value=today();['tfr','tfe','tft'].forEach(function(f){if(el(f))el(f).value='';});if(el('tfdd')){el('tfdd').textContent='-';el('tfdd').style.color='var(--text3)';}os('ovTR');}
+function saveTR(){var kid=el('tfk')?el('tfk').value:'';if(!kid){toast('Karte w\u00e4hlen',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var wr=parseFloat(el('tfr')?el('tfr').value:0)||0;var we=parseFloat(el('tfe')?el('tfe').value:0)||0;var tx={id:'T'+Date.now(),typ:'trade',kartenId:kid,kartenName:k?k.name:kid,ek:k?parseFloat(k.ek||0):0,wertRaus:wr,karteRein:el('tft')?el('tft').value:'',wertRein:we,diff:we-wr,datum:el('tfd')?el('tfd').value:today()};if(k)k.status='Getauscht';db.transaktionen.push(tx);cs('ovTR');saveDB();rTrans();rDash();toast('Trade dokumentiert!');}
+
+function rGrading(){var li=el('glist');if(!li)return;var s=db.sendungen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});if(!s.length){li.innerHTML='<div class="rph"><div>Keine Grading-Sendungen</div></div>';return;}li.innerHTML=s.map(function(snd){var sc=snd.status==='Unterwegs'?'by':(snd.status==='Abgeschlossen'?'bg':'bb');return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">'+snd.name+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">'+snd.dienst+' \u00b7 '+(snd.karten||[]).length+' Karten \u00b7 '+fmt(snd.gesamt)+' EUR</div></div><span class="bd '+sc+'">'+snd.status+'</span></div>'+(snd.karten||[]).map(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><span>'+(k?k.name:ki.id)+'</span>'+(ki.note?'<span class="bd by">'+snd.dienst+' '+ki.note+'</span>':'<span style="font-size:10px;color:var(--text3)">Ausstehend</span>')+'</div>';}).join('')+'</div>';}).join('');}
+
+function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});if(el('sfka'))el('sfka').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');rSKL();os('ovSDG');}
+function rSKL(){var li=el('sfkl');if(!li)return;if(!_sk.length){li.innerHTML='';return;}li.innerHTML=_sk.map(function(ki,i){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div class="li" style="padding:8px"><div class="lim"><div class="lit">'+(k?k.name:ki.id)+'</div></div><button data-rm="'+i+'" style="border:none;background:rgba(192,57,43,.1);color:#c0392b;border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px">X</button></div>';}).join('');li.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){_sk.splice(parseInt(this.dataset.rm),1);rSKL();});});}
+function saveSDG(){var n=el('sfn')?el('sfn').value.trim():'';if(!n){toast('Name erforderlich',false);return;}var v=parseFloat(el('sfv')?el('sfv').value:0)||0;var g=parseFloat(el('sfg')?el('sfg').value:0)||0;var s={id:'S'+Date.now(),name:n,dienst:el('sfd')?el('sfd').value:'PSA',datum:el('sfdat')?el('sfdat').value:today(),status:'Unterwegs',versand:v,gebuehr:g,gesamt:v+g,karten:_sk.slice(),notizen:''};_sk.forEach(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});if(k&&k.status==='Im Bestand')k.status='Zum Grading';});db.sendungen.push(s);cs('ovSDG');saveDB();rGrading();rDash();toast('Sendung gespeichert!');}
+
+function rResearch(){var sel=el('rsel');if(!sel)return;var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});sel.innerHTML='<option value="">-- ausw\u00e4hlen --</option>'+b.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+'</option>';}).join('');}
+function doSearch(){var sel=el('rsel'),txt=el('rtxt');var term='';if(txt&&txt.value.trim())term=txt.value.trim();else if(sel&&sel.value){var k=db.karten.find(function(x){return x.id===sel.value;});if(k)term=k.name+(k.set?' '+k.set:'');}if(!term){toast('Suchbegriff eingeben',false);return;}sCM(term);sEbay(term);}
+
+function sCM(term){var b=el('rcm');if(!b)return;b.innerHTML='<div class="rph"><div class="rphi">\u23f3</div><div>Lade...</div></div>';var sel=el('rsel');var k=sel&&sel.value?db.karten.find(function(x){return x.id===sel.value;}):null;var serie=k?(k.serie==='Pokemon'?'Pokemon':(k.serie==='One Piece'?'OnePiece':'YuGiOh')):'Pokemon';var sel2=el('rsel');var kk=sel2&&sel2.value?db.karten.find(function(x){return x.id===sel2.value;}):null;
+  var searchNr=kk&&kk.nr?kk.nr:term;
+  var cu='https://www.cardmarket.com/de/'+serie+'/Products/Search?searchString='+encodeURIComponent(searchNr);
+  if(kk&&kk.nr){var nrHint=el('rcm');if(nrHint)nrHint.innerHTML='<div style="padding:4px 8px;background:var(--surface2);border-radius:6px;font-size:10px;color:var(--text3);margin-bottom:8px;font-family:JetBrains Mono,monospace">Suche nach Nr: <b>'+kk.nr+'</b></div>';}fetch(PROXY+encodeURIComponent(cu)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var re=/([0-9]+[,\.][0-9]{2})\s*\u20ac/g,m,ps=[];while((m=re.exec(h))!==null){var p=parseFloat(m[1].replace(',','.'));if(p>0.5&&p<50000)ps.push(p);}if(!ps.length){b.innerHTML='<div class="rph"><div>Keine Preise</div></div><a href="'+cu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">Cardmarket \u2197</a>';return;}ps.sort(function(a,c){return a-c;});var mn=ps[0],av=ps.slice(0,5).reduce(function(s,v){return s+v;},0)/Math.min(ps.length,5);b.innerHTML='<div style="display:flex;flex-direction:column;gap:7px">'+rv('G\u00fcnstigster','#1a7a3c',fmt(mn)+' \u20ac')+rv('Durchschnitt','var(--text)',fmt(av)+' \u20ac')+'</div>'+(k?'<button id="bam" data-id="'+k.id+'" data-val="'+av.toFixed(2)+'" class="btn bgrn" style="margin-top:8px;font-size:12px">Marktwert auf '+av.toFixed(2)+' \u20ac setzen</button>':'')+'<a href="'+cu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">Cardmarket \u2197</a>';var ab=el('bam');if(ab)ab.addEventListener('click',function(){var k2=db.karten.find(function(x){return x.id===this.dataset.id;}.bind(this));if(k2){k2.marktwert=parseFloat(this.dataset.val);saveDB();rKarten();toast('Marktwert gesetzt!');}});}).catch(function(){b.innerHTML='<a href="'+cu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">Cardmarket \u2197</a>';});}
+
+function sEbay(term){var b=el('rebay');if(!b)return;b.innerHTML='<div class="rph"><div class="rphi">\u23f3</div><div>Lade...</div></div>';var sel3=el('rsel');var km=sel3&&sel3.value?db.karten.find(function(x){return x.id===sel3.value;}):null;
+  var ebayTerm=term;
+  if(km&&km.kondition!=='Raw')ebayTerm=km.name+' '+km.kondition+' '+km.note;
+  var eu='https://www.ebay.de/sch/i.html?_nkw='+encodeURIComponent(ebayTerm+' trading card')+'&LH_Sold=1&LH_Complete=1&_sop=13&LH_DAYS=30&_ipg=25';fetch(PROXY+encodeURIComponent(eu)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var tr=/class="s-item__title[^"]*"[^>]*>(?:<span[^>]*>)?([^<]{5,80})/g;var pr=/class="s-item__price"[^>]*>\s*(?:<[^>]+>)?([^<\n]{3,20}EUR[^<\n]{0,5})/g;var ts=[],ps=[],m;while((m=tr.exec(h))!==null&&ts.length<5)ts.push(m[1].trim().replace(/&amp;/g,'&'));while((m=pr.exec(h))!==null&&ps.length<5){var p=parseFloat(m[1].replace(/[^\d,.]/g,'').replace(',','.'));ps.push(p>0.5?p:null);}var rows=[];for(var i=0;i<Math.min(ts.length,3);i++){if(ts[i]&&ts[i].length>4)rows.push({t:ts[i],p:ps[i]||null});}if(!rows.length){b.innerHTML='<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">eBay \u2197</a>';return;}var vp=rows.filter(function(r){return r.p;}).map(function(r){return r.p;});var av=vp.length?vp.reduce(function(s,p){return s+p;},0)/vp.length:null;var minP=Math.min.apply(null,vp);var maxP=Math.max.apply(null,vp);b.innerHTML=(av?'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px"><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">&Oslash; 30 TAGE</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">'+av.toFixed(2)+' \u20ac</div></div><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">MIN</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a7a3c">'+minP.toFixed(2)+'</div></div><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">MAX</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#c0392b">'+maxP.toFixed(2)+'</div></div></div>':'')+rows.slice(0,10).map(function(r){return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">'+r.t+'</div>'+(r.p?'<div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a7a3c">'+r.p.toFixed(2)+' \u20ac</div>':'<div style="font-size:10px;color:var(--text3)">n/v</div>')+'</div>';}).join('')+'<div style="font-size:10px;color:var(--text3);margin-top:6px;text-align:center">'+rows.length+' Verk\u00e4ufe der letzten 30 Tage</div>'+'<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">eBay \u2197</a>';}).catch(function(){b.innerHTML='<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">eBay \u2197</a>';});}
+
+function rv(l,c,v){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px;background:var(--surface2);border-radius:8px"><span style="font-size:11px;color:var(--text2)">'+l+'</span><span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:'+c+'">'+v+'</span></div>';}
+
+function rKalk(){var sel=el('kk-karte');if(!sel)return;var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});sel.innerHTML='<option value="">-- Manuell --</option>'+b.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');}
+function doKalk(){var ek=parseFloat(el('kk-ek')?el('kk-ek').value:0)||0;if(!ek){toast('EK eingeben',false);return;}var gr=parseFloat(el('kk-grade')?el('kk-grade').value:0)||0;var vs=parseFloat(el('kk-versand')?el('kk-versand').value:1.5)||1.5;var mg=parseFloat(el('kk-marge')?el('kk-marge').value:30)||30;var plt=el('kk-plattform')?el('kk-plattform').value:'cardmarket';var ei=el('kk-einkauf')?el('kk-einkauf').value:'privat';var fee=FEES[plt]||FEES.cardmarket;var ust=parseFloat(db.einstellungen.ustSatz||19)/100;var ku=db.einstellungen.kleinunternehmer==='ja';var gk=ek+gr+vs;var mn=Math.ceil(((gk+ek*(mg/100)+fee.fix)/(1-fee.pct))*20)/20;var emp=Math.ceil(mn*1.05*20)/20;var geb=emp*fee.pct+fee.fix;var net=emp-geb-vs;var gw=net-ek-gr;var mwst=ku?0:(ei==='privat'?(gw>0?(gw/(1+ust))*ust:0):(net/(1+ust))*ust);var gwns=gw-mwst;var roi=ek>0?((gw/ek)*100).toFixed(1):'0';var rc=el('kk-res-card');if(rc)rc.style.display='block';var r=el('kk-res');if(!r)return;r.innerHTML='<div class="kmain"><div style="font-size:9px;color:var(--text3);font-family:JetBrains Mono,monospace;letter-spacing:1px;margin-bottom:3px">EMPFOHLENER VK</div><div class="kprice">'+fmt(emp)+' \u20ac</div><div class="kksub">Minimum: '+fmt(mn)+' \u20ac</div></div><div class="kkgrid">'+kk('PLT-GEB.','#c0392b',fmt(geb)+' \u20ac')+kk('NETTO','var(--text)',fmt(net)+' \u20ac')+kk('GEWINN',(gw>=0?'#1a7a3c':'#c0392b'),(gw>=0?'+':'')+fmt(gw)+' \u20ac')+kk('ROI','var(--gold)',roi+'%')+'</div>'+(!ku?'<div style="padding:9px;background:'+(gwns>=0?'rgba(26,122,60,.08)':'rgba(192,57,43,.06)')+';border-radius:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text2)">Nach MwSt</span><span style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:'+(gwns>=0?'#1a7a3c':'#c0392b')+'">'+(gwns>=0?'+':'')+fmt(gwns)+' \u20ac</span></div>':'');}
+function kk(l,c,v){return '<div class="kkkpi"><div class="kkklbl">'+l+'</div><div class="kkkval" style="color:'+c+'">'+v+'</div></div>';}
+
+function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' \u00b7 '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';}
+function saveP(){if(!cu)return;var n=el('pname')?el('pname').value.trim():'';var e=el('pemail')?el('pemail').value.trim():'';if(!n){toast('Name darf nicht leer',false);return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;u.name=n;u.email=e;cu.name=n;cu.email=e;var av=el('pav');if(av)av.textContent=n[0].toUpperCase();if(el('pnd'))el('pnd').textContent=n;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(n||u.username)+' \u00b7 '+(R[u.rolle]||'');saveDB();toast('Profil gespeichert!');}
+function changeP(){if(!cu)return;var op=el('ppold')?el('ppold').value:'';var np=el('ppnew')?el('ppnew').value:'';var np2=el('ppnew2')?el('ppnew2').value:'';var err=el('pperr');if(err)err.style.display='none';function se(m){if(err){err.textContent=m;err.style.display='block';}}if(!op||!np||!np2){se('Alle Felder ausf\u00fcllen');return;}if(np.length<4){se('Mind. 4 Zeichen');return;}if(np!==np2){se('Nicht \u00fcbereinstimmend');return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;if(hashPass(op,u.salt)!==u.passHash){se('Aktuelles PW falsch');return;}var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(np,ns);cu.salt=ns;cu.passHash=u.passHash;['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});saveDB();toast('Passwort ge\u00e4ndert!');}
+
+document.addEventListener('DOMContentLoaded',function(){
+  el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
+  [el('inp-user'),el('inp-pass')].forEach(function(i){i&&i.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});});
+  el('btn-logout')&&el('btn-logout').addEventListener('click',doLogout);
+  document.querySelectorAll('.nbtn').forEach(function(b){b.addEventListener('click',function(){go(this.dataset.v);});});
+  el('btn-nk')&&el('btn-nk').addEventListener('click',function(){openKM(null);});
+  // Event delegation for karten list - handles all card clicks
+
+  el('btn-sk')&&el('btn-sk').addEventListener('click',saveK);
+  el('btn-ak')&&el('btn-ak').addEventListener('click',function(){cs('ovK');});
+  document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.addEventListener('click',function(){setK(this.dataset.val);});});
+  el('ks')&&el('ks').addEventListener('input',rKarten);
+  el('kl')&&el('kl').addEventListener('input',rKarten);
+  el('btn-nvk')&&el('btn-nvk').addEventListener('click',openVK);
+  el('btn-svk')&&el('btn-svk').addEventListener('click',saveVK);
+  el('btn-avk')&&el('btn-avk').addEventListener('click',function(){cs('ovVK');});
+  el('vfvk')&&el('vfvk').addEventListener('input',function(){var ek=parseFloat(el('vfek')?el('vfek').value:0)||0;var vk=parseFloat(this.value)||0;var d=el('vfgd');if(d){if(!vk){d.textContent='VK eingeben';d.style.color='var(--text3)';}else{var g=vk-ek;d.textContent=(g>=0?'+':'')+fmt(g)+' EUR';d.style.color=g>=0?'#1a7a3c':'#c0392b';}}});
+  el('vfk')&&el('vfk').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k&&el('vfek'))el('vfek').value=k.ek||'';});
+  el('btn-ntr')&&el('btn-ntr').addEventListener('click',openTR);
+  el('btn-str')&&el('btn-str').addEventListener('click',saveTR);
+  el('btn-atr')&&el('btn-atr').addEventListener('click',function(){cs('ovTR');});
+  [el('tfr'),el('tfe')].forEach(function(i){i&&i.addEventListener('input',function(){var r=parseFloat(el('tfr')?el('tfr').value:0)||0;var e=parseFloat(el('tfe')?el('tfe').value:0)||0;var d=el('tfdd');if(d){var di=e-r;d.textContent=(di>=0?'+':'')+fmt(di)+' EUR';d.style.color=di>=0?'#1a7a3c':'#c0392b';}});});
+  el('btn-nsdg')&&el('btn-nsdg').addEventListener('click',openSDG);
+  el('btn-ssdg')&&el('btn-ssdg').addEventListener('click',saveSDG);
+  el('btn-asdg')&&el('btn-asdg').addEventListener('click',function(){cs('ovSDG');});
+  el('btn-asdgk')&&el('btn-asdgk').addEventListener('click',function(){var s=el('sfka');if(!s||!s.value)return;if(_sk.find(function(ki){return ki.id===s.value;})){toast('Bereits drin',false);return;}_sk.push({id:s.value,note:null});rSKL();s.value='';});
+  el('btn-rs')&&el('btn-rs').addEventListener('click',doSearch);
+  el('rtxt')&&el('rtxt').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+  el('btn-kk')&&el('btn-kk').addEventListener('click',doKalk);
+  el('kk-karte')&&el('kk-karte').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k){if(el('kk-ek'))el('kk-ek').value=k.ek||'';if(el('kk-einkauf'))el('kk-einkauf').value=k.einkauf||'privat';}});
+  el('btn-sp')&&el('btn-sp').addEventListener('click',saveP);
+  el('btn-cp')&&el('btn-cp').addEventListener('click',changeP);
+  el('btn-lop')&&el('btn-lop').addEventListener('click',doLogout);
+  document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('open');});});
+  loadDB();
+});
+</script>
+</body>
+</html>
