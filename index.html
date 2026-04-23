@@ -8,939 +8,921 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MADCollectables">
 <meta name="theme-color" content="#1a1208">
-<meta name="app-version" content="2.1.0">
 <title>MADCollectables</title>
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#f5f0e8;--surface:#fffdf7;--surface2:#f0ead8;--border:#ddd5bc;--gold:#b8860b;--gold2:#d4a017;--dark:#1a1208;--text:#1a1208;--text2:#4a3f2a;--text3:#8c7a5a;--green:#1a7a3c;--red:#c0392b;--purple:#6c3483;}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:Outfit,sans-serif;display:flex;flex-direction:column;max-width:480px;margin:0 auto}
-#loginScreen{position:fixed;inset:0;background:linear-gradient(160deg,#1a1208,#2d2010);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
-.lbox{background:var(--surface);border:2px solid var(--gold);border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.lico{width:52px;height:52px;background:linear-gradient(135deg,#b8860b,#f0c040);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:#1a1208;margin:0 auto 14px}
-.ltit{font-family:Syne,sans-serif;font-size:20px;font-weight:800;text-align:center;color:var(--dark);margin-bottom:4px}
-.lsub{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);text-align:center;letter-spacing:1.5px;margin-bottom:22px}
-.lerr{background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red);margin-bottom:12px;display:none;text-align:center}
-.llbl{font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);font-weight:600;margin:12px 0 5px;display:block}
-.linp{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;font-family:Outfit,sans-serif;background:#fff;color:var(--dark);outline:none}
-.linp:focus{border-color:var(--gold)}
-.lbtn{width:100%;padding:14px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:12px;font-family:Syne,sans-serif;font-size:16px;font-weight:800;cursor:pointer;margin-top:16px}
-.topbar{flex-shrink:0;background:rgba(255,253,247,.97);border-bottom:2px solid var(--gold);padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
-.tlogo{font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--dark)}.tlogo span{color:var(--gold)}
-.tright{display:flex;align-items:center;gap:7px}
-.tusr{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text2);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tlout{background:rgba(192,57,43,.1);color:var(--red);border:1px solid rgba(192,57,43,.25);border-radius:16px;font-size:10px;font-family:JetBrains Mono,monospace;cursor:pointer;padding:4px 9px}
-.syncbar{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:4px 14px;background:rgba(26,18,8,.04);border-bottom:1px solid var(--border)}
-.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
-.stxt{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)}
-.sarea{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:72px}
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--dark);border-top:2px solid var(--gold);display:flex;z-index:100}
-.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 1px 11px;cursor:pointer;color:#5a4a2a;font-family:JetBrains Mono,monospace;font-size:7.5px;gap:3px;border:none;background:none;min-width:0;overflow:hidden}
-.nbtn.active{color:var(--gold2)}.nbtn svg{width:19px;height:19px;flex-shrink:0}.nbtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:center}
-.view{display:none;padding:14px}.view.active{display:block}
-.vtit{font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:14px;color:var(--dark)}
-.vrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.vrow .vtit{margin:0}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(184,134,11,.06)}
-.ctit{font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;color:var(--dark)}
-.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px;border-top:3px solid var(--gold)}
-.klbl{font-family:JetBrains Mono,monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
-.kval{font-family:Syne,sans-serif;font-size:19px;font-weight:800;color:var(--dark);line-height:1}
-.ksub{font-size:10px;color:var(--text3);margin-top:2px}
-.fg{margin-bottom:11px}
-.flbl{font-family:JetBrains Mono,monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);font-weight:600;margin-bottom:5px;display:block}
-.fi{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:Outfit,sans-serif;background:#fff;color:var(--dark);outline:none;-webkit-appearance:none}
-.fi:focus{border-color:var(--gold)}
-.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{padding:11px 16px;border:none;border-radius:10px;font-family:Outfit,sans-serif;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:4px}
-.bgold{background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;font-family:Syne,sans-serif;font-weight:800}
-.bgrn{background:#1a7a3c;color:#fff}.bpur{background:rgba(108,52,131,.12);color:#6c3483;border:1.5px solid rgba(108,52,131,.3)}
-.bred{background:rgba(192,57,43,.1);color:#c0392b;border:1.5px solid rgba(192,57,43,.3)}
-.bout{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
-.bsm{padding:7px 13px;font-size:12px;width:auto;border-radius:8px;margin-top:0}
-.brow{display:flex;gap:10px;margin-bottom:12px}.brow .btn{flex:1;margin-top:0}
-.bd{display:inline-block;padding:2px 8px;border-radius:16px;font-family:JetBrains Mono,monospace;font-size:9px;font-weight:700}
-.bg{background:rgba(26,122,60,.1);color:#1a7a3c;border:1px solid rgba(26,122,60,.25)}
-.br{background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25)}
-.by{background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.25)}
-.bp{background:rgba(108,52,131,.1);color:#6c3483;border:1px solid rgba(108,52,131,.25)}
-.bb{background:rgba(26,82,118,.1);color:#1a5276;border:1px solid rgba(26,82,118,.25)}
-.li{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px;margin-bottom:8px;display:flex;align-items:center;gap:9px}
-.lim{flex:1;min-width:0}.lit{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lis{font-size:10px;color:var(--text3);margin-top:2px}
-.liamt{font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;flex-shrink:0}
-.srow{display:flex;gap:8px;margin-bottom:12px;align-items:center}.srow .fi{flex:1;margin:0}
-.sov{position:fixed;inset:0;background:rgba(26,18,8,.65);z-index:500;display:none;align-items:flex-end;justify-content:center}
-.sov.open{display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:14px 16px 36px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:2px solid var(--gold)}
-.shandle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 12px}
-.stit{font-family:Syne,sans-serif;font-size:16px;font-weight:800;margin-bottom:14px;color:var(--dark)}
-.rgrp{display:flex;gap:8px;flex-wrap:wrap}
-.rbtn{padding:8px 13px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-family:Outfit,sans-serif;background:#fff;color:var(--text2);font-weight:500}
-.rbtn.on{border-color:var(--gold);background:rgba(184,134,11,.1);color:var(--gold);font-weight:700}
-.gbox{padding:10px 13px;background:var(--surface2);border-radius:10px;font-family:JetBrains Mono,monospace;font-weight:700;font-size:14px;color:var(--text3)}
-.divider{height:1px;background:var(--border);margin:12px 0}
-.rph{text-align:center;padding:24px 14px;color:var(--text3)}.rphi{font-size:26px;margin-bottom:6px}
-button{transition:opacity .1s}button:active{opacity:0.75}
+:root {
+  --bg: #f5f0e8;
+  --surface: #fffdf7;
+  --surface2: #f0ead8;
+  --border: #ddd5bc;
+  --gold: #b8860b;
+  --gold2: #d4a017;
+  --dark: #1a1208;
+  --text: #1a1208;
+  --text2: #4a3f2a;
+  --text3: #8c7a5a;
+  --green: #1a7a3c;
+  --red: #c0392b;
+  --purple: #6c3483;
+  --radius: 14px;
+  --radius2: 10px;
+  --radius3: 8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; min-height:100vh; max-width:480px; margin:0 auto; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  position:fixed; inset:0; background:linear-gradient(160deg,#1a1208,#2d2010);
+  display:flex; align-items:center; justify-content:center; z-index:999; padding:24px;
+}
+.login-box {
+  background:var(--surface); border:2px solid var(--gold); border-radius:20px;
+  padding:36px 28px; width:100%; max-width:380px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(184,134,11,0.15);
+}
+.login-logo {
+  width:56px; height:56px; background:linear-gradient(135deg,#b8860b,#f0c040);
+  border-radius:14px; display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#1a1208;
+  margin:0 auto 16px; border:1px solid var(--gold2);
+}
+.login-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; text-align:center; color:var(--dark); }
+.login-sub { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text3); text-align:center; letter-spacing:1.5px; margin-top:4px; margin-bottom:28px; }
+.login-label { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); font-weight:600; margin-bottom:6px; display:block; }
+.login-input {
+  width:100%; padding:13px 16px; border:1.5px solid var(--border); border-radius:10px;
+  font-size:16px; font-family:'Outfit',sans-serif; background:#fff; color:var(--dark);
+  outline:none; margin-bottom:14px;
+}
+.login-input:focus { border-color:var(--gold); }
+.login-btn {
+  width:100%; padding:15px; background:linear-gradient(135deg,#b8860b,#d4a017);
+  color:#1a1208; border:none; border-radius:12px; font-family:'Syne',sans-serif;
+  font-size:16px; font-weight:800; cursor:pointer; margin-top:6px; letter-spacing:0.3px;
+}
+.login-err {
+  background:#fef2f2; border:1px solid rgba(192,57,43,0.3); border-radius:8px;
+  padding:10px 14px; font-size:13px; color:var(--red); margin-bottom:14px; display:none; text-align:center;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position:sticky; top:0; z-index:100;
+  background:rgba(255,253,247,0.95); border-bottom:2px solid var(--gold);
+  padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter:blur(10px);
+}
+.topbar-logo { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; color:var(--dark); }
+.topbar-logo span { color:var(--gold); }
+.topbar-user { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text2); text-align:right; }
+.topbar-logout { background:rgba(192,57,43,0.1); color:var(--red); border:1px solid rgba(192,57,43,0.25); border-radius:20px; font-size:11px; font-family:'JetBrains Mono',monospace; cursor:pointer; padding:4px 10px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px; background:var(--dark); border-top:2px solid var(--gold);
+  display:flex; z-index:100;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:10px 4px 14px; cursor:pointer; color:#5a4a2a; font-family:'JetBrains Mono',monospace;
+  font-size:9px; letter-spacing:0.5px; gap:4px; transition:color .15s; border:none; background:none;
+}
+.nav-item.active { color:var(--gold2); }
+.nav-item svg { width:22px; height:22px; }
+
+/* ── CONTENT ── */
+.content { padding:16px 16px 90px; }
+
+/* ── VIEWS ── */
+.view { display:none; }
+.view.active { display:block; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px; margin-bottom:12px; box-shadow:0 2px 8px rgba(184,134,11,0.08);
+}
+.card-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:12px; color:var(--dark); }
+
+/* ── KPI GRID ── */
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius2); padding:14px; border-top:3px solid var(--gold); }
+.kpi-lbl { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text3); margin-bottom:4px; }
+.kpi-val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--dark); }
+.kpi-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom:14px; }
+.form-label { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); font-weight:600; margin-bottom:6px; display:block; }
+.form-input {
+  width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:var(--radius3);
+  font-size:15px; font-family:'Outfit',sans-serif; background:#fff; color:var(--dark);
+  outline:none; appearance:none;
+}
+.form-input:focus { border-color:var(--gold); }
+select.form-input { cursor:pointer; }
+
+/* ── BUTTONS ── */
+.btn { padding:13px 20px; border:none; border-radius:var(--radius3); font-family:'Outfit',sans-serif; font-size:15px; font-weight:600; cursor:pointer; width:100%; margin-top:4px; }
+.btn-gold { background:linear-gradient(135deg,#b8860b,#d4a017); color:#1a1208; font-family:'Syne',sans-serif; font-weight:800; }
+.btn-green { background:#1a7a3c; color:#fff; }
+.btn-purple { background:rgba(108,52,131,0.12); color:#6c3483; border:1.5px solid rgba(108,52,131,0.3); }
+.btn-outline { background:transparent; color:var(--text2); border:1.5px solid var(--border); }
+.btn-sm { padding:8px 16px; font-size:13px; width:auto; }
+.btn-row { display:flex; gap:10px; margin-top:12px; }
+.btn-row .btn { flex:1; }
+
+/* ── BADGES ── */
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; }
+.badge-green { background:rgba(26,122,60,0.1); color:#1a7a3c; border:1px solid rgba(26,122,60,0.25); }
+.badge-red { background:rgba(192,57,43,0.1); color:#c0392b; border:1px solid rgba(192,57,43,0.25); }
+.badge-gold { background:rgba(184,134,11,0.1); color:#b8860b; border:1px solid rgba(184,134,11,0.25); }
+.badge-purple { background:rgba(108,52,131,0.1); color:#6c3483; border:1px solid rgba(108,52,131,0.25); }
+.badge-blue { background:rgba(26,82,118,0.1); color:#1a5276; border:1px solid rgba(26,82,118,0.25); }
+
+/* ── LIST ITEMS ── */
+.list-item {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius2);
+  padding:14px; margin-bottom:8px; display:flex; align-items:center; gap:12px;
+}
+.list-item-main { flex:1; min-width:0; }
+.list-item-title { font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.list-item-sub { font-size:11px; color:var(--text3); margin-top:2px; }
+.list-item-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; flex-shrink:0; }
+
+/* ── MODAL BOTTOM SHEET ── */
+.sheet-overlay { position:fixed; inset:0; background:rgba(26,18,8,0.6); z-index:500; display:none; }
+.sheet-overlay.open { display:block; }
+.sheet {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px; background:var(--surface);
+  border-radius:24px 24px 0 0; padding:20px 20px 36px;
+  z-index:501; max-height:92vh; overflow-y:auto;
+  border-top:2px solid var(--gold);
+}
+.sheet-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+.sheet-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; margin-bottom:20px; color:var(--dark); }
+
+/* ── SYNC INDICATOR ── */
+.sync-bar { display:flex; align-items:center; gap:6px; padding:8px 16px; background:rgba(26,18,8,0.04); border-bottom:1px solid var(--border); }
+.sync-dot { width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.sync-txt { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text3); letter-spacing:0.5px; }
+
+/* ── KONDITION RADIO ── */
+.radio-group { display:flex; gap:8px; flex-wrap:wrap; }
+.radio-btn { padding:9px 16px; border:1.5px solid var(--border); border-radius:var(--radius3); cursor:pointer; font-size:14px; font-family:'Outfit',sans-serif; background:#fff; color:var(--text2); font-weight:500; }
+.radio-btn.on { border-color:var(--gold); background:rgba(184,134,11,0.1); color:var(--gold); font-weight:700; }
+
+/* ── EMPTY ── */
+.empty { text-align:center; padding:40px 20px; color:var(--text3); }
+.empty-icon { font-size:36px; margin-bottom:10px; opacity:0.4; }
+.empty-txt { font-size:14px; font-weight:500; color:var(--text2); }
+
+/* ── GEWINN DISPLAY ── */
+.gewinn-display { padding:12px 14px; background:var(--surface2); border-radius:var(--radius3); font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; color:var(--text3); margin-top:4px; }
 </style>
 </head>
 <body>
+
+<!-- LOGIN -->
 <div id="loginScreen">
-  <div class="lbox">
-    <div class="lico">M</div>
-    <div class="ltit">MADCollectables</div>
-    <div class="lsub">CARD.WMS MOBILE</div>
-    <div id="lerr" class="lerr"></div>
-    <label class="llbl">Benutzername</label>
-    <input id="inp-user" class="linp" type="text" autocomplete="username" placeholder="benutzername">
-    <label class="llbl">Passwort</label>
-    <input id="inp-pass" class="linp" type="password" autocomplete="current-password" placeholder="passwort">
-    <button class="lbtn" id="loginBtn" type="button">Anmelden</button>
+  <div class="login-box">
+    <div class="login-logo">M</div>
+    <div class="login-title">MADCollectables</div>
+    <div class="login-sub">CARD.WMS MOBILE</div>
+    <div id="loginErr" class="login-err"></div>
+    <label class="login-label">Benutzername</label>
+    <input id="inp-user" class="login-input" type="text" autocomplete="username" placeholder="benutzername">
+    <label class="login-label">Passwort</label>
+    <input id="inp-pass" class="login-input" type="password" autocomplete="current-password" placeholder="passwort">
+    <button class="login-btn" id="loginBtn" type="button">Anmelden</button>
   </div>
 </div>
 
-<div id="app" style="display:none;flex-direction:column;height:100%">
+<!-- APP -->
+<div id="app" style="display:none">
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="tlogo">MAD<span>Collectables</span></div>
-    <div class="tright"><div class="tusr" id="tusr"></div><button class="tlout" id="btn-logout">Logout</button></div>
+    <div>
+      <div class="topbar-logo">MAD<span>Collectables</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="topbar-user" id="topbar-info"></div>
+      <button class="topbar-logout" id="btn-logout">Logout</button>
+    </div>
   </div>
-  <div class="syncbar"><div class="sdot" id="sdot"></div><span class="stxt" id="stxt">Verbinde...</span></div>
-  
-<div id="viewer-banner" style="display:none;background:linear-gradient(135deg,#b8860b,#d4a017);padding:8px 14px;align-items:center;justify-content:space-between;flex-shrink:0">
-  <div style="font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;color:#1a1208">&#128065; VIEWER-MODUS AKTIV</div>
-  <button id="btn-exit-viewer" style="background:rgba(26,18,8,0.2);color:#1a1208;border:none;border-radius:6px;padding:4px 10px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">Beenden</button>
-</div>
 
-<div class="sarea" id="sarea">
+  <!-- SYNC BAR -->
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span class="sync-txt" id="sync-txt">Verbinde...</span>
+  </div>
 
+  <!-- CONTENT AREA -->
+  <div class="content">
+
+    <!-- DASHBOARD VIEW -->
     <div class="view active" id="view-dashboard">
-      <div id="viewer-dash" style="display:none"></div>
-      <div style="margin-bottom:12px"><button id="btn-viewer-mode" style="width:100%;padding:11px;background:rgba(184,134,11,0.1);color:#b8860b;border:1.5px solid rgba(184,134,11,0.4);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">&#128065; Viewer-Modus aktivieren</button></div>
-      <div class="kgrid">
-        <div class="kpi" style="border-top-color:#b8860b"><div class="klbl">Bestand</div><div class="kval" id="d-b">0</div><div class="ksub" id="d-bs">0 graded</div></div>
-        <div class="kpi" style="border-top-color:#1a7a3c"><div class="klbl">Umsatz</div><div class="kval" id="d-u">0</div><div class="ksub" id="d-us">0 VK</div></div>
-        <div class="kpi" style="border-top-color:#d4a017"><div class="klbl">Gewinn</div><div class="kval" id="d-g">0</div><div class="ksub" id="d-r">ROI 0%</div></div>
-        <div class="kpi" style="border-top-color:#1a5276"><div class="klbl">Grading</div><div class="kval" id="d-gr">0</div><div class="ksub" id="d-grs">0 aktiv</div></div>
+      <div class="kpi-grid">
+        <div class="kpi" style="border-top-color:#b8860b"><div class="kpi-lbl">Im Bestand</div><div class="kpi-val" id="d-bestand">0</div><div class="kpi-sub" id="d-bestand-sub">0 graded</div></div>
+        <div class="kpi" style="border-top-color:#1a7a3c"><div class="kpi-lbl">Umsatz</div><div class="kpi-val" id="d-umsatz">0</div><div class="kpi-sub" id="d-umsatz-sub">0 Verkäufe</div></div>
+        <div class="kpi" style="border-top-color:#d4a017"><div class="kpi-lbl">Gewinn</div><div class="kpi-val" id="d-gewinn">0</div><div class="kpi-sub" id="d-roi">ROI 0%</div></div>
+        <div class="kpi" style="border-top-color:#1a5276"><div class="kpi-lbl">Beim Grading</div><div class="kpi-val" id="d-grading">0</div><div class="kpi-sub" id="d-grading-sub">0 Sendungen</div></div>
       </div>
-      <div class="card"><div class="ctit">Letzte Aktivit&auml;ten</div><div id="d-letzte"></div></div>
-      <div class="card"><div class="ctit">Aktive Grading-Sendungen</div><div id="d-send"></div></div>
+
+      <div class="card">
+        <div class="card-title">Letzte Aktivitäten</div>
+        <div id="d-letzte"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Aktive Grading-Sendungen</div>
+        <div id="d-sendungen"></div>
+      </div>
     </div>
 
+    <!-- KARTEN VIEW -->
     <div class="view" id="view-karten">
-      <div class="vrow"><div class="vtit">Karten</div><button class="btn bgold bsm" id="btn-nk">+ Karte</button></div>
-      <div class="srow"><input id="ks" class="fi" placeholder="Suche..."><input id="kl" class="fi" placeholder="Lager..." style="max-width:100px"></div>
-      <div id="klist"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800">Karten</div>
+        <button class="btn btn-gold btn-sm" id="btn-neue-karte">+ Neue Karte</button>
+      </div>
+      <input id="kart-search" class="form-input" placeholder="Suche..." style="margin-bottom:12px">
+      <div id="karten-list"></div>
     </div>
 
+    <!-- TRANSAKTIONEN VIEW -->
     <div class="view" id="view-trans">
-      <div class="vtit">Verkauf &amp; Trade</div>
-      <div class="brow"><button class="btn bgrn" id="btn-nvk">+ Verkauf</button><button class="btn bpur" id="btn-ntr">+ Trade</button></div>
-      <div id="tlist"></div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:14px">Verkauf & Trade</div>
+      <div class="btn-row" style="margin-bottom:14px;margin-top:0">
+        <button class="btn btn-green" id="btn-neu-vk">+ Verkauf</button>
+        <button class="btn btn-purple" id="btn-neu-tr">+ Trade</button>
+      </div>
+      <div id="trans-list"></div>
     </div>
 
+    <!-- GRADING VIEW -->
     <div class="view" id="view-grading">
-      <div class="vrow"><div class="vtit">Grading</div><button class="btn bgold bsm" id="btn-nsdg">+ Sendung</button></div>
-      <div id="glist"></div>
-    </div>
-
-    <div class="view" id="view-research">
-      <div class="vtit">KI-Research</div>
-      <div class="card">
-        <div class="ctit">Karte suchen</div>
-        <div class="fg"><label class="flbl">Aus Inventar</label><select id="rsel" class="fi"><option value="">-- ausw&auml;hlen --</option></select></div>
-        <div class="fg"><label class="flbl">Oder manuell</label><input id="rtxt" class="fi" placeholder="z.B. Charizard Base Set"></div>
-        <button class="btn bgold" id="btn-rs">Suchen</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800">Grading</div>
+        <button class="btn btn-gold btn-sm" id="btn-neue-sdg">+ Sendung</button>
       </div>
-      <div class="card"><div class="ctit">&#128200; Cardmarket</div><div id="rcm"><div class="rph"><div class="rphi">&#128200;</div><div>Karte ausw&auml;hlen</div></div></div></div>
-      <div class="card"><div class="ctit">&#128722; eBay letzte Verk&auml;ufe</div><div id="rebay"><div class="rph"><div class="rphi">&#128722;</div><div>Karte ausw&auml;hlen</div></div></div></div>
-    </div>
-
-    <div class="view" id="view-kalkulation">
-      <div class="vtit">Kalkulation</div>
-      <div class="card">
-        <div class="ctit">VK-Preis berechnen</div>
-        <div class="fg"><label class="flbl">Karte (optional)</label><select id="kk-karte" class="fi"><option value="">-- Manuell --</option></select></div>
-        <div class="fg2">
-          <div class="fg"><label class="flbl">EK (EUR) *</label><input id="kk-ek" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
-          <div class="fg"><label class="flbl">Grading (EUR)</label><input id="kk-grade" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
-          <div class="fg"><label class="flbl">Versand (EUR)</label><input id="kk-versand" class="fi" type="number" value="1.50" inputmode="decimal"></div>
-          <div class="fg"><label class="flbl">Zielmarge (%)</label><input id="kk-marge" class="fi" type="number" value="30"></div>
-        </div>
-        <div class="fg"><label class="flbl">Plattform</label>
-          <select id="kk-plattform" class="fi">
-            <option value="cardmarket">Cardmarket (5% + 0,30)</option>
-            <option value="ebay">eBay (12,8% + 0,35)</option>
-            <option value="vinted">Vinted (5%)</option>
-            <option value="instagram">Privat (0%)</option>
-          </select>
-        </div>
-        <div class="fg"><label class="flbl">Einkaufsart</label><select id="kk-einkauf" class="fi"><option value="privat">Privat (&sect;25a)</option><option value="gewerbe">Gewerbe (19%)</option></select></div>
-        <button class="btn bgold" id="btn-kk">Berechnen</button>
-      </div>
-      <div id="kk-res-card" style="display:none" class="card"><div class="ctit">Ergebnis</div><div id="kk-res"></div></div>
-    </div>
-
-
-    <!-- ANKAUF -->
-    <div class="view" id="view-ankauf">
-      <div class="vtit">Ankauf</div>
-
-      <!-- Einstellungen -->
-      <div class="card">
-        <div class="ctit">&#9881; Ankauf-Einstellungen</div>
-        <div class="fg2">
-          <div class="fg">
-            <label class="flbl">Ankaufspreis (%)</label>
-            <input id="ank-pct" class="fi" type="number" value="60" min="1" max="99" placeholder="60">
-          </div>
-          <div class="fg">
-            <label class="flbl">Basis</label>
-            <select id="ank-basis" class="fi">
-              <option value="cardmarket">Cardmarket</option>
-              <option value="ebay">eBay (30T)</option>
-            </select>
-          </div>
-        </div>
-        <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);padding:6px 8px;background:var(--surface2);border-radius:7px">
-          Ankaufspreis = <span id="ank-pct-display">60</span>% des Marktwertes
-        </div>
-      </div>
-
-      <!-- Tabs: Einzeln / Masse -->
-      <div style="display:flex;gap:8px;margin-bottom:12px">
-        <button id="ank-tab-einzel" onclick="ankTab('einzel')" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">Einzelankauf</button>
-        <button id="ank-tab-masse" onclick="ankTab('masse')" style="flex:1;padding:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer">Massenankauf</button>
-      </div>
-
-      <!-- EINZELANKAUF -->
-      <div id="ank-einzel-panel">
-        <div class="card">
-          <div class="ctit">&#128269; Karte suchen</div>
-          <div class="fg">
-            <label class="flbl">Kartenname / Nummer</label>
-            <input id="ank-search" class="fi" placeholder="z.B. Charizard Base Set oder OP01-120">
-          </div>
-          <div class="fg">
-            <label class="flbl">Serie</label>
-            <select id="ank-serie" class="fi">
-              <option value="Pokemon">Pokemon</option>
-              <option value="One Piece">One Piece</option>
-              <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
-            </select>
-          </div>
-          <button class="btn bgold" id="btn-ank-search">Preis ermitteln</button>
-        </div>
-        <div id="ank-result" style="display:none" class="card">
-          <div class="ctit">Ankaufsergebnis</div>
-          <div id="ank-result-content"></div>
-          <button class="btn bgrn" id="btn-ank-accept" style="margin-top:10px;display:none">&#10003; Karte ankaufen &amp; ins Inventar</button>
-        </div>
-      </div>
-
-      <!-- MASSENANKAUF -->
-      <div id="ank-masse-panel" style="display:none">
-        <div class="card">
-          <div class="ctit">&#128221; Karten-Liste</div>
-          <div class="fg2">
-            <div class="fg">
-              <label class="flbl">Kartenname</label>
-              <input id="ank-m-name" class="fi" placeholder="z.B. Pikachu">
-            </div>
-            <div class="fg">
-              <label class="flbl">Serie</label>
-              <select id="ank-m-serie" class="fi">
-                <option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn bgrn bsm" id="btn-ank-m-add" style="margin-bottom:4px">+ Hinzuf&uuml;gen</button>
-          <div id="ank-masse-list" style="margin-top:8px"></div>
-        </div>
-        <div id="ank-masse-results" style="display:none" class="card">
-          <div class="ctit">Gesamtergebnis</div>
-          <div id="ank-masse-result-content"></div>
-          <button class="btn bgrn" id="btn-ank-masse-accept" style="margin-top:10px">&#10003; Alle ankaufen &amp; ins Inventar</button>
-        </div>
-        <button class="btn bgold" id="btn-ank-masse-search" style="display:none">Alle Preise ermitteln</button>
-      </div>
-
-    </div>
-
-    <div class="view" id="view-profil">
-      <div class="vtit">Mein Profil</div>
-      <div id="del-log-btn-wrap" style="display:none;margin-bottom:12px">
-        <button class="btn bred" id="btn-show-dellog">&#128221; L&ouml;schprotokoll abrufen</button>
-      </div>
-      <div class="card" style="display:flex;align-items:center;gap:12px">
-        <div id="pav" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:#1a1208;flex-shrink:0">?</div>
-        <div style="min-width:0"><div id="pnd" style="font-family:Syne,sans-serif;font-size:15px;font-weight:700">-</div><div id="prd" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);margin-top:2px">-</div></div>
-      </div>
-      <div class="card">
-        <div class="ctit">Profildaten</div>
-        <div class="fg"><label class="flbl">Name</label><input id="pname" class="fi" placeholder="Vor- und Nachname"></div>
-        <div class="fg"><label class="flbl">Benutzername</label><input id="puser" class="fi" readonly style="background:var(--surface2);color:var(--text3)"></div>
-        <div class="fg"><label class="flbl">E-Mail</label><input id="pemail" class="fi" type="email"></div>
-        <button class="btn bgold" id="btn-sp">Speichern</button>
-      </div>
-      <div class="card">
-        <div class="ctit">Passwort &auml;ndern</div>
-        <div class="fg"><label class="flbl">Aktuelles PW</label><input id="ppold" class="fi" type="password"></div>
-        <div class="fg"><label class="flbl">Neues PW</label><input id="ppnew" class="fi" type="password" placeholder="mind. 4 Zeichen"></div>
-        <div class="fg"><label class="flbl">Wiederholen</label><input id="ppnew2" class="fi" type="password"></div>
-        <div id="pperr" style="display:none;background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:9px;font-size:12px;color:var(--red);margin-bottom:8px"></div>
-        <button class="btn bgrn" id="btn-cp">Passwort &auml;ndern</button>
-      </div>
-      <button class="btn bout" id="btn-lop" style="border-color:rgba(192,57,43,.3);color:var(--red);margin-top:4px">Abmelden</button>
+      <div id="grading-list"></div>
     </div>
 
   </div>
 
-  <nav class="bnav">
-    <button class="nbtn active" data-v="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Board</span></button>
-    <button class="nbtn" data-v="karten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span>Karten</span></button>
-    <button class="nbtn" data-v="trans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg><span>Verkauf</span></button>
-    <button class="nbtn" data-v="grading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Grading</span></button>
-    <button class="nbtn" data-v="research"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Research</span></button>
-    <button class="nbtn" data-v="kalkulation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg><span>Kalkul.</span></button>
-    <button class="nbtn" data-v="ankauf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Ankauf</span></button>
-    <button class="nbtn" data-v="profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Profil</span></button>
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" data-view="karten">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      Karten
+    </button>
+    <button class="nav-item" data-view="trans">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+      Verkauf
+    </button>
+    <button class="nav-item" data-view="grading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Grading
+    </button>
   </nav>
 </div>
 
-<!-- SHEET: KARTE -->
-<div class="sov" id="ovK" style="display:none">
+<!-- SHEET: KARTE ERFASSEN -->
+<div class="sheet-overlay" id="ovKarte">
   <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit" id="stK">Karte erfassen</div>
-    <div class="fg"><label class="flbl">Name *</label><input id="kfn" class="fi" placeholder="z.B. Charizard Base Set"></div>
-    <div class="fg"><label class="flbl">Serie</label><select id="kfs" class="fi"><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option><option>Sonstige</option></select></div>
-    <div class="fg"><label class="flbl">Set</label><input id="kfset" class="fi" placeholder="z.B. Base Set 1st Ed."></div>
-    <div class="fg"><label class="flbl">Lagerort</label><input id="kflag" class="fi" placeholder="z.B. Binder A, Fach 3"></div>
-    <div class="fg"><label class="flbl">Kondition</label><div class="rgrp" id="kfkg"><div class="rbtn on" data-val="Raw">Raw</div><div class="rbtn" data-val="PSA">PSA</div><div class="rbtn" data-val="BGS">BGS</div></div></div>
-    <div id="kfnb" style="display:none" class="fg"><label class="flbl">Note</label><select id="kfnote" class="fi"><option value="10">10 - Gem Mint</option><option value="9.5">9.5</option><option value="9">9 - Mint</option><option value="8.5">8.5</option><option value="8">8 - NM-MT</option><option value="7">7 - NM</option><option value="6">6 - EX-MT</option><option value="5">5 - EX</option><option value="4">4 - VG-EX</option><option value="3">3 - VG</option></select></div>
-    <div class="fg"><label class="flbl">Einkaufsart</label><select id="kfei" class="fi"><option value="privat">Privat (&sect;25a)</option><option value="gewerbe">Gewerbe (19%)</option></select></div>
-    <div class="fg2">
-      <div class="fg"><label class="flbl">EK (EUR) *</label><input id="kfek" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
-      <div class="fg"><label class="flbl">Marktwert</label><input id="kfmw" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-karte-title">Karte erfassen</div>
+    <div class="form-group"><label class="form-label">Kartenname *</label><input id="kf-name" class="form-input" placeholder="z.B. Charizard Base Set"></div>
+    <div class="form-group"><label class="form-label">Serie *</label>
+      <select id="kf-serie" class="form-input">
+        <option value="Pokemon">Pokemon</option>
+        <option value="One Piece">One Piece</option>
+        <option value="Yu-Gi-Oh">Yu-Gi-Oh</option>
+        <option value="Sonstige">Sonstige</option>
+      </select>
     </div>
-    <div class="fg"><label class="flbl">Quelle</label><input id="kfq" class="fi" placeholder="Cardmarket, eBay..."></div>
-    <button class="btn bgold" id="btn-sk">Speichern</button>
-    <button class="btn bout" id="btn-ak" style="margin-top:8px">Abbrechen</button>
+    <div class="form-group"><label class="form-label">Set / Edition</label><input id="kf-set" class="form-input" placeholder="z.B. Base Set 1st Ed."></div>
+    <div class="form-group">
+      <label class="form-label">Kondition</label>
+      <div class="radio-group" id="kf-kond-grp">
+        <div class="radio-btn on" data-val="Raw">Raw</div>
+        <div class="radio-btn" data-val="PSA">PSA</div>
+        <div class="radio-btn" data-val="BGS">BGS</div>
+      </div>
+    </div>
+    <div id="kf-note-box" style="display:none;margin-top:10px">
+      <label class="form-label">Note</label>
+      <select id="kf-note" class="form-input">
+        <option value="10">10 — Gem Mint</option><option value="9.5">9.5</option>
+        <option value="9">9 — Mint</option><option value="8.5">8.5</option>
+        <option value="8">8 — NM-MT</option><option value="7.5">7.5</option>
+        <option value="7">7 — NM</option><option value="6.5">6.5</option>
+        <option value="6">6 — EX-MT</option><option value="5.5">5.5</option>
+        <option value="5">5 — EX</option><option value="4.5">4.5</option>
+        <option value="4">4 — VG-EX</option><option value="3">3 — VG</option>
+        <option value="2">2 — Good</option><option value="1">1 — Poor</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-top:14px"><label class="form-label">Einkaufsart *</label>
+      <select id="kf-einkauf" class="form-input">
+        <option value="privat">Privatkauf (§25a)</option>
+        <option value="gewerbe">Gewerbeeinkauf (19% MwSt.)</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Einkaufspreis (EUR) *</label><input id="kf-ek" class="form-input" type="number" placeholder="0.00" inputmode="decimal"></div>
+    <div class="form-group"><label class="form-label">Marktwert (EUR)</label><input id="kf-mw" class="form-input" type="number" placeholder="0.00" inputmode="decimal"></div>
+    <div class="form-group"><label class="form-label">Quelle</label><input id="kf-quelle" class="form-input" placeholder="z.B. Cardmarket, eBay"></div>
+    <div class="form-group"><label class="form-label">Notizen</label><input id="kf-notizen" class="form-input" placeholder="Besonderheiten..."></div>
+    <button class="btn btn-gold" id="btn-save-karte">Karte speichern</button>
+    <button class="btn btn-outline" id="btn-abbr-karte" style="margin-top:8px">Abbrechen</button>
   </div>
 </div>
 
 <!-- SHEET: VERKAUF -->
-<div class="sov" id="ovVK" style="display:none">
+<div class="sheet-overlay" id="ovVerkauf">
   <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit">Verkauf eintragen</div>
-    <div class="fg"><label class="flbl">Karte *</label><select id="vfk" class="fi"></select></div>
-    <div class="fg"><label class="flbl">Plattform</label><select id="vfp" class="fi"><option>Cardmarket</option><option>eBay</option><option>Vinted</option><option>Instagram</option><option>Privat</option><option>Sonstiges</option></select></div>
-    <div class="fg2">
-      <div class="fg"><label class="flbl">EK (EUR)</label><input id="vfek" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-      <div class="fg"><label class="flbl">VK (EUR) *</label><input id="vfvk" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Verkauf eintragen</div>
+    <div class="form-group"><label class="form-label">Karte *</label><select id="vf-karte" class="form-input"></select></div>
+    <div class="form-group"><label class="form-label">Plattform</label>
+      <select id="vf-plattform" class="form-input">
+        <option>Cardmarket</option><option>eBay</option><option>Vinted</option>
+        <option>Instagram</option><option>Privat</option><option>Sonstiges</option>
+      </select>
     </div>
-    <div class="fg"><label class="flbl">Gewinn</label><div class="gbox" id="vfgd">VK eingeben</div></div>
-    <div class="fg"><label class="flbl">Datum</label><input id="vfd" class="fi" type="date"></div>
-    <button class="btn bgrn" id="btn-svk">Verkauf speichern &amp; Karte aus Bestand</button>
-    <button class="btn bout" id="btn-avk" style="margin-top:8px">Abbrechen</button>
+    <div class="form-group"><label class="form-label">Einkaufspreis (EUR)</label><input id="vf-ek" class="form-input" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Verkaufspreis (EUR) *</label><input id="vf-vk" class="form-input" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Gewinn</label><div class="gewinn-display" id="vf-gewinn-display">Bitte VK eingeben</div></div>
+    <div class="form-group"><label class="form-label">Datum</label><input id="vf-datum" class="form-input" type="date"></div>
+    <button class="btn btn-green" id="btn-save-vk">Verkauf speichern</button>
+    <button class="btn btn-outline" id="btn-abbr-vk" style="margin-top:8px">Abbrechen</button>
   </div>
 </div>
 
 <!-- SHEET: TRADE -->
-<div class="sov" id="ovTR" style="display:none;align-items:flex-end">
+<div class="sheet-overlay" id="ovTrade">
   <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit">Trade dokumentieren</div>
-    <div class="fg"><label class="flbl">Karte abgeben *</label><select id="tfk" class="fi"></select></div>
-    <div class="fg2">
-      <div class="fg"><label class="flbl">Wert raus (EUR)</label><input id="tfr" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-      <div class="fg"><label class="flbl">Wert rein (EUR)</label><input id="tfe" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-    </div>
-    <div class="fg"><label class="flbl">Differenz</label><div class="gbox" id="tfdd">-</div>
-    </div>
-    <div class="fg"><label class="flbl">Datum</label><input id="tfd" class="fi" type="date"></div>
-    <div class="divider"></div>
-    <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px">+ Neue Karte erfassen</div>
-    <div class="fg"><label class="flbl">Name der neuen Karte *</label><input id="tr-nk-name" class="fi" placeholder="z.B. Pikachu Illustrator"></div>
-    <div class="fg2">
-      <div class="fg"><label class="flbl">Serie</label><select id="tr-nk-serie" class="fi"><option value="Pokemon">Pokemon</option><option value="One Piece">One Piece</option><option value="Yu-Gi-Oh">Yu-Gi-Oh</option><option value="Sonstige">Sonstige</option></select></div>
-      <div class="fg"><label class="flbl">Einkaufsart</label><select id="tr-nk-ei" class="fi"><option value="privat">Privat</option><option value="gewerbe">Gewerbe</option></select></div>
-      <div class="fg"><label class="flbl">EK / Wert (EUR)</label><input id="tr-nk-ek" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-      <div class="fg"><label class="flbl">Marktwert (EUR)</label><input id="tr-nk-mw" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
-    </div>
-    <button class="btn bpur" id="btn-str">Tausch einspielen</button>
-    <button class="btn bout" id="btn-atr" style="margin-top:8px">Abbrechen</button>
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Trade dokumentieren</div>
+    <div class="form-group"><label class="form-label">Hingegebene Karte *</label><select id="tf-karte" class="form-input"></select></div>
+    <div class="form-group"><label class="form-label">Wert abgegeben (EUR)</label><input id="tf-raus" class="form-input" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Erhaltene Karte / Gegenleistung</label><input id="tf-rein-txt" class="form-input" placeholder="z.B. Pikachu Illustrator + 50 EUR"></div>
+    <div class="form-group"><label class="form-label">Wert erhalten (EUR)</label><input id="tf-rein" class="form-input" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Differenz</label><div class="gewinn-display" id="tf-diff-display">-</div></div>
+    <div class="form-group"><label class="form-label">Datum</label><input id="tf-datum" class="form-input" type="date"></div>
+    <button class="btn btn-purple" id="btn-save-tr">Trade speichern</button>
+    <button class="btn btn-outline" id="btn-abbr-tr" style="margin-top:8px">Abbrechen</button>
   </div>
 </div>
 
+<!-- SHEET: GRADING SENDUNG -->
+<div class="sheet-overlay" id="ovSendung">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Grading-Sendung</div>
+    <div class="form-group"><label class="form-label">Sendungsname *</label><input id="sf-name" class="form-input" placeholder="z.B. PSA Batch #5 April 2025"></div>
+    <div class="form-group"><label class="form-label">Dienstleister</label>
+      <select id="sf-dienst" class="form-input"><option value="PSA">PSA</option><option value="BGS">BGS</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Sendedatum</label><input id="sf-datum" class="form-input" type="date"></div>
+    <div class="form-group"><label class="form-label">Versandkosten (EUR)</label><input id="sf-versand" class="form-input" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Grading-Gebühr gesamt (EUR)</label><input id="sf-gebuehr" class="form-input" type="number" inputmode="decimal" placeholder="0.00"></div>
+    <div class="form-group"><label class="form-label">Karten hinzufügen</label>
+      <select id="sf-karte-add" class="form-input"></select>
+      <button class="btn btn-outline btn-sm" id="btn-add-karte-sdg" style="margin-top:8px;width:auto">+ Hinzufügen</button>
+    </div>
+    <div id="sf-karten-list" style="margin-bottom:14px"></div>
+    <button class="btn btn-gold" id="btn-save-sdg">Sendung speichern</button>
+    <button class="btn btn-outline" id="btn-abbr-sdg" style="margin-top:8px">Abbrechen</button>
+  </div>
+</div>
 
 <script>
-var viewerMode = false;
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// CONFIG
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+var SB_URL  = 'https://wswzqvmcqpvhnvfxguet.supabase.co';
+var SB_KEY  = 'sb_publishable_56jBWWLVnDzy9TNYY9yGYA_OGM4cidc';
+var db = {karten:[],transaktionen:[],sendungen:[],ausgaben:[],benutzer:[],einstellungen:{}};
+var currentUser = null;
+var _sendungKarten = [];
+var _karteEditId = null;
 
-function activateViewerMode() {
-  viewerMode = true;
-  // Hide nav items not needed
-  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){
-    b.style.display='none';
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// UTILS
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function el(id){ return document.getElementById(id); }
+function fmt(n){ return parseFloat(n||0).toFixed(2); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function pYear(d){ if(!d)return null; var dt=new Date(d); return isNaN(dt)?null:dt.getFullYear(); }
+function pSort(d){ if(!d)return 0; return new Date(d).getTime()||0; }
+
+function hashPass(pass, salt) {
+  var str = salt + pass + 'MAD_WMS_SALT_2025';
+  var hash = 5381;
+  for (var i=0;i<str.length;i++){ hash=((hash<<5)+hash)+str.charCodeAt(i); hash=hash&hash; }
+  return Math.abs(hash).toString(16).padStart(8,'0') + str.length.toString(16);
+}
+
+function toast(msg, ok) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:'+(ok===false?'#c0392b':'#1a7a3c')+';color:#fff;padding:10px 20px;border-radius:20px;font-family:JetBrains Mono,monospace;font-size:12px;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2500);
+}
+
+function openSheet(id){ el(id) && el(id).classList.add('open'); }
+function closeSheet(id){ el(id) && el(id).classList.remove('open'); }
+function setSyncState(state){
+  var dot=el('sync-dot'), txt=el('sync-txt');
+  if(state==='ok'){ if(dot)dot.style.background='#1a7a3c'; if(txt)txt.textContent='Synchronisiert'; }
+  if(state==='loading'){ if(dot)dot.style.background='#b8860b'; if(txt)txt.textContent='Laden...'; }
+  if(state==='error'){ if(dot)dot.style.background='#c0392b'; if(txt)txt.textContent='Verbindungsfehler'; }
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// SUPABASE
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function sbFetch(method, table, query, body) {
+  var url = SB_URL + '/rest/v1/' + table + (query?'?'+query:'');
+  return fetch(url, {
+    method: method,
+    headers: {
+      'Content-Type':'application/json',
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer '+SB_KEY,
+      'Prefer': 'resolution=merge-duplicates'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function(r){ return r.json(); });
+}
+
+function sbGetAll(table){ return sbFetch('GET', table, 'select=id,data').catch(function(){ return []; }); }
+function sbUpsert(table, id, data){ return sbFetch('POST', table, null, {id:id, data:data, updated_at:new Date().toISOString()}).catch(function(){}); }
+function sbDelete(table, id){ return fetch(SB_URL+'/rest/v1/'+table+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){}); }
+
+function loadDB() {
+  setSyncState('loading');
+  return Promise.all([
+    sbGetAll('karten'), sbGetAll('transaktionen'), sbGetAll('sendungen'),
+    sbGetAll('ausgaben'), sbGetAll('benutzer'), sbGetAll('einstellungen')
+  ]).then(function(r){
+    db.karten        = (r[0]||[]).map(function(x){return x.data;}).filter(Boolean);
+    db.transaktionen = (r[1]||[]).map(function(x){return x.data;}).filter(Boolean);
+    db.sendungen     = (r[2]||[]).map(function(x){return x.data;}).filter(Boolean);
+    db.ausgaben      = (r[3]||[]).map(function(x){return x.data;}).filter(Boolean);
+    db.benutzer      = (r[4]||[]).map(function(x){return x.data;}).filter(Boolean);
+    var einst        = (r[5]||[]).find(function(x){return x.id==='global';});
+    db.einstellungen = einst ? einst.data : {};
+    setSyncState('ok');
+  }).catch(function(){ setSyncState('error'); });
+}
+
+function saveDB() {
+  setSyncState('loading');
+  var ops = [];
+  db.karten.forEach(function(k){ if(k&&k.id) ops.push(sbUpsert('karten',k.id,k)); });
+  db.transaktionen.forEach(function(t){ if(t&&t.id) ops.push(sbUpsert('transaktionen',t.id,t)); });
+  db.sendungen.forEach(function(s){ if(s&&s.id) ops.push(sbUpsert('sendungen',s.id,s)); });
+  db.ausgaben.forEach(function(a){ if(a&&a.id) ops.push(sbUpsert('ausgaben',a.id,a)); });
+  db.benutzer.forEach(function(u){ if(u&&u.id) ops.push(sbUpsert('benutzer',u.id,u)); });
+  ops.push(sbUpsert('einstellungen','global',db.einstellungen));
+  Promise.all(ops).then(function(){ setSyncState('ok'); }).catch(function(){ setSyncState('error'); });
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// LOGIN
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function doLogin() {
+  var username = el('inp-user').value.trim().toLowerCase();
+  var pass     = el('inp-pass').value;
+  var errEl    = el('loginErr');
+  if(!username||!pass){ errEl.textContent='Bitte alle Felder ausf\u00fcllen.'; errEl.style.display='block'; return; }
+
+  setSyncState('loading');
+  loadDB().then(function(){
+    var user = db.benutzer.find(function(u){ return u&&u.username===username&&u.aktiv; });
+    if(!user){ errEl.textContent='Benutzername oder Passwort falsch.'; errEl.style.display='block'; setSyncState('error'); return; }
+    if(hashPass(pass,user.salt)!==user.passHash){ errEl.textContent='Benutzername oder Passwort falsch.'; errEl.style.display='block'; setSyncState('error'); return; }
+
+    currentUser = user;
+    user.letzterLogin = new Date().toLocaleDateString('de-DE');
+    saveDB();
+
+    el('loginScreen').style.display='none';
+    el('app').style.display='block';
+
+    var ROLLEN = {1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};
+    if(el('topbar-info')) el('topbar-info').textContent = (user.name||user.username)+' \u00b7 '+(ROLLEN[user.rolle]||'');
+
+    renderAll();
+    // Auto-refresh every 30s
+    setInterval(function(){ loadDB().then(renderAll); }, 30000);
   });
-  // Show viewer banner
-  var banner = el('viewer-banner');
-  if(banner) banner.style.display='flex';
-  // Go to karten view
-  go('karten');
-  // Re-render with viewer mode
-  rDash();
-  rKarten();
 }
 
-function deactivateViewerMode() {
-  viewerMode = false;
-  document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){
-    b.style.display='';
-  });
-  var banner = el('viewer-banner');
-  if(banner) banner.style.display='none';
-  rDash();
-  rKarten();
+function doLogout(){
+  currentUser=null;
+  el('app').style.display='none';
+  el('loginScreen').style.display='flex';
+  el('inp-user').value='';
+  el('inp-pass').value='';
+  el('loginErr').style.display='none';
 }
 
-function openViewerConfirm() {
-  var ov = el('ovViewer');
-  if(ov){ ov.classList.add('open'); ov.style.display='flex'; }
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// NAVIGATION
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function go(name){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var v=el('view-'+name); if(v) v.classList.add('active');
+  document.querySelectorAll('[data-view="'+name+'"]').forEach(function(n){n.classList.add('active');});
+  if(name==='dashboard')  renderDash();
+  if(name==='karten')     renderKarten();
+  if(name==='trans')      renderTrans();
+  if(name==='grading')    renderGrading();
 }
 
+function renderAll(){ renderDash(); renderKarten(); renderTrans(); renderGrading(); }
 
-var SB_URL='https://wswzqvmcqpvhnvfxguet.supabase.co';
-var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzd3pxdm1jcXB2aG52ZnhndWV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjIxMjUsImV4cCI6MjA4OTkzODEyNX0.fpB8eeLZ1qCrvsug7yw3WBXSVFAGHedX5pnLGwXdqdQ';
-var PROXY='https://api.allorigins.win/get?url=';
-var FEES={cardmarket:{pct:.05,fix:.30},ebay:{pct:.128,fix:.35},vinted:{pct:.05,fix:0},instagram:{pct:0,fix:0}};
-var DEL_LOG_KEY='madwms_del_log';
-var db={karten:[],transaktionen:[],sendungen:[],ausgaben:[],benutzer:[],einstellungen:{}};
-var cu=null,_sk=[],_keid=null;
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// DASHBOARD
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function renderDash(){
+  var bestand  = db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;
+  var graded   = db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;
+  var zGrading = db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;
+  var vkTrans  = db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});
+  var umsatz   = vkTrans.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);
+  var gewinn   = vkTrans.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);
+  var gesEK    = vkTrans.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);
+  var roi      = gesEK>0?(gewinn/gesEK*100).toFixed(0):0;
+  var aktSend  = db.sendungen.filter(function(s){return s&&s.status==='Unterwegs';});
 
-function el(id){return document.getElementById(id);}
-function fmt(n){return parseFloat(n||0).toFixed(2);}
-function today(){return new Date().toISOString().split('T')[0];}
-function pSort(d){return d?new Date(d).getTime()||0:0;}
-function hashPass(p,s){var str=s+p+'MAD_WMS_SALT_2025',h=5381;for(var i=0;i<str.length;i++){h=((h<<5)+h)+str.charCodeAt(i);h=h&h;}return Math.abs(h).toString(16).padStart(8,'0')+str.length.toString(16);}
-function toast(m,ok){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:'+(ok===false?'#c0392b':'#1a7a3c')+';color:#fff;padding:9px 16px;border-radius:20px;font-family:JetBrains Mono,monospace;font-size:11px;z-index:9999;max-width:85vw;text-align:center';document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
-function os(id){var e=el(id);if(e){e.classList.add('open');e.style.display='flex';}}
-function cs(id){var e=el(id);if(e){e.classList.remove('open');e.style.display='none';}}
-function sync(s){var d=el('sdot'),t=el('stxt');if(s==='ok'){if(d)d.style.background='#1a7a3c';if(t)t.textContent='Synchronisiert';}if(s==='load'){if(d)d.style.background='#b8860b';if(t)t.textContent='Laden...';}if(s==='err'){if(d)d.style.background='#c0392b';if(t)t.textContent='Fehler';}}
+  if(el('d-bestand'))     el('d-bestand').textContent     = bestand;
+  if(el('d-bestand-sub')) el('d-bestand-sub').textContent = graded+' graded';
+  if(el('d-umsatz'))      el('d-umsatz').textContent      = fmt(umsatz)+' EUR';
+  if(el('d-umsatz-sub'))  el('d-umsatz-sub').textContent  = vkTrans.length+' Verk\u00e4ufe';
+  if(el('d-gewinn'))      el('d-gewinn').textContent      = fmt(gewinn)+' EUR';
+  if(el('d-roi'))         el('d-roi').textContent         = 'ROI '+roi+'%';
+  if(el('d-grading'))     el('d-grading').textContent     = zGrading;
+  if(el('d-grading-sub')) el('d-grading-sub').textContent = aktSend.length+' Sendungen';
 
-function getDelLog(){try{return JSON.parse(localStorage.getItem(DEL_LOG_KEY)||'[]');}catch(e){return [];}}
-function saveDelLog(log){try{localStorage.setItem(DEL_LOG_KEY,JSON.stringify(log));}catch(e){}}
-
-function sbF(m,tb,q,b){return fetch(SB_URL+'/rest/v1/'+tb+(q?'?'+q:''),{method:m,headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates'},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json();});}
-function sbGA(t){return sbF('GET',t,'select=id,data').catch(function(){return[];});}
-function sbU(t,id,d){return sbF('POST',t,null,{id:id,data:d,updated_at:new Date().toISOString()}).catch(function(){});}
-function sbDelete(t,id){return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){});}
-
-function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}ping();setInterval(ping,3*24*60*60*1000);}
-
-function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};sync('ok');}).catch(function(){sync('err');});}
-function saveDB(){sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
-
-function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausf\u00fcllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
-  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();renderAll();setInterval(function(){loadDB().then(renderAll);},30000);}
-  if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
-function doLogout(){cu=null;el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
-
-function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='profil')rProfil();
-  if(v==='ankauf')rAnkauf();}
-function renderAll(){rDash();rKarten();rTrans();rGrading();}
-
-function rDash(){
-  if(viewerMode){
-    var bestand=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
-    var totalMW=bestand.reduce(function(s,k){return s+parseFloat(k.marktwert||k.ek||0);},0);
-    var vd=el('viewer-dash');
-    if(vd){
-      vd.style.display='block';
-      vd.innerHTML=
-        '<div class="card" style="text-align:center;padding:20px">'+
-          '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:6px">KARTEN IM BESTAND</div>'+
-          '<div style="font-family:Syne,sans-serif;font-size:40px;font-weight:800;color:var(--dark)">'+bestand.length+'</div>'+
-        '</div>'+
-        '<div class="card" style="text-align:center;padding:20px">'+
-          '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:6px">GESAMTMARKTWERT</div>'+
-          '<div style="font-family:Syne,sans-serif;font-size:36px;font-weight:800;color:var(--gold)">'+fmt(totalMW)+' \u20ac</div>'+
-        '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">'+
-          '<a href="https://www.cardmarket.com" target="_blank" style="display:block;padding:14px;background:rgba(184,134,11,0.1);border:1.5px solid rgba(184,134,11,0.35);border-radius:12px;text-align:center;text-decoration:none">'+
-            '<div style="font-size:20px;margin-bottom:4px">&#128200;</div>'+
-            '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#b8860b">Cardmarket</div>'+
-            '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-top:2px">\u2197 Preise ansehen</div>'+
-          '</a>'+
-          '<a href="https://www.ebay.de/sch/i.html?_nkw=trading+cards&LH_Sold=1" target="_blank" style="display:block;padding:14px;background:rgba(26,82,118,0.06);border:1.5px solid rgba(26,82,118,0.25);border-radius:12px;text-align:center;text-decoration:none">'+
-            '<div style="font-size:20px;margin-bottom:4px">&#128722;</div>'+
-            '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:#1a5276">eBay</div>'+
-            '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-top:2px">\u2197 Verk\u00e4ufe ansehen</div>'+
-          '</a>'+
-        '</div>';
-    }
-    // Hide normal dashboard elements
-    ['d-b','d-bs','d-u','d-us','d-g','d-r','d-gr','d-grs'].forEach(function(id){var e=el(id);if(e)e.closest('.kpi')&&(e.closest('.kpi').style.display='none');});
-    var lg=el('d-letzte');if(lg)lg.closest('.card')&&(lg.closest('.card').style.display='none');
-    var sd=el('d-send');if(sd)sd.closest('.card')&&(sd.closest('.card').style.display='none');
-    var vb=el('btn-viewer-mode');if(vb)vb.style.display='none';
-    return;
+  var letzte = db.transaktionen.slice(-5).reverse();
+  if(el('d-letzte')){
+    if(!letzte.length){ el('d-letzte').innerHTML='<div class="empty"><div class="empty-txt">Noch keine Aktivit\u00e4ten</div></div>'; }
+    else el('d-letzte').innerHTML = letzte.map(function(tx){
+      var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));
+      var isVK=tx.typ==='verkauf';
+      return '<div class="list-item">'+
+        '<span class="badge '+(isVK?'badge-green':'badge-purple')+'">'+(isVK?'VK':'TR')+'</span>'+
+        '<div class="list-item-main"><div class="list-item-title">'+(tx.kartenName||'-')+'</div>'+
+        '<div class="list-item-sub">'+(tx.datum||'-')+'</div></div>'+
+        '<div class="list-item-amount" style="color:'+(g>=0?'#1a7a3c':'#c0392b')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';
+    }).join('');
   }
-  // Normal mode: show everything
-  var vd2=el('viewer-dash');if(vd2)vd2.style.display='none';
-  document.querySelectorAll('#view-dashboard .kpi').forEach(function(e){e.style.display='';});
-  var lg2=el('d-letzte');if(lg2&&lg2.closest('.card'))lg2.closest('.card').style.display='';
-  var sd2=el('d-send');if(sd2&&sd2.closest('.card'))sd2.closest('.card').style.display='';
-  var vb2=el('btn-viewer-mode');if(vb2)vb2.style.display='';
-  var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;var gr=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;var zg=db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});var um=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);var gw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);var ek=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);var roi=ek>0?(gw/ek*100).toFixed(0):0;var as=db.sendungen.filter(function(s){return s&&s.status==='Unterwegs';});if(el('d-b'))el('d-b').textContent=b;if(el('d-bs'))el('d-bs').textContent=gr+' graded';if(el('d-u'))el('d-u').textContent=fmt(um);if(el('d-us'))el('d-us').textContent=vk.length+' VK';if(el('d-g'))el('d-g').textContent=fmt(gw);if(el('d-r'))el('d-r').textContent='ROI '+roi+'%';if(el('d-gr'))el('d-gr').textContent=zg;if(el('d-grs'))el('d-grs').textContent=as.length+' aktiv';
-  var lt=db.transaktionen.slice(-5).reverse();if(el('d-letzte')){if(!lt.length){el('d-letzte').innerHTML='<div class="rph"><div>Noch keine Aktivit\u00e4ten</div></div>';return;}el('d-letzte').innerHTML=lt.map(function(tx){var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));return '<div class="li"><span class="bd '+(tx.typ==='verkauf'?'bg':'bp')+'">'+(tx.typ==='verkauf'?'VK':'TR')+'</span><div class="lim"><div class="lit">'+(tx.kartenName||'-')+'</div><div class="lis">'+(tx.datum||'-')+'</div></div><div class="liamt" style="color:'+(g>=0?'var(--green)':'var(--red)')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';}).join('');}
-  if(el('d-send')){var ak=db.sendungen.filter(function(s){return s&&(s.status==='Unterwegs'||s.status==='Zurueck');});if(!ak.length){el('d-send').innerHTML='<div class="rph"><div>Keine aktiven Sendungen</div></div>';return;}el('d-send').innerHTML=ak.map(function(s){return '<div class="li"><span class="bd by">'+s.dienst+'</span><div class="lim"><div class="lit">'+s.name+'</div><div class="lis">'+s.karten.length+' Karten \u00b7 '+fmt(s.gesamt)+' EUR</div></div><span class="bd '+(s.status==='Unterwegs'?'by':'bb')+'">'+s.status+'</span></div>';}).join('');}}
 
-function rKarten(){
-  var sv=(el('ks')?el('ks').value:'').toLowerCase();
-  var lv=(el('kl')?el('kl').value:'').toLowerCase();
-  var li=el('klist');
-  if(!li)return;
-  var f=db.karten.filter(function(k){
-    if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;
-    if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;
-    if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;
+  if(el('d-sendungen')){
+    var aktive = db.sendungen.filter(function(s){return s&&(s.status==='Unterwegs'||s.status==='Zurueck');});
+    if(!aktive.length){ el('d-sendungen').innerHTML='<div class="empty"><div class="empty-txt">Keine aktiven Sendungen</div></div>'; }
+    else el('d-sendungen').innerHTML = aktive.map(function(s){
+      return '<div class="list-item">'+
+        '<span class="badge badge-gold">'+s.dienst+'</span>'+
+        '<div class="list-item-main"><div class="list-item-title">'+s.name+'</div>'+
+        '<div class="list-item-sub">'+s.karten.length+' Karten \u00b7 '+fmt(s.gesamt)+' EUR</div></div>'+
+        '<span class="badge '+(s.status==='Unterwegs'?'badge-gold':'badge-blue')+'">'+s.status+'</span></div>';
+    }).join('');
+  }
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// KARTEN
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function renderKarten(){
+  var search = (el('kart-search')?el('kart-search').value:'').toLowerCase();
+  var list = el('karten-list'); if(!list)return;
+  var filtered = db.karten.filter(function(k){
+    if(!k)return false;
+    if(search&&!(k.name||'').toLowerCase().includes(search))return false;
     return true;
-  });
-  if(!f.length){
-    li.innerHTML='<div class="rph"><div>'+(!db.karten.length?'Noch keine Karten':'Keine Treffer')+'</div></div>';
+  }).filter(function(k){return k.status==='Im Bestand'||k.status==='Zum Grading';});
+
+  if(!filtered.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">\u1f0cf</div><div class="empty-txt">Keine Karten</div></div>';
     return;
   }
-  var rows=[];
-  f.forEach(function(k){
-    var ek=parseFloat(k.ek||0),mw=parseFloat(k.marktwert||0),pv=mw>0?mw:ek;
-    var h='<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 2px 8px rgba(184,134,11,.06)">';
-    h+='<div style="display:flex;align-items:center;gap:10px">';
-    // Left: name + badges
-    h+='<div style="flex:1;min-width:0">';
-    h+='<div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+k.name+'</div>';
-    h+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">';
-    h+='<span class="bd by">'+k.serie+'</span>';
-    if(k.kondition!=='Raw')h+='<span class="bd by">'+k.kondition+' '+k.note+'</span>';
-    if(k.lager&&!viewerMode)h+='<span class="bd bb">'+k.lager+'</span>';
-    h+='</div></div>';
-    // Right: price
-    h+='<div style="text-align:right;flex-shrink:0">';
-    h+='<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">MW: '+fmt(pv)+' \u20ac</div>';
-    if(!viewerMode){
-      h+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
-      var di=mw-ek;
-      if(mw>0&&di!==0)h+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+(di>=0?'#1a7a3c':'#c0392b')+'">'+(di>=0?'+':'')+fmt(di)+'</div>';
-    }
-    h+='</div>';
-    h+='</div>'; // end flex row
-    // Buttons: only in normal mode
-    if(!viewerMode){
-      h+='<div style="display:flex;gap:8px;margin-top:8px">';
-      h+='<button id="edit-'+k.id+'" style="flex:1;padding:7px 8px;background:rgba(184,134,11,0.12);color:#b8860b;border:1px solid rgba(184,134,11,0.35);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:700;cursor:pointer">\u270e Bearbeiten</button>';
-      h+='<button id="del-'+k.id+'" style="padding:7px 12px;background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:12px;font-weight:700;cursor:pointer">\uD83D\uDDD1</button>';
-      h+='</div>';
-    }
-    h+='</div>';
-    rows.push({id:k.id,html:h});
-  });
-  li.innerHTML=rows.map(function(r){return r.html;}).join('');
-  if(!viewerMode){
-    rows.forEach(function(r){
-      var eb=document.getElementById('edit-'+r.id);
-      if(eb)eb.onclick=function(){openKM(''+r.id);};
-      var db2=document.getElementById('del-'+r.id);
-      if(db2)db2.onclick=function(){openDelKarte(''+r.id);};
-    });
-  }
-}
-
-
-function openKM(id){_keid=id||null;if(el('stK'))el('stK').textContent=id?'Karte bearbeiten':'Karte erfassen';
-  if(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('kfn'))el('kfn').value=k.name||'';if(el('kfs'))el('kfs').value=k.serie||'Pokemon';if(el('kfset'))el('kfset').value=k.set||'';if(el('kflag'))el('kflag').value=k.lager||'';if(el('kfek'))el('kfek').value=k.ek||'';if(el('kfmw'))el('kfmw').value=k.marktwert||'';if(el('kfq'))el('kfq').value=k.quelle||'';if(el('kfei'))el('kfei').value=k.einkauf||'privat';setK(k.kondition||'Raw');if(k.note&&el('kfnote'))el('kfnote').value=k.note;}
-  else{['kfn','kfset','kflag','kfek','kfmw','kfq'].forEach(function(f){if(el(f))el(f).value='';});if(el('kfs'))el('kfs').value='Pokemon';if(el('kfei'))el('kfei').value='privat';setK('Raw');}
-  os('ovK');}
-function setK(v){document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.classList.toggle('on',b.dataset.val===v);});if(el('kfnb'))el('kfnb').style.display=v==='Raw'?'none':'block';}
-function saveK(){var n=el('kfn')?el('kfn').value.trim():'';var ek=el('kfek')?el('kfek').value:'';if(!n){toast('Name erforderlich',false);return;}if(!ek){toast('EK erforderlich',false);return;}var kv='Raw';document.querySelectorAll('#kfkg .rbtn.on').forEach(function(b){kv=b.dataset.val;});var k={id:_keid||('K'+Date.now()),name:n,serie:el('kfs')?el('kfs').value:'Pokemon',set:el('kfset')?el('kfset').value:'',lager:el('kflag')?el('kflag').value:'',kondition:kv,note:(kv!=='Raw'&&el('kfnote'))?el('kfnote').value:'',einkauf:el('kfei')?el('kfei').value:'privat',ek:parseFloat(ek)||0,marktwert:parseFloat(el('kfmw')?el('kfmw').value:0)||0,quelle:el('kfq')?el('kfq').value:'',status:'Im Bestand',kaufdatum:today()};if(_keid){var idx=db.karten.findIndex(function(x){return x.id===_keid;});if(idx>=0)db.karten[idx]=k;}else db.karten.push(k);cs('ovK');saveDB();rKarten();rDash();toast(_keid?'Aktualisiert!':'Gespeichert!');_keid=null;}
-
-function openDelKarte(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('del-karte-name'))el('del-karte-name').textContent=k.name;if(el('del-karte-id-hidden'))el('del-karte-id-hidden').value=id;if(el('del-grund'))el('del-grund').value='';if(el('del-err'))el('del-err').style.display='none';os('ovDelKarte');}
-function confirmDelKarte(){var id=el('del-karte-id-hidden')?el('del-karte-id-hidden').value:'';var grund=el('del-grund')?el('del-grund').value.trim():'';if(!grund){if(el('del-err')){el('del-err').textContent='Bitte Grund eingeben.';el('del-err').style.display='block';}return;}var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;logDeletion(k,grund);db.karten=db.karten.filter(function(x){return String(x.id)!==String(id);});sbDelete('karten',id);saveDB();cs('ovDelKarte');rKarten();rDash();toast('Karte gel\u00f6scht');}
-function logDeletion(k,grund){var log=getDelLog();log.push({datum:new Date().toLocaleString('de-DE'),karte:k.name,serie:k.serie,kondition:k.kondition+(k.note?' '+k.note:''),ek:k.ek,status:k.status,geloeschtVon:cu?(cu.name||cu.username):'unbekannt',grund:grund});saveDelLog(log);}
-function showDeleteLog(){var log=getDelLog();var ov=el('ovDelLog');if(!ov)return;var content=el('del-log-content');if(!content)return;if(!log.length){content.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3);font-size:13px">Noch keine Eintr\u00e4ge</div>';}else{content.innerHTML=log.slice().reverse().map(function(e){return '<div style="padding:12px 0;border-bottom:1px solid var(--border)"><div style="font-weight:600;font-size:13px">'+e.karte+'</div><div style="font-size:11px;color:var(--text3);margin-top:2px">'+e.serie+' \u00b7 '+e.kondition+'</div><div style="font-size:11px;color:var(--text2);margin-top:4px"><b>Grund:</b> '+e.grund+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">'+e.datum+' \u00b7 von '+e.geloeschtVon+'</div></div>';}).join('');}os('ovDelLog');}
-
-function rTrans(){var li=el('tlist');if(!li)return;var s=db.transaktionen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);}).slice(0,30);if(!s.length){li.innerHTML='<div class="rph"><div>Noch keine Transaktionen</div></div>';return;}li.innerHTML=s.map(function(tx){var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));return '<div class="li"><span class="bd '+(tx.typ==='verkauf'?'bg':'bp')+'">'+(tx.typ==='verkauf'?'VK':'TR')+'</span><div class="lim"><div class="lit">'+(tx.kartenName||'-')+'</div><div class="lis">'+(tx.typ==='verkauf'?tx.plattform:('Rein: '+(tx.karteRein||'-')))+' \u00b7 '+(tx.datum||'-')+'</div></div><div class="liamt" style="color:'+(g>=0?'var(--green)':'var(--red)')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';}).join('');}
-
-function openVK(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('vfk'))el('vfk').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+'</option>';}).join('');if(el('vfd'))el('vfd').value=today();['vfek','vfvk'].forEach(function(f){if(el(f))el(f).value='';});if(el('vfgd')){el('vfgd').textContent='VK eingeben';el('vfgd').style.color='var(--text3)';}os('ovVK');}
-function saveVK(){var kid=el('vfk')?el('vfk').value:'';if(!kid){toast('Karte w\u00e4hlen',false);return;}var vv=el('vfvk')?el('vfvk').value:'';if(!vv){toast('VK eingeben',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var ek=parseFloat(el('vfek')?el('vfek').value:0)||(k?parseFloat(k.ek||0):0);var vkn=parseFloat(vv)||0;var tx={id:'T'+Date.now(),typ:'verkauf',kartenId:kid,kartenName:k?k.name:kid,plattform:el('vfp')?el('vfp').value:'',ek:ek,vk:vkn,gewinn:vkn-ek,datum:el('vfd')?el('vfd').value:today()};
-  if(k){logDeletion(k,'Verkauft \u00fcber '+(el('vfp')?el('vfp').value:''));sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}
-  db.transaktionen.push(tx);cs('ovVK');saveDB();rTrans();rDash();rKarten();toast('Verkauf gespeichert!');}
-
-function openTradeSheet(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('tfk'))el('tfk').innerHTML='<option value="">-- Karte ausw\u00e4hlen --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+'</option>';}).join('');if(el('tfd'))el('tfd').value=today();['tfr','tfe','tr-nk-name','tr-nk-ek','tr-nk-mw'].forEach(function(f){if(el(f))el(f).value='';});if(el('tr-nk-serie'))el('tr-nk-serie').value='Pokemon';if(el('tr-nk-ei'))el('tr-nk-ei').value='privat';if(el('tfdd')){el('tfdd').textContent='-';el('tfdd').style.color='var(--text3)';}os('ovTR');}
-function saveTR(){var kid=el('tfk')?el('tfk').value:'';if(!kid){toast('Karte ausw\u00e4hlen',false);return;}var nkName=el('tr-nk-name')?el('tr-nk-name').value.trim():'';if(!nkName){toast('Neue Karte erfassen',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var wr=parseFloat(el('tfr')?el('tfr').value:0)||0;var we=parseFloat(el('tfe')?el('tfe').value:0)||0;
-  var tx={id:'T'+Date.now(),typ:'trade',kartenId:kid,kartenName:k?k.name:kid,ek:k?parseFloat(k.ek||0):0,wertRaus:wr,karteRein:nkName,wertRein:we,diff:we-wr,datum:el('tfd')?el('tfd').value:today()};
-  if(k){logDeletion(k,'Getauscht gegen: '+nkName);sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}
-  var newK={id:'K'+Date.now(),name:nkName,serie:el('tr-nk-serie')?el('tr-nk-serie').value:'Pokemon',set:'',lager:'',kondition:'Raw',note:'',einkauf:el('tr-nk-ei')?el('tr-nk-ei').value:'privat',ek:parseFloat(el('tr-nk-ek')?el('tr-nk-ek').value:0)||we||0,marktwert:parseFloat(el('tr-nk-mw')?el('tr-nk-mw').value:0)||0,quelle:'Trade',notizen:'',status:'Im Bestand',kaufdatum:today()};
-  db.karten.push(newK);db.transaktionen.push(tx);cs('ovTR');saveDB();rTrans();rDash();rKarten();toast('Tausch gespeichert! "'+nkName+'" im Bestand.');}
-
-function rGrading(){var li=el('glist');if(!li)return;var s=db.sendungen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});if(!s.length){li.innerHTML='<div class="rph"><div>Keine Sendungen</div></div>';return;}li.innerHTML=s.map(function(snd){var sc=snd.status==='Unterwegs'?'by':(snd.status==='Abgeschlossen'?'bg':'bb');return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">'+snd.name+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">'+snd.dienst+' \u00b7 '+(snd.karten||[]).length+' Karten \u00b7 '+fmt(snd.gesamt)+' EUR</div></div><span class="bd '+sc+'">'+snd.status+'</span></div>'+(snd.karten||[]).map(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><span>'+(k?k.name:ki.id)+'</span>'+(ki.note?'<span class="bd by">'+snd.dienst+' '+ki.note+'</span>':'<span style="font-size:10px;color:var(--text3)">Ausstehend</span>')+'</div>';}).join('')+'</div>';}).join('');}
-function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});if(el('sfka'))el('sfka').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');rSKL();os('ovSDG');}
-function rSKL(){var li=el('sfkl');if(!li)return;if(!_sk.length){li.innerHTML='';return;}li.innerHTML=_sk.map(function(ki,i){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div class="li" style="padding:8px"><div class="lim"><div class="lit">'+(k?k.name:ki.id)+'</div></div><button data-rm="'+i+'" style="border:none;background:rgba(192,57,43,.1);color:#c0392b;border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px">X</button></div>';}).join('');li.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){_sk.splice(parseInt(this.dataset.rm),1);rSKL();});});}
-function saveSDG(){var n=el('sfn')?el('sfn').value.trim():'';if(!n){toast('Name erforderlich',false);return;}var v=parseFloat(el('sfv')?el('sfv').value:0)||0;var g=parseFloat(el('sfg')?el('sfg').value:0)||0;var s={id:'S'+Date.now(),name:n,dienst:el('sfd')?el('sfd').value:'PSA',datum:el('sfdat')?el('sfdat').value:today(),status:'Unterwegs',versand:v,gebuehr:g,gesamt:v+g,karten:_sk.slice(),notizen:''};_sk.forEach(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});if(k&&k.status==='Im Bestand')k.status='Zum Grading';});db.sendungen.push(s);cs('ovSDG');saveDB();rGrading();rDash();toast('Sendung gespeichert!');}
-
-function rResearch(){var sel=el('rsel');if(!sel)return;var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});sel.innerHTML='<option value="">-- ausw\u00e4hlen --</option>'+b.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.nr?' ('+k.nr+')':'')+'</option>';}).join('');}
-function doSearch(){var sel=el('rsel'),txt=el('rtxt');var term='';if(txt&&txt.value.trim())term=txt.value.trim();else if(sel&&sel.value){var k=db.karten.find(function(x){return x.id===sel.value;});if(k)term=k.name+(k.set?' '+k.set:'');}if(!term){toast('Suchbegriff eingeben',false);return;}sCM(term);sEbay(term);}
-function sCM(term){var b=el('rcm');if(!b)return;b.innerHTML='<div class="rph"><div class="rphi">\u23f3</div><div>Lade...</div></div>';var sel=el('rsel');var k=sel&&sel.value?db.karten.find(function(x){return x.id===sel.value;}):null;var nr=k&&k.nr?k.nr:'';var st=nr||term;var serie=k?(k.serie==='Pokemon'?'Pokemon':(k.serie==='One Piece'?'OnePiece':'YuGiOh')):'Pokemon';var cu2='https://www.cardmarket.com/de/'+serie+'/Products/Search?searchString='+encodeURIComponent(st);fetch(PROXY+encodeURIComponent(cu2)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var re=/([0-9]+[,\.][0-9]{2})\s*\u20ac/g,m,ps=[];while((m=re.exec(h))!==null){var p=parseFloat(m[1].replace(',','.'));if(p>0.5&&p<50000)ps.push(p);}if(!ps.length){b.innerHTML='<a href="'+cu2+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">Cardmarket \u2197</a>';return;}ps.sort(function(a,c){return a-c;});var mn=ps[0],av=ps.slice(0,5).reduce(function(s,v){return s+v;},0)/Math.min(ps.length,5);b.innerHTML=(nr?'<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);margin-bottom:8px;padding:5px 8px;background:var(--surface2);border-radius:6px">Suche nach Nr: <b>'+nr+'</b></div>':'')+rv('G\u00fcnstigster','#1a7a3c',fmt(mn)+' \u20ac')+rv('Durchschnitt','var(--gold)',fmt(av)+' \u20ac')+(k?'<button id="bam" data-id="'+k.id+'" data-val="'+av.toFixed(2)+'" class="btn bgrn" style="margin-top:8px;font-size:12px">Marktwert auf '+av.toFixed(2)+' \u20ac setzen</button>':'')+'<a href="'+cu2+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">Cardmarket \u2197</a>';var ab=el('bam');if(ab)ab.addEventListener('click',function(){var k2=db.karten.find(function(x){return x.id===this.dataset.id;}.bind(this));if(k2){k2.marktwert=parseFloat(this.dataset.val);saveDB();rKarten();toast('Marktwert gesetzt!');}});}).catch(function(){b.innerHTML='<a href="'+cu2+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">Cardmarket \u2197</a>';});}
-function sEbay(term){var b=el('rebay');if(!b)return;b.innerHTML='<div class="rph"><div class="rphi">\u23f3</div><div>Lade eBay...</div></div>';var sel=el('rsel');var km=sel&&sel.value?db.karten.find(function(x){return x.id===sel.value;}):null;var et=term;if(km&&km.kondition!=='Raw')et=km.name+' '+km.kondition+' '+km.note;var eu='https://www.ebay.de/sch/i.html?_nkw='+encodeURIComponent(et+' trading card')+'&LH_Sold=1&LH_Complete=1&_sop=13&LH_DAYS=30&_ipg=25';fetch(PROXY+encodeURIComponent(eu)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var tr=/class="s-item__title[^"]*"[^>]*>(?:<span[^>]*>)?([^<]{5,80})/g;var pr=/class="s-item__price"[^>]*>[\s\S]*?([0-9]+[,\.][0-9]{2}\s*EUR)/g;var ts=[],ps=[],m;while((m=tr.exec(h))!==null&&ts.length<25)ts.push(m[1].trim().replace(/&amp;/g,'&'));while((m=pr.exec(h))!==null&&ps.length<25){var p=parseFloat(m[1].replace(/[^\d,.]/g,'').replace(',','.'));ps.push(p>0.5?p:null);}var rows=[];for(var i=0;i<Math.min(ts.length,25);i++){if(ts[i]&&ts[i].length>4&&ps[i])rows.push({t:ts[i],p:ps[i]});}if(!rows.length){b.innerHTML='<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">eBay \u2197</a>';return;}var vp=rows.map(function(r){return r.p;});var av=vp.reduce(function(s,p){return s+p;},0)/vp.length;var mn=Math.min.apply(null,vp);var mx=Math.max.apply(null,vp);b.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px"><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">\u00d8 30T</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">'+av.toFixed(2)+'</div></div><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">MIN</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a7a3c">'+mn.toFixed(2)+'</div></div><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">MAX</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#c0392b">'+mx.toFixed(2)+'</div></div></div>'+rows.slice(0,10).map(function(r){return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">'+r.t+'</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a7a3c">'+r.p.toFixed(2)+' \u20ac</div></div>';}).join('')+'<div style="font-size:10px;color:var(--text3);margin-top:6px;text-align:center">'+rows.length+' Verk\u00e4ufe \u00b7 30 Tage</div><a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">eBay \u2197</a>';}).catch(function(){b.innerHTML='<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">eBay \u2197</a>';});}
-function rv(l,c,v){return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px;background:var(--surface2);border-radius:8px;margin-bottom:6px"><span style="font-size:11px;color:var(--text2)">'+l+'</span><span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:'+c+'">'+v+'</span></div>';}
-
-function rKalk(){var sel=el('kk-karte');if(!sel)return;var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});sel.innerHTML='<option value="">-- Manuell --</option>'+b.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');}
-function doKalk(){var ek=parseFloat(el('kk-ek')?el('kk-ek').value:0)||0;if(!ek){toast('EK eingeben',false);return;}var gr=parseFloat(el('kk-grade')?el('kk-grade').value:0)||0;var vs=parseFloat(el('kk-versand')?el('kk-versand').value:1.5)||1.5;var mg=parseFloat(el('kk-marge')?el('kk-marge').value:30)||30;var plt=el('kk-plattform')?el('kk-plattform').value:'cardmarket';var ei=el('kk-einkauf')?el('kk-einkauf').value:'privat';var fee=FEES[plt]||FEES.cardmarket;var ust=parseFloat(db.einstellungen.ustSatz||19)/100;var ku=db.einstellungen.kleinunternehmer==='ja';var gk=ek+gr+vs;var mn=Math.ceil(((gk+ek*(mg/100)+fee.fix)/(1-fee.pct))*20)/20;var emp=Math.ceil(mn*1.05*20)/20;var geb=emp*fee.pct+fee.fix;var net=emp-geb-vs;var gw=net-ek-gr;var mwst=ku?0:(ei==='privat'?(gw>0?(gw/(1+ust))*ust:0):(net/(1+ust))*ust);var gwns=gw-mwst;var roi=ek>0?((gw/ek)*100).toFixed(1):'0';var rc=el('kk-res-card');if(rc)rc.style.display='block';var r=el('kk-res');if(!r)return;r.innerHTML='<div style="background:linear-gradient(135deg,rgba(184,134,11,.1),rgba(212,160,23,.05));border:1px solid rgba(184,134,11,.3);border-radius:12px;padding:14px;text-align:center;margin-bottom:10px"><div style="font-size:9px;color:var(--text3);font-family:JetBrains Mono,monospace;letter-spacing:1px;margin-bottom:3px">EMPFOHLENER VK</div><div style="font-family:Syne,sans-serif;font-size:30px;font-weight:800;color:var(--gold)">'+fmt(emp)+' \u20ac</div><div style="font-size:10px;color:var(--text3);margin-top:3px">Minimum: '+fmt(mn)+' \u20ac</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">PLATTFORM</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:#c0392b">'+fmt(geb)+' \u20ac</div></div><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">GEWINN</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:'+(gw>=0?'#1a7a3c':'#c0392b')+'">'+(gw>=0?'+':'')+fmt(gw)+' \u20ac</div></div><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">ROI</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:var(--gold)">'+roi+'%</div></div><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">NETTO</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:var(--text)">'+fmt(net)+' \u20ac</div></div></div>'+(!ku?'<div style="padding:9px;background:'+(gwns>=0?'rgba(26,122,60,.08)':'rgba(192,57,43,.06)')+';border-radius:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text2)">Nach MwSt</span><span style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:'+(gwns>=0?'#1a7a3c':'#c0392b')+'">'+(gwns>=0?'+':'')+fmt(gwns)+' \u20ac</span></div>':'');}
-
-function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' \u00b7 '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var dlw=el('del-log-btn-wrap');if(dlw)dlw.style.display=cu.rolle===1?'block':'none';}
-function saveP(){if(!cu)return;var n=el('pname')?el('pname').value.trim():'';if(!n){toast('Name darf nicht leer',false);return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;u.name=n;u.email=el('pemail')?el('pemail').value.trim():'';cu.name=n;var av=el('pav');if(av)av.textContent=n[0].toUpperCase();if(el('pnd'))el('pnd').textContent=n;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(n||u.username)+' \u00b7 '+(R[u.rolle]||'');saveDB();toast('Profil gespeichert!');}
-function changeP(){if(!cu)return;var op=el('ppold')?el('ppold').value:'';var np=el('ppnew')?el('ppnew').value:'';var np2=el('ppnew2')?el('ppnew2').value:'';var err=el('pperr');if(err)err.style.display='none';function se(m){if(err){err.textContent=m;err.style.display='block';}}if(!op||!np||!np2){se('Alle Felder ausf\u00fcllen');return;}if(np.length<4){se('Mind. 4 Zeichen');return;}if(np!==np2){se('Nicht \u00fcbereinstimmend');return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;if(hashPass(op,u.salt)!==u.passHash){se('Aktuelles PW falsch');return;}var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(np,ns);cu.salt=ns;cu.passHash=u.passHash;['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});saveDB();toast('Passwort ge\u00e4ndert!');}
-
-
-// ═══════════════════════════════════════
-// ANKAUF MODUL
-// ═══════════════════════════════════════
-var _ankMasseList = [];
-var _ankLastResult = null;
-
-function ankTab(tab) {
-  var isEinzel = tab === 'einzel';
-  el('ank-einzel-panel').style.display = isEinzel ? 'block' : 'none';
-  el('ank-masse-panel').style.display  = isEinzel ? 'none'  : 'block';
-  el('ank-tab-einzel').style.background = isEinzel ? 'linear-gradient(135deg,#b8860b,#d4a017)' : 'var(--surface2)';
-  el('ank-tab-einzel').style.color      = isEinzel ? '#1a1208' : 'var(--text2)';
-  el('ank-tab-einzel').style.border     = isEinzel ? 'none' : '1px solid var(--border)';
-  el('ank-tab-masse').style.background  = isEinzel ? 'var(--surface2)' : 'linear-gradient(135deg,#b8860b,#d4a017)';
-  el('ank-tab-masse').style.color       = isEinzel ? 'var(--text2)' : '#1a1208';
-  el('ank-tab-masse').style.border      = isEinzel ? '1px solid var(--border)' : 'none';
-}
-
-function getAnkPct() {
-  return parseFloat(el('ank-pct') ? el('ank-pct').value : 60) || 60;
-}
-
-function calcAnkaufspreis(marktpreis) {
-  return Math.round(marktpreis * getAnkPct()) / 100;
-}
-
-function fetchAnkaufPreis(name, serie, cb) {
-  var basis = el('ank-basis') ? el('ank-basis').value : 'cardmarket';
-  var serieSlug = serie === 'Pokemon' ? 'Pokemon' : (serie === 'One Piece' ? 'OnePiece' : 'YuGiOh');
-  var searchUrl = '';
-
-  if (basis === 'cardmarket') {
-    searchUrl = 'https://www.cardmarket.com/de/' + serieSlug + '/Products/Search?searchString=' + encodeURIComponent(name);
-    fetch(PROXY + encodeURIComponent(searchUrl))
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var h = d.contents || '';
-        var re = /([0-9]+[,\.][0-9]{2})\s*\u20ac/g, m, ps = [];
-        while((m = re.exec(h)) !== null){ var p = parseFloat(m[1].replace(',','.')); if(p > 0.5 && p < 50000) ps.push(p); }
-        if(!ps.length){ cb(null, 0, searchUrl); return; }
-        ps.sort(function(a,b){return a-b;});
-        var avg = ps.slice(0,5).reduce(function(s,v){return s+v;},0) / Math.min(ps.length,5);
-        cb(avg, calcAnkaufspreis(avg), searchUrl);
-      }).catch(function(){ cb(null, 0, searchUrl); });
-  } else {
-    searchUrl = 'https://www.ebay.de/sch/i.html?_nkw=' + encodeURIComponent(name + ' trading card') + '&LH_Sold=1&LH_Complete=1&_sop=13&LH_DAYS=30&_ipg=25';
-    fetch(PROXY + encodeURIComponent(searchUrl))
-      .then(function(r){ return r.json(); })
-      .then(function(d){
-        var h = d.contents || '';
-        var re = /([0-9]+[,\.][0-9]{2})\s*EUR/g, m, ps = [];
-        while((m = re.exec(h)) !== null){ var p = parseFloat(m[1].replace(',','.')); if(p > 0.5 && p < 50000) ps.push(p); }
-        if(!ps.length){ cb(null, 0, searchUrl); return; }
-        var avg = ps.reduce(function(s,v){return s+v;},0) / ps.length;
-        cb(avg, calcAnkaufspreis(avg), searchUrl);
-      }).catch(function(){ cb(null, 0, searchUrl); });
-  }
-}
-
-function doAnkaufSearch() {
-  var name  = el('ank-search') ? el('ank-search').value.trim() : '';
-  var serie = el('ank-serie')  ? el('ank-serie').value : 'Pokemon';
-  if(!name){ toast('Name eingeben', false); return; }
-
-  var resCard = el('ank-result');
-  var resContent = el('ank-result-content');
-  var accBtn = el('btn-ank-accept');
-  if(resCard) resCard.style.display = 'block';
-  if(accBtn) accBtn.style.display = 'none';
-  if(resContent) resContent.innerHTML = '<div class="rph"><div class="rphi">\u23f3</div><div>Preise werden ermittelt...</div></div>';
-
-  fetchAnkaufPreis(name, serie, function(markt, ankauf, url) {
-    _ankLastResult = markt ? { name: name, serie: serie, markt: markt, ankauf: ankauf } : null;
-    if(!markt) {
-      if(resContent) resContent.innerHTML =
-        '<div class="rph"><div>Kein Preis gefunden</div></div>' +
-        '<a href="' + url + '" target="_blank" style="display:block;text-align:center;padding:10px;margin-top:8px;background:var(--surface2);border-radius:8px;color:#b8860b;font-family:JetBrains Mono,monospace;font-size:11px;text-decoration:none">Manuell auf Marktplatz suchen \u2197</a>';
-      return;
-    }
-    if(resContent) resContent.innerHTML =
-      '<div style="background:linear-gradient(135deg,rgba(26,122,60,0.08),rgba(26,122,60,0.03));border:1px solid rgba(26,122,60,0.25);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">' +
-        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:4px">ANKAUFSPREIS (' + getAnkPct() + '% von MW)</div>' +
-        '<div style="font-family:Syne,sans-serif;font-size:34px;font-weight:800;color:#1a7a3c">' + fmt(ankauf) + ' \u20ac</div>' +
-      '</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">' +
-        '<div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center">' +
-          '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">MARKTWERT</div>' +
-          '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:15px;color:var(--gold)">' + fmt(markt) + ' \u20ac</div>' +
-        '</div>' +
-        '<div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center">' +
-          '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">MARGE (EK\u2192VK)</div>' +
-          '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:15px;color:#1a5276">+' + fmt(markt - ankauf) + ' \u20ac</div>' +
-        '</div>' +
-      '</div>' +
-      '<a href="' + url + '" target="_blank" style="display:block;text-align:center;padding:9px;background:var(--surface2);border-radius:8px;color:#b8860b;font-family:JetBrains Mono,monospace;font-size:11px;text-decoration:none;margin-bottom:4px">Preis auf Marktplatz pr\u00fcfen \u2197</a>';
-    if(accBtn) accBtn.style.display = 'block';
-  });
-}
-
-function doAnkaufAccept() {
-  if(!_ankLastResult) return;
-  var r = _ankLastResult;
-  var newK = { id: 'K'+Date.now(), name: r.name, serie: r.serie, set: '', lager: '', kondition: 'Raw', note: '', einkauf: 'privat', ek: r.ankauf, marktwert: r.markt, quelle: 'Ankauf', notizen: '', status: 'Im Bestand', kaufdatum: today() };
-  db.karten.push(newK);
-  saveDB(); rKarten(); rDash();
-  toast('"' + r.name + '" f\u00fcr ' + fmt(r.ankauf) + ' \u20ac ins Inventar aufgenommen!');
-  // Reset
-  if(el('ank-search')) el('ank-search').value = '';
-  var resCard = el('ank-result');
-  if(resCard) resCard.style.display = 'none';
-  _ankLastResult = null;
-}
-
-// ── MASSENANKAUF ─────────────────────────────────────────────────────
-function ankMasseAdd() {
-  var name  = el('ank-m-name')  ? el('ank-m-name').value.trim() : '';
-  var serie = el('ank-m-serie') ? el('ank-m-serie').value : 'Pokemon';
-  if(!name){ toast('Name eingeben', false); return; }
-  _ankMasseList.push({ name: name, serie: serie, markt: null, ankauf: null });
-  if(el('ank-m-name')) el('ank-m-name').value = '';
-  renderAnkMasseList();
-  var sb = el('btn-ank-masse-search');
-  if(sb) sb.style.display = 'block';
-}
-
-function renderAnkMasseList() {
-  var li = el('ank-masse-list'); if(!li) return;
-  if(!_ankMasseList.length){ li.innerHTML = ''; return; }
-  li.innerHTML = _ankMasseList.map(function(item, i){
-    return '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface2);border-radius:8px;margin-bottom:6px">' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.name + '</div>' +
-        '<div style="font-size:10px;color:var(--text3)">' + item.serie + (item.markt ? ' \u00b7 MW: ' + fmt(item.markt) + ' \u20ac \u00b7 Ankauf: <b style="color:#1a7a3c">' + fmt(item.ankauf) + ' \u20ac</b>' : '') + '</div>' +
-      '</div>' +
-      '<button data-rm="' + i + '" style="background:rgba(192,57,43,0.1);color:#c0392b;border:1px solid rgba(192,57,43,0.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;flex-shrink:0">X</button>' +
-    '</div>';
+  var SERIE_CLS = {'Pokemon':'badge-gold','One Piece':'badge-red','Yu-Gi-Oh':'badge-purple','Sonstige':'badge-blue'};
+  list.innerHTML = filtered.map(function(k){
+    var mw=parseFloat(k.marktwert||0), ek=parseFloat(k.ek||0), diff=mw-ek;
+    return '<div class="list-item">'+
+      '<div class="list-item-main">'+
+        '<div class="list-item-title">'+k.name+'</div>'+
+        '<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+
+          '<span class="badge '+(SERIE_CLS[k.serie]||'badge-blue')+'">'+k.serie+'</span>'+
+          (k.kondition!=='Raw'?'<span class="badge badge-gold">'+k.kondition+' '+k.note+'</span>':'')+
+          '<span class="badge">'+k.status+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="text-align:right">'+
+        '<div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px">'+fmt(ek)+' \u20ac</div>'+
+        (mw>0?'<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:'+(diff>=0?'#1a7a3c':'#c0392b')+'">'+(diff>=0?'+':'')+fmt(diff)+'</div>':'')+
+      '</div></div>';
   }).join('');
-  li.querySelectorAll('[data-rm]').forEach(function(b){
-    b.addEventListener('click', function(){
-      _ankMasseList.splice(parseInt(this.dataset.rm), 1);
-      renderAnkMasseList();
-      if(!_ankMasseList.length){ var sb=el('btn-ank-masse-search');if(sb)sb.style.display='none'; var rr=el('ank-masse-results');if(rr)rr.style.display='none'; }
-    });
-  });
 }
 
-function doAnkaufMasseSearch() {
-  if(!_ankMasseList.length){ toast('Liste ist leer', false); return; }
-  var btn = el('btn-ank-masse-search');
-  if(btn){ btn.textContent = 'Laden...'; btn.disabled = true; }
-  var done = 0, total = _ankMasseList.length;
-
-  function next(i) {
-    if(i >= total) {
-      if(btn){ btn.textContent = 'Alle Preise ermitteln'; btn.disabled = false; }
-      renderAnkMasseList();
-      showAnkMasseResults();
-      return;
-    }
-    fetchAnkaufPreis(_ankMasseList[i].name, _ankMasseList[i].serie, function(markt, ankauf){
-      _ankMasseList[i].markt  = markt  || 0;
-      _ankMasseList[i].ankauf = ankauf || 0;
-      done++;
-      renderAnkMasseList();
-      setTimeout(function(){ next(i+1); }, 600);
-    });
+function openKarteModal(id){
+  _karteEditId = id||null;
+  if(el('sheet-karte-title')) el('sheet-karte-title').textContent = id?'Karte bearbeiten':'Karte erfassen';
+  if(id){
+    var k=db.karten.find(function(x){return x.id===id;}); if(!k)return;
+    if(el('kf-name'))    el('kf-name').value    = k.name||'';
+    if(el('kf-serie'))   el('kf-serie').value   = k.serie||'Pokemon';
+    if(el('kf-set'))     el('kf-set').value     = k.set||'';
+    if(el('kf-ek'))      el('kf-ek').value      = k.ek||'';
+    if(el('kf-mw'))      el('kf-mw').value      = k.marktwert||'';
+    if(el('kf-quelle'))  el('kf-quelle').value  = k.quelle||'';
+    if(el('kf-notizen')) el('kf-notizen').value = k.notizen||'';
+    if(el('kf-einkauf')) el('kf-einkauf').value = k.einkauf||'privat';
+    setKond(k.kondition||'Raw');
+    if(k.note&&el('kf-note')) el('kf-note').value=k.note;
+  } else {
+    ['kf-name','kf-set','kf-ek','kf-mw','kf-quelle','kf-notizen'].forEach(function(f){if(el(f))el(f).value='';});
+    if(el('kf-serie')) el('kf-serie').value='Pokemon';
+    if(el('kf-einkauf')) el('kf-einkauf').value='privat';
+    setKond('Raw');
   }
-  next(0);
+  openSheet('ovKarte');
 }
 
-function showAnkMasseResults() {
-  var res = el('ank-masse-results'); if(!res) return;
-  var content = el('ank-masse-result-content'); if(!content) return;
-  res.style.display = 'block';
+function setKond(val){
+  document.querySelectorAll('#kf-kond-grp .radio-btn').forEach(function(b){ b.classList.toggle('on',b.dataset.val===val); });
+  if(el('kf-note-box')) el('kf-note-box').style.display = val==='Raw'?'none':'block';
+}
 
-  var totalMarkt  = _ankMasseList.reduce(function(s,k){return s+(k.markt||0);},0);
-  var totalAnkauf = _ankMasseList.reduce(function(s,k){return s+(k.ankauf||0);},0);
-  var totalMarge  = totalMarkt - totalAnkauf;
+function saveKarte(){
+  var name = el('kf-name')?el('kf-name').value.trim():'';
+  var ek   = el('kf-ek')  ?el('kf-ek').value:'';
+  if(!name){ toast('Name erforderlich',false); return; }
+  if(!ek)  { toast('EK erforderlich',false); return; }
+  var kond='Raw';
+  document.querySelectorAll('#kf-kond-grp .radio-btn.on').forEach(function(b){kond=b.dataset.val;});
+  var k = {
+    id: _karteEditId||('K'+Date.now()),
+    name: name, serie: el('kf-serie')?el('kf-serie').value:'Pokemon',
+    set: el('kf-set')?el('kf-set').value:'',
+    kondition: kond, note: (kond!=='Raw'&&el('kf-note'))?el('kf-note').value:'',
+    einkauf: el('kf-einkauf')?el('kf-einkauf').value:'privat',
+    ek: parseFloat(ek)||0, marktwert: parseFloat(el('kf-mw')?el('kf-mw').value:0)||0,
+    quelle: el('kf-quelle')?el('kf-quelle').value:'',
+    notizen: el('kf-notizen')?el('kf-notizen').value:'',
+    status: 'Im Bestand', kaufdatum: today(), lager:''
+  };
+  if(_karteEditId){ var idx=db.karten.findIndex(function(x){return x.id===_karteEditId;}); if(idx>=0)db.karten[idx]=k; }
+  else db.karten.push(k);
+  closeSheet('ovKarte'); saveDB(); renderKarten(); renderDash();
+  toast(_karteEditId?'Aktualisiert!':'Karte gespeichert!');
+  _karteEditId=null;
+}
 
-  content.innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">' +
-      ankStatBox('GESAMTANKAUF', fmt(totalAnkauf)+' \u20ac', '#1a7a3c') +
-      ankStatBox('GESAMTMARKTWERT', fmt(totalMarkt)+' \u20ac', 'var(--gold)') +
-      ankStatBox('POTENZ. MARGE', '+'+fmt(totalMarge)+' \u20ac', '#1a5276') +
-    '</div>' +
-    '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);letter-spacing:0.5px;margin-bottom:8px">' + _ankMasseList.length + ' KARTEN \u00b7 ' + getAnkPct() + '% ANKAUFSQUOTE</div>' +
-    _ankMasseList.map(function(k){
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">' +
-        '<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%">' + k.name + '</div>' +
-        '<div style="text-align:right;flex-shrink:0">' +
-          (k.markt ? '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3)">MW: '+fmt(k.markt)+'</div>' : '') +
-          '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:#1a7a3c">' + (k.ankauf ? fmt(k.ankauf)+' \u20ac' : 'n/v') + '</div>' +
-        '</div>' +
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// TRANSAKTIONEN
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function renderTrans(){
+  var list=el('trans-list'); if(!list)return;
+  var sorted=db.transaktionen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);}).slice(0,30);
+  if(!sorted.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">\u1f4b0</div><div class="empty-txt">Noch keine Transaktionen</div></div>';
+    return;
+  }
+  list.innerHTML = sorted.map(function(tx){
+    var g=parseFloat(tx.typ==='trade'?(tx.diff||0):(tx.gewinn||0));
+    var isVK=tx.typ==='verkauf';
+    return '<div class="list-item">'+
+      '<span class="badge '+(isVK?'badge-green':'badge-purple')+'">'+(isVK?'VK':'TR')+'</span>'+
+      '<div class="list-item-main"><div class="list-item-title">'+(tx.kartenName||'-')+'</div>'+
+      '<div class="list-item-sub">'+(isVK?tx.plattform:('Rein: '+(tx.karteRein||'-')))+' \u00b7 '+(tx.datum||'-')+'</div></div>'+
+      '<div class="list-item-amount" style="color:'+(g>=0?'#1a7a3c':'#c0392b')+'">'+(g>=0?'+':'')+fmt(g)+'\u20ac</div></div>';
+  }).join('');
+}
+
+function openVerkaufSheet(){
+  var avail=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
+  if(el('vf-karte')) el('vf-karte').innerHTML='<option value="">-- Karte --</option>'+avail.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+'</option>';}).join('');
+  if(el('vf-datum')) el('vf-datum').value=today();
+  ['vf-ek','vf-vk'].forEach(function(f){if(el(f))el(f).value='';});
+  if(el('vf-gewinn-display')){el('vf-gewinn-display').textContent='Bitte VK eingeben';el('vf-gewinn-display').style.color='var(--text3)';}
+  openSheet('ovVerkauf');
+}
+
+function openTradeSheet(){
+  var avail=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
+  if(el('tf-karte')) el('tf-karte').innerHTML='<option value="">-- Karte --</option>'+avail.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');
+  if(el('tf-datum')) el('tf-datum').value=today();
+  ['tf-raus','tf-rein','tf-rein-txt'].forEach(function(f){if(el(f))el(f).value='';});
+  if(el('tf-diff-display')){el('tf-diff-display').textContent='-';el('tf-diff-display').style.color='var(--text3)';}
+  openSheet('ovTrade');
+}
+
+function updateVKGewinn(){
+  var ek=parseFloat(el('vf-ek')?el('vf-ek').value:0)||0;
+  var vk=parseFloat(el('vf-vk')?el('vf-vk').value:0)||0;
+  var d=el('vf-gewinn-display');
+  if(d){
+    if(!vk){d.textContent='Bitte VK eingeben';d.style.color='var(--text3)';return;}
+    var g=vk-ek; d.textContent=(g>=0?'+':'')+fmt(g)+' EUR Gewinn';
+    d.style.color=g>=0?'#1a7a3c':'#c0392b';
+  }
+}
+
+function updateTradeDiff(){
+  var raus=parseFloat(el('tf-raus')?el('tf-raus').value:0)||0;
+  var rein=parseFloat(el('tf-rein')?el('tf-rein').value:0)||0;
+  var d=el('tf-diff-display');
+  if(d){ var diff=rein-raus; d.textContent=(diff>=0?'+':'')+fmt(diff)+' EUR'; d.style.color=diff>=0?'#1a7a3c':'#c0392b'; }
+}
+
+function saveVerkauf(){
+  var kartId=el('vf-karte')?el('vf-karte').value:'';
+  var vkVal =el('vf-vk')  ?el('vf-vk').value:'';
+  if(!kartId){ toast('Bitte Karte ausw\u00e4hlen',false); return; }
+  if(!vkVal)  { toast('VK eingeben',false); return; }
+  var k=db.karten.find(function(x){return x.id===kartId;});
+  var ekV=parseFloat(el('vf-ek')?el('vf-ek').value:0)||(k?parseFloat(k.ek||0):0);
+  var vkN=parseFloat(vkVal)||0;
+  var tx={id:'T'+Date.now(),typ:'verkauf',kartenId:kartId,kartenName:k?k.name:kartId,
+    plattform:el('vf-plattform')?el('vf-plattform').value:'',ek:ekV,vk:vkN,gewinn:vkN-ekV,
+    datum:el('vf-datum')?el('vf-datum').value:today()};
+  if(k) k.status='Verkauft';
+  db.transaktionen.push(tx);
+  closeSheet('ovVerkauf'); saveDB(); renderTrans(); renderDash();
+  toast('Verkauf gespeichert!');
+}
+
+function saveTrade(){
+  var kartId=el('tf-karte')?el('tf-karte').value:'';
+  if(!kartId){ toast('Bitte Karte ausw\u00e4hlen',false); return; }
+  var k=db.karten.find(function(x){return x.id===kartId;});
+  var wRaus=parseFloat(el('tf-raus')?el('tf-raus').value:0)||0;
+  var wRein=parseFloat(el('tf-rein')?el('tf-rein').value:0)||0;
+  var tx={id:'T'+Date.now(),typ:'trade',kartenId:kartId,kartenName:k?k.name:kartId,
+    ek:k?parseFloat(k.ek||0):0,wertRaus:wRaus,
+    karteRein:el('tf-rein-txt')?el('tf-rein-txt').value:'',wertRein:wRein,diff:wRein-wRaus,
+    datum:el('tf-datum')?el('tf-datum').value:today()};
+  if(k) k.status='Getauscht';
+  db.transaktionen.push(tx);
+  closeSheet('ovTrade'); saveDB(); renderTrans(); renderDash();
+  toast('Trade dokumentiert!');
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// GRADING
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function renderGrading(){
+  var list=el('grading-list'); if(!list)return;
+  var sorted=db.sendungen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});
+  if(!sorted.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">\u23f1\ufe0f</div><div class="empty-txt">Keine Grading-Sendungen</div></div>';
+    return;
+  }
+  list.innerHTML = sorted.map(function(s){
+    var sClass = s.status==='Unterwegs'?'badge-gold':(s.status==='Abgeschlossen'?'badge-green':'badge-blue');
+    var kartenHTML = (s.karten||[]).map(function(ki){
+      var k=db.karten.find(function(x){return x.id===ki.id;});
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">'+
+        '<span>'+(k?k.name:ki.id)+'</span>'+
+        (ki.note?'<span class="badge badge-gold">'+s.dienst+' '+ki.note+'</span>':'<span style="font-size:11px;color:var(--text3)">Ausstehend</span>')+
       '</div>';
     }).join('');
+    return '<div class="card">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
+        '<div>'+
+          '<div style="font-family:Syne,sans-serif;font-size:15px;font-weight:700">'+s.name+'</div>'+
+          '<div style="font-size:12px;color:var(--text3);margin-top:2px">'+s.dienst+' \u00b7 '+(s.karten||[]).length+' Karten \u00b7 '+fmt(s.gesamt)+' EUR</div>'+
+        '</div>'+
+        '<span class="badge '+sClass+'">'+s.status+'</span>'+
+      '</div>'+
+      kartenHTML+
+    '</div>';
+  }).join('');
 }
 
-function ankStatBox(lbl, val, color) {
-  return '<div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center">' +
-    '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">' + lbl + '</div>' +
-    '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:' + color + '">' + val + '</div>' +
-  '</div>';
+function openSendungSheet(){
+  _sendungKarten=[];
+  ['sf-name','sf-versand','sf-gebuehr'].forEach(function(f){if(el(f))el(f).value='';});
+  if(el('sf-datum')) el('sf-datum').value=today();
+  if(el('sf-dienst')) el('sf-dienst').value='PSA';
+  var avail=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});
+  if(el('sf-karte-add')) el('sf-karte-add').innerHTML='<option value="">-- Karte ausw\u00e4hlen --</option>'+avail.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');
+  renderSKartenList();
+  openSheet('ovSendung');
 }
 
-function doAnkaufMasseAccept() {
-  var added = 0;
-  _ankMasseList.forEach(function(item){
-    if(!item.name) return;
-    var newK = { id: 'K'+Date.now()+added, name: item.name, serie: item.serie, set: '', lager: '', kondition: 'Raw', note: '', einkauf: 'privat', ek: item.ankauf||0, marktwert: item.markt||0, quelle: 'Ankauf', notizen: '', status: 'Im Bestand', kaufdatum: today() };
-    db.karten.push(newK);
-    added++;
+function renderSKartenList(){
+  var list=el('sf-karten-list'); if(!list)return;
+  if(!_sendungKarten.length){ list.innerHTML=''; return; }
+  list.innerHTML = _sendungKarten.map(function(ki,i){
+    var k=db.karten.find(function(x){return x.id===ki.id;});
+    return '<div class="list-item" style="padding:10px">'+
+      '<div class="list-item-main"><div class="list-item-title">'+(k?k.name:ki.id)+'</div></div>'+
+      '<button data-rm="'+i+'" style="border:none;background:rgba(192,57,43,0.1);color:#c0392b;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px">X</button>'+
+    '</div>';
+  }).join('');
+  list.querySelectorAll('[data-rm]').forEach(function(btn){
+    btn.addEventListener('click',function(){ _sendungKarten.splice(parseInt(this.dataset.rm),1); renderSKartenList(); });
   });
-  saveDB(); rKarten(); rDash();
-  toast(added + ' Karten ins Inventar aufgenommen!');
-  _ankMasseList = [];
-  renderAnkMasseList();
-  var rr = el('ank-masse-results'); if(rr) rr.style.display='none';
-  var sb = el('btn-ank-masse-search'); if(sb) sb.style.display='none';
 }
 
-function rAnkauf() {
-  // Update % display
-  var pct = el('ank-pct'); var disp = el('ank-pct-display');
-  if(pct && disp) {
-    pct.addEventListener('input', function(){ disp.textContent = this.value; });
-  }
+function saveSendung(){
+  var name=el('sf-name')?el('sf-name').value.trim():'';
+  if(!name){ toast('Sendungsname erforderlich',false); return; }
+  var v=parseFloat(el('sf-versand')?el('sf-versand').value:0)||0;
+  var g=parseFloat(el('sf-gebuehr')?el('sf-gebuehr').value:0)||0;
+  var s={id:'S'+Date.now(),name:name,dienst:el('sf-dienst')?el('sf-dienst').value:'PSA',
+    datum:el('sf-datum')?el('sf-datum').value:today(),status:'Unterwegs',
+    versand:v,gebuehr:g,sonstiges:0,gesamt:v+g,karten:_sendungKarten.slice(),notizen:''};
+  _sendungKarten.forEach(function(ki){
+    var k=db.karten.find(function(x){return x.id===ki.id;});
+    if(k&&k.status==='Im Bestand') k.status='Zum Grading';
+  });
+  db.sendungen.push(s);
+  closeSheet('ovSendung'); saveDB(); renderGrading(); renderDash();
+  toast('Sendung gespeichert!');
 }
 
-document.addEventListener('DOMContentLoaded',function(){
-  el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
-  el('btn-ank-search')&&el('btn-ank-search').addEventListener('click',doAnkaufSearch);
-  el('btn-ank-accept')&&el('btn-ank-accept').addEventListener('click',doAnkaufAccept);
-  el('btn-ank-m-add')&&el('btn-ank-m-add').addEventListener('click',ankMasseAdd);
-  el('btn-ank-masse-search')&&el('btn-ank-masse-search').addEventListener('click',doAnkaufMasseSearch);
-  el('btn-ank-masse-accept')&&el('btn-ank-masse-accept').addEventListener('click',doAnkaufMasseAccept);
-  el('ank-search')&&el('ank-search').addEventListener('keydown',function(e){if(e.key==='Enter')doAnkaufSearch();});
-  el('ank-m-name')&&el('ank-m-name').addEventListener('keydown',function(e){if(e.key==='Enter')ankMasseAdd();});
-  el('btn-viewer-mode')&&el('btn-viewer-mode').addEventListener('click',openViewerConfirm);
-  el('btn-viewer-yes')&&el('btn-viewer-yes').addEventListener('click',function(){cs('ovViewer');activateViewerMode();});
-  el('btn-viewer-no')&&el('btn-viewer-no').addEventListener('click',function(){cs('ovViewer');});
-  el('btn-exit-viewer')&&el('btn-exit-viewer').addEventListener('click',deactivateViewerMode);
-  [el('inp-user'),el('inp-pass')].forEach(function(i){i&&i.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});});
-  el('btn-logout')&&el('btn-logout').addEventListener('click',doLogout);
-  document.querySelectorAll('.nbtn').forEach(function(b){b.addEventListener('click',function(){go(this.dataset.v);});});
-  el('btn-nk')&&el('btn-nk').addEventListener('click',function(){openKM(null);});
-  el('btn-sk')&&el('btn-sk').addEventListener('click',saveK);
-  el('btn-ak')&&el('btn-ak').addEventListener('click',function(){cs('ovK');});
-  document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.addEventListener('click',function(){setK(this.dataset.val);});});
-  el('ks')&&el('ks').addEventListener('input',rKarten);
-  el('kl')&&el('kl').addEventListener('input',rKarten);
-  el('btn-nvk')&&el('btn-nvk').addEventListener('click',openVK);
-  el('btn-svk')&&el('btn-svk').addEventListener('click',saveVK);
-  el('btn-avk')&&el('btn-avk').addEventListener('click',function(){cs('ovVK');});
-  el('vfvk')&&el('vfvk').addEventListener('input',function(){var ek=parseFloat(el('vfek')?el('vfek').value:0)||0;var vk=parseFloat(this.value)||0;var d=el('vfgd');if(d){if(!vk){d.textContent='VK eingeben';d.style.color='var(--text3)';}else{var g=vk-ek;d.textContent=(g>=0?'+':'')+fmt(g)+' EUR';d.style.color=g>=0?'#1a7a3c':'#c0392b';}}});
-  el('vfk')&&el('vfk').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k&&el('vfek'))el('vfek').value=k.ek||'';});
-  el('btn-ntr')&&el('btn-ntr').addEventListener('click',openTradeSheet);
-  el('btn-str')&&el('btn-str').addEventListener('click',saveTR);
-  el('btn-atr')&&el('btn-atr').addEventListener('click',function(){cs('ovTR');});
-  [el('tfr'),el('tfe')].forEach(function(i){i&&i.addEventListener('input',function(){var r2=parseFloat(el('tfr')?el('tfr').value:0)||0;var e2=parseFloat(el('tfe')?el('tfe').value:0)||0;var d=el('tfdd');if(d){var di=e2-r2;d.textContent=(di>=0?'+':'')+fmt(di)+' EUR';d.style.color=di>=0?'#1a7a3c':'#c0392b';}});});
-  el('btn-nsdg')&&el('btn-nsdg').addEventListener('click',openSDG);
-  el('btn-ssdg')&&el('btn-ssdg').addEventListener('click',saveSDG);
-  el('btn-asdg')&&el('btn-asdg').addEventListener('click',function(){cs('ovSDG');});
-  el('btn-asdgk')&&el('btn-asdgk').addEventListener('click',function(){var s=el('sfka');if(!s||!s.value)return;if(_sk.find(function(ki){return ki.id===s.value;})){toast('Bereits drin',false);return;}_sk.push({id:s.value,note:null});rSKL();s.value='';});
-  el('btn-rs')&&el('btn-rs').addEventListener('click',doSearch);
-  el('rtxt')&&el('rtxt').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
-  el('btn-kk')&&el('btn-kk').addEventListener('click',doKalk);
-  el('kk-karte')&&el('kk-karte').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k){if(el('kk-ek'))el('kk-ek').value=k.ek||'';if(el('kk-einkauf'))el('kk-einkauf').value=k.einkauf||'privat';}});
-  el('btn-confirm-del')&&el('btn-confirm-del').addEventListener('click',confirmDelKarte);
-  el('btn-cancel-del')&&el('btn-cancel-del').addEventListener('click',function(){cs('ovDelKarte');});
-  el('btn-show-dellog')&&el('btn-show-dellog').addEventListener('click',showDeleteLog);
-  el('btn-close-dellog')&&el('btn-close-dellog').addEventListener('click',function(){cs('ovDelLog');});
-  el('btn-sp')&&el('btn-sp').addEventListener('click',saveP);
-  el('btn-cp')&&el('btn-cp').addEventListener('click',changeP);
-  el('btn-lop')&&el('btn-lop').addEventListener('click',doLogout);
-  document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
-  loadDB();
-});
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// EVENTS
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+document.addEventListener('DOMContentLoaded', function(){
+  // Login
+  el('loginBtn') && el('loginBtn').addEventListener('click', doLogin);
+  [el('inp-user'),el('inp-pass')].forEach(function(inp){
+    inp && inp.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+  });
+  el('btn-logout') && el('btn-logout').addEventListener('click', doLogout);
 
-document.addEventListener('DOMContentLoaded',function(){
-  el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
-  el('btn-viewer-mode')&&el('btn-viewer-mode').addEventListener('click',openViewerConfirm);
-  el('btn-viewer-yes')&&el('btn-viewer-yes').addEventListener('click',function(){cs('ovViewer');activateViewerMode();});
-  el('btn-viewer-no')&&el('btn-viewer-no').addEventListener('click',function(){cs('ovViewer');});
-  el('btn-exit-viewer')&&el('btn-exit-viewer').addEventListener('click',deactivateViewerMode);
-  [el('inp-user'),el('inp-pass')].forEach(function(i){i&&i.addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});});
-  el('btn-logout')&&el('btn-logout').addEventListener('click',doLogout);
-  document.querySelectorAll('.nbtn').forEach(function(b){b.addEventListener('click',function(){go(this.dataset.v);});});
-  el('btn-nk')&&el('btn-nk').addEventListener('click',function(){openKM(null);});
-  el('btn-sk')&&el('btn-sk').addEventListener('click',saveK);
-  el('btn-ak')&&el('btn-ak').addEventListener('click',function(){cs('ovK');});
-  document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.addEventListener('click',function(){setK(this.dataset.val);});});
-  el('ks')&&el('ks').addEventListener('input',rKarten);
-  el('kl')&&el('kl').addEventListener('input',rKarten);
-  el('btn-nvk')&&el('btn-nvk').addEventListener('click',openVK);
-  el('btn-svk')&&el('btn-svk').addEventListener('click',saveVK);
-  el('btn-avk')&&el('btn-avk').addEventListener('click',function(){cs('ovVK');});
-  el('vfvk')&&el('vfvk').addEventListener('input',function(){var ek=parseFloat(el('vfek')?el('vfek').value:0)||0;var vk=parseFloat(this.value)||0;var d=el('vfgd');if(d){if(!vk){d.textContent='VK eingeben';d.style.color='var(--text3)';}else{var g=vk-ek;d.textContent=(g>=0?'+':'')+fmt(g)+' EUR';d.style.color=g>=0?'#1a7a3c':'#c0392b';}}});
-  el('vfk')&&el('vfk').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k&&el('vfek'))el('vfek').value=k.ek||'';});
-  el('btn-ntr')&&el('btn-ntr').addEventListener('click',openTradeSheet);
-  el('btn-str')&&el('btn-str').addEventListener('click',saveTR);
-  el('btn-atr')&&el('btn-atr').addEventListener('click',function(){cs('ovTR');});
-  [el('tfr'),el('tfe')].forEach(function(i){i&&i.addEventListener('input',function(){var r2=parseFloat(el('tfr')?el('tfr').value:0)||0;var e2=parseFloat(el('tfe')?el('tfe').value:0)||0;var d=el('tfdd');if(d){var di=e2-r2;d.textContent=(di>=0?'+':'')+fmt(di)+' EUR';d.style.color=di>=0?'#1a7a3c':'#c0392b';}});});
-  el('btn-nsdg')&&el('btn-nsdg').addEventListener('click',openSDG);
-  el('btn-ssdg')&&el('btn-ssdg').addEventListener('click',saveSDG);
-  el('btn-asdg')&&el('btn-asdg').addEventListener('click',function(){cs('ovSDG');});
-  el('btn-asdgk')&&el('btn-asdgk').addEventListener('click',function(){var s=el('sfka');if(!s||!s.value)return;if(_sk.find(function(ki){return ki.id===s.value;})){toast('Bereits drin',false);return;}_sk.push({id:s.value,note:null});rSKL();s.value='';});
-  el('btn-rs')&&el('btn-rs').addEventListener('click',doSearch);
-  el('rtxt')&&el('rtxt').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
-  el('btn-kk')&&el('btn-kk').addEventListener('click',doKalk);
-  el('kk-karte')&&el('kk-karte').addEventListener('change',function(){var k=db.karten.find(function(x){return x.id===this.value;}.bind(this));if(k){if(el('kk-ek'))el('kk-ek').value=k.ek||'';if(el('kk-einkauf'))el('kk-einkauf').value=k.einkauf||'privat';}});
-  el('btn-confirm-del')&&el('btn-confirm-del').addEventListener('click',confirmDelKarte);
-  el('btn-cancel-del')&&el('btn-cancel-del').addEventListener('click',function(){cs('ovDelKarte');});
-  el('btn-show-dellog')&&el('btn-show-dellog').addEventListener('click',showDeleteLog);
-  el('btn-close-dellog')&&el('btn-close-dellog').addEventListener('click',function(){cs('ovDelLog');});
-  el('btn-sp')&&el('btn-sp').addEventListener('click',saveP);
-  el('btn-cp')&&el('btn-cp').addEventListener('click',changeP);
-  el('btn-lop')&&el('btn-lop').addEventListener('click',doLogout);
-  document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
+  // Nav
+  document.querySelectorAll('.nav-item').forEach(function(btn){
+    btn.addEventListener('click',function(){ go(this.dataset.view); });
+  });
+
+  // Karte sheet
+  el('btn-neue-karte') && el('btn-neue-karte').addEventListener('click',function(){ openKarteModal(null); });
+  el('btn-save-karte') && el('btn-save-karte').addEventListener('click', saveKarte);
+  el('btn-abbr-karte') && el('btn-abbr-karte').addEventListener('click',function(){ closeSheet('ovKarte'); });
+  document.querySelectorAll('#kf-kond-grp .radio-btn').forEach(function(b){
+    b.addEventListener('click',function(){ setKond(this.dataset.val); });
+  });
+  el('kart-search') && el('kart-search').addEventListener('input', renderKarten);
+
+  // Verkauf sheet
+  el('btn-neu-vk')  && el('btn-neu-vk').addEventListener('click', openVerkaufSheet);
+  el('btn-save-vk') && el('btn-save-vk').addEventListener('click', saveVerkauf);
+  el('btn-abbr-vk') && el('btn-abbr-vk').addEventListener('click',function(){ closeSheet('ovVerkauf'); });
+  el('vf-vk')       && el('vf-vk').addEventListener('input', updateVKGewinn);
+  el('vf-ek')       && el('vf-ek').addEventListener('input', updateVKGewinn);
+  el('vf-karte')    && el('vf-karte').addEventListener('change',function(){
+    var k=db.karten.find(function(x){return x.id===el('vf-karte').value;});
+    if(k&&el('vf-ek')) el('vf-ek').value=k.ek||''; updateVKGewinn();
+  });
+
+  // Trade sheet
+  el('btn-neu-tr')  && el('btn-neu-tr').addEventListener('click', openTradeSheet);
+  el('btn-save-tr') && el('btn-save-tr').addEventListener('click', saveTrade);
+  el('btn-abbr-tr') && el('btn-abbr-tr').addEventListener('click',function(){ closeSheet('ovTrade'); });
+  el('tf-raus')     && el('tf-raus').addEventListener('input', updateTradeDiff);
+  el('tf-rein')     && el('tf-rein').addEventListener('input', updateTradeDiff);
+
+  // Grading sheet
+  el('btn-neue-sdg') && el('btn-neue-sdg').addEventListener('click', openSendungSheet);
+  el('btn-save-sdg') && el('btn-save-sdg').addEventListener('click', saveSendung);
+  el('btn-abbr-sdg') && el('btn-abbr-sdg').addEventListener('click',function(){ closeSheet('ovSendung'); });
+  el('btn-add-karte-sdg') && el('btn-add-karte-sdg').addEventListener('click',function(){
+    var sel=el('sf-karte-add'); if(!sel||!sel.value)return;
+    if(_sendungKarten.find(function(ki){return ki.id===sel.value;})){ toast('Bereits in der Liste',false); return; }
+    _sendungKarten.push({id:sel.value,note:null}); renderSKartenList(); sel.value='';
+  });
+
+  // Close sheets on overlay click
+  document.querySelectorAll('.sheet-overlay').forEach(function(ov){
+    ov.addEventListener('click',function(e){ if(e.target===ov) ov.classList.remove('open'); });
+  });
+
+  // Load data on start
   loadDB();
 });
 </script>
-
-<!-- VIEWER MODE CONFIRM -->
-<div class="sov" id="ovViewer" style="display:none">
-  <div class="sheet">
-    <div class="shandle"></div>
-    <div class="stit">&#128065; Viewer-Modus</div>
-    <div style="background:#fdf5e0;border:1px solid rgba(184,134,11,0.3);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.7">
-      Im Viewer-Modus werden ausschlie&szlig;lich die <b>Karten und Marktwerte</b> angezeigt.<br>
-      <span style="font-size:11px;color:var(--text3)">EK-Preise, Gewinne und Transaktionen werden ausgeblendet.</span>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button id="btn-viewer-yes" style="flex:1;padding:13px;background:#1a7a3c;color:#fff;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:15px;font-weight:800;cursor:pointer">Ja, aktivieren</button>
-      <button id="btn-viewer-no" style="flex:1;padding:13px;background:rgba(192,57,43,0.1);color:#c0392b;border:1.5px solid rgba(192,57,43,0.3);border-radius:10px;font-family:Syne,sans-serif;font-size:15px;font-weight:800;cursor:pointer">Nein</button>
-    </div>
-  </div>
-</div>
-
-
 </body>
 </html>
