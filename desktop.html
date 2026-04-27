@@ -271,10 +271,39 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
             <!-- KOSTENPLANUNG -->
             <div class="card">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💰</div>
-                <div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;">Kostenplanung</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);">MADCollectables GbR</div></div>
+                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📊</div>
+                <div><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;">Kostenplanung</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);">MADCollectables GbR</div></div>
               </div>
-              <a href="kosten.html" style="display:block;text-align:center;padding:11px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border-radius:10px;font-family:Syne,sans-serif;font-size:14px;font-weight:800;text-decoration:none;">📊 Zur Kostenplanung</a>
+              <!-- KOSTEN TABS -->
+              <div style="display:flex;gap:6px;margin-bottom:12px;">
+                <button class="kost-tab-btn" data-kt="monat" onclick="kostTab('monat',this)" style="flex:1;padding:7px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Monatlich</button>
+                <button class="kost-tab-btn" data-kt="jahr" onclick="kostTab('jahr',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Jährlich</button>
+                <button class="kost-tab-btn" data-kt="rl" onclick="kostTab('rl',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Rücklagen</button>
+                <button class="kost-tab-btn" data-kt="einzel" onclick="kostTab('einzel',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Einzelkosten</button>
+              </div>
+              <!-- KPI ÜBERSICHT -->
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+                <div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Monatlich</div><div class="kval" style="font-size:14px;" id="ko-sum-mo">0,00 €</div></div>
+                <div class="kpi" style="border-top-color:#1a5fa8"><div class="klbl">Jährl. ÷12</div><div class="kval" style="font-size:14px;" id="ko-sum-ja">0,00 €</div></div>
+                <div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Gesamt/Mo</div><div class="kval" style="font-size:14px;" id="ko-sum-ges">0,00 €</div></div>
+                <div class="kpi" style="border-top-color:var(--purple)"><div class="klbl">Rücklagen/Mo</div><div class="kval" style="font-size:14px;" id="ko-sum-rl">0,00 €</div></div>
+              </div>
+              <div id="ko-tab-monat">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Monatliche Kosten</span><button class="btn bgold bsm" onclick="openKoOv('mo')">+ Neu</button></div>
+                <div id="ko-list-mo"></div>
+              </div>
+              <div id="ko-tab-jahr" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Jährliche Kosten</span><button class="btn bgold bsm" onclick="openKoOv('ja')">+ Neu</button></div>
+                <div id="ko-list-ja"></div>
+              </div>
+              <div id="ko-tab-rl" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Rücklagen</span><button class="btn bgold bsm" onclick="openKoOv('rl')">+ Neu</button></div>
+                <div id="ko-list-rl"></div>
+              </div>
+              <div id="ko-tab-einzel" style="display:none;">
+                <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;">Grading-Aufwände</div>
+                <div id="ko-list-einzel"></div>
+              </div>
             </div>
           </div>
           <div>
@@ -565,6 +594,25 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
   </div>
 </div></div>
 
+<!-- KOSTEN OVERLAY -->
+<div class="sov" id="ovKo" onclick="if(event.target===this)cs('ovKo')"><div class="sheet">
+  <div class="stit" id="ovKo-tit">Kosten erfassen</div>
+  <input type="hidden" id="ko-mode">
+  <input type="hidden" id="ko-edit-id">
+  <div class="fg2">
+    <div class="fg"><label class="flbl">Bezeichnung *</label><input class="fi" id="ko-name" placeholder="z.B. Shopify, Versicherung..."></div>
+    <div class="fg"><label class="flbl">Betrag (€) *</label><input class="fi" id="ko-betrag" type="number" step="0.01" min="0" placeholder="0,00"></div>
+    <div id="ko-extra-mo" class="fg"><label class="flbl">Abbuchung (Tag)</label><input class="fi" id="ko-datum" type="number" min="1" max="31" placeholder="1-31"></div>
+    <div id="ko-extra-ja" class="fg" style="display:none;"><label class="flbl">Fälligkeit (Monat)</label><select class="fi" id="ko-monat"><option value="1">Januar</option><option value="2">Februar</option><option value="3">März</option><option value="4">April</option><option value="5">Mai</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">August</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Dezember</option></select></div>
+    <div id="ko-extra-rl-ziel" class="fg" style="display:none;"><label class="flbl">Zielbetrag (€)</label><input class="fi" id="ko-ziel" type="number" step="0.01" min="0" placeholder="0,00"></div>
+  </div>
+  <div class="fg"><label class="flbl">Notiz (optional)</label><input class="fi" id="ko-notiz" placeholder="Weitere Infos..."></div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn bgold" onclick="saveKo()" style="flex:2;">Speichern</button>
+    <button class="btn bout" onclick="cs('ovKo')" style="flex:1;">Abbrechen</button>
+  </div>
+</div></div>
+
 <!-- ── SCRIPT (identical logic to mobile) ────────────────────────── -->
 <script>
 var SB_URL='https://wswzqvmcqpvhnvfxguet.supabase.co';
@@ -639,10 +687,135 @@ function loadBBFromDB(){return(db.schwarzesbrett||[]);}
 function postBB(){var titel=el('bb-titel')?el('bb-titel').value.trim():'';var text=el('bb-text')?el('bb-text').value.trim():'';var kat=el('bb-kat')?el('bb-kat').value:'info';if(!titel||!text){toast('Titel und Text eingeben',false);return;}var katDef={info:{icon:'ℹ️',col:'rgba(26,95,168,.12)',border:'rgba(26,95,168,.3)'},wartung:{icon:'🔧',col:'rgba(184,134,11,.1)',border:'rgba(184,134,11,.35)'},wichtig:{icon:'🚨',col:'rgba(192,57,43,.08)',border:'rgba(192,57,43,.3)'},news:{icon:'🎉',col:'rgba(26,122,60,.08)',border:'rgba(26,122,60,.3)'}};if(!db.schwarzesbrett)db.schwarzesbrett=[];db.schwarzesbrett.unshift({id:'B'+Date.now(),titel:titel,text:text,kat:kat,icon:katDef[kat].icon,col:katDef[kat].col,border:katDef[kat].border,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});if(el('bb-titel'))el('bb-titel').value='';if(el('bb-text'))el('bb-text').value='';saveDB();rBBAdmin();rBBDash();toast('Nachricht veröffentlicht!');}
 function rBBAdmin(){var li=el('bb-list');if(!li)return;var bb=loadBBFromDB();if(!bb.length){li.innerHTML='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);text-align:center;padding:10px;">Noch keine Einträge</div>';return;}li.innerHTML=bb.map(function(b,i){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:18px;flex-shrink:0">'+b.icon+'</span><div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div><div style="font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5">'+esc(b.text)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div><button data-bi="'+i+'" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;flex-shrink:0">✕</button></div>';}).join('');li.querySelectorAll('button[data-bi]').forEach(function(b){b.addEventListener('click',function(){if(!db.schwarzesbrett)return;db.schwarzesbrett.splice(parseInt(this.dataset.bi),1);saveDB();rBBAdmin();rBBDash();toast('Gelöscht');});});}
 function rBBDash(){var cont=el('bb-dashboard');if(!cont)return;var bb=loadBBFromDB();if(!bb.length){cont.style.display='none';return;}cont.style.display='block';cont.innerHTML=bb.slice(0,3).map(function(b){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:13px;padding:14px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px"><span style="font-size:20px;flex-shrink:0">'+b.icon+'</span><div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div><div style="font-size:13px;color:var(--text2);margin-top:4px;line-height:1.5">'+esc(b.text)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:5px">'+b.datum+' · '+esc(b.autor)+'</div></div></div>';}).join('');}
-function rGadgets(){rNotizen();rBBAdmin();}
+function rGadgets(){rNotizen();rBBAdmin();rKosten();}
+
+// ── KOSTENPLANUNG (Supabase) ──────────────────────────────────────
+function getKosten(){return db.einstellungen._kosten||{monat:[],jahr:[],rl:[]};}
+function saveKosten(k){db.einstellungen._kosten=k;saveDB();}
+function fmtKo(n){return Number(n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+function uidKo(){return 'ko'+Date.now()+Math.random().toString(36).slice(2,5);}
+
+function kostTab(tab,btn){
+  ['monat','jahr','rl','einzel'].forEach(function(t){
+    var e2=el('ko-tab-'+t);if(e2)e2.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.kost-tab-btn').forEach(function(b){
+    b.style.background='var(--surface2)';b.style.color='var(--text2)';b.style.border='1px solid var(--border)';
+  });
+  if(btn){btn.style.background='linear-gradient(135deg,#b8860b,#d4a017)';btn.style.color='#1a1208';btn.style.border='none';}
+}
+
+function openKoOv(mode,id){
+  el('ko-mode').value=mode;el('ko-edit-id').value=id||'';
+  el('ko-name').value='';el('ko-betrag').value='';el('ko-notiz').value='';
+  el('ko-datum').value='';el('ko-monat').value='1';if(el('ko-ziel'))el('ko-ziel').value='';
+  el('ko-extra-mo').style.display=mode==='mo'?'block':'none';
+  el('ko-extra-ja').style.display=mode==='ja'?'block':'none';
+  el('ko-extra-rl-ziel').style.display=mode==='rl'?'block':'none';
+  var titles={mo:'Monatliche Kosten',ja:'Jährliche Kosten',rl:'Rücklage anlegen'};
+  el('ovKo-tit').textContent=titles[mode]||'Kosten';
+  if(id){
+    var k=getKosten();
+    var arr=mode==='mo'?k.monat:mode==='ja'?k.jahr:k.rl;
+    var item=arr.find(function(x){return x.id===id;});
+    if(item){el('ko-name').value=item.name||'';el('ko-betrag').value=item.betrag||'';el('ko-notiz').value=item.notiz||'';
+      if(mode==='mo')el('ko-datum').value=item.datum||'';
+      if(mode==='ja')el('ko-monat').value=item.monat||'1';
+      if(mode==='rl'&&el('ko-ziel'))el('ko-ziel').value=item.ziel||'';}
+  }
+  os('ovKo');
+}
+
+function saveKo(){
+  var mode=el('ko-mode').value;
+  var id=el('ko-edit-id').value;
+  var name=el('ko-name').value.trim();
+  var betrag=parseFloat(el('ko-betrag').value)||0;
+  if(!name){toast('Bezeichnung fehlt',false);return;}
+  if(!betrag){toast('Betrag fehlt',false);return;}
+  var k=getKosten();
+  var item={id:id||uidKo(),name:name,betrag:betrag,notiz:el('ko-notiz').value.trim()};
+  var arr;
+  if(mode==='mo'){item.datum=parseInt(el('ko-datum').value)||0;arr=k.monat;}
+  else if(mode==='ja'){item.monat=parseInt(el('ko-monat').value)||1;arr=k.jahr;}
+  else{item.ziel=parseFloat(el('ko-ziel')?el('ko-ziel').value:0)||0;item.gespart=0;arr=k.rl;
+    if(id){var ex=arr.find(function(x){return x.id===id;});if(ex)item.gespart=ex.gespart||0;}}
+  if(id){var i=arr.findIndex(function(x){return x.id===id;});if(i>=0)arr[i]=item;else arr.push(item);}
+  else arr.push(item);
+  saveKosten(k);cs('ovKo');rKosten();toast('Gespeichert!');
+}
+
+function delKo(mode,id){
+  if(!confirm('Löschen?'))return;
+  var k=getKosten();
+  var arr=mode==='mo'?k.monat:mode==='ja'?k.jahr:k.rl;
+  var idx=arr.findIndex(function(x){return x.id===id;});
+  if(idx>=0)arr.splice(idx,1);
+  saveKosten(k);rKosten();toast('Gelöscht');
+}
+
+function rKosten(){
+  var k=getKosten();
+  var sumMo=k.monat.reduce(function(s,x){return s+(x.betrag||0);},0);
+  var sumJa=k.jahr.reduce(function(s,x){return s+(x.betrag||0);},0)/12;
+  var sumRL=k.rl.reduce(function(s,x){return s+(x.betrag||0);},0);
+  var sumGes=sumMo+sumJa;
+  if(el('ko-sum-mo'))el('ko-sum-mo').textContent=fmtKo(sumMo);
+  if(el('ko-sum-ja'))el('ko-sum-ja').textContent=fmtKo(sumJa);
+  if(el('ko-sum-ges'))el('ko-sum-ges').textContent=fmtKo(sumGes);
+  if(el('ko-sum-rl'))el('ko-sum-rl').textContent=fmtKo(sumRL);
+  var MONATE=['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  var lmo=el('ko-list-mo');
+  if(lmo){if(!k.monat.length){lmo.innerHTML='<div class="rph"><div>Noch keine monatlichen Kosten</div></div>';}
+  else{lmo.innerHTML=k.monat.slice().sort(function(a,b){return (a.datum||99)-(b.datum||99);}).map(function(item){
+    return '<div class="li"><div class="lim"><div class="lit">'+esc(item.name)+'</div><div class="lis">'+(item.datum?'Am '+item.datum+'.':'')+(item.notiz?' · '+esc(item.notiz):'')+'</div></div>'+
+    '<span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:var(--red);flex-shrink:0">'+fmtKo(item.betrag)+'</span>'+
+    '<button onclick="openKoOv(\'mo\',\''+item.id+'\')" style="background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;margin-left:6px">✎</button>'+
+    '<button onclick="delKo(\'mo\',\''+item.id+'\')" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;margin-left:4px">✕</button>'+
+    '</div>';}).join('');}}
+  var lja=el('ko-list-ja');
+  if(lja){if(!k.jahr.length){lja.innerHTML='<div class="rph"><div>Noch keine jährlichen Kosten</div></div>';}
+  else{lja.innerHTML=k.jahr.slice().sort(function(a,b){return (a.monat||13)-(b.monat||13);}).map(function(item){
+    return '<div class="li"><div class="lim"><div class="lit">'+esc(item.name)+'</div><div class="lis">Fällig: '+MONATE[item.monat||1]+(item.notiz?' · '+esc(item.notiz):'')+'</div></div>'+
+    '<div style="text-align:right;flex-shrink:0"><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a5fa8">'+fmtKo(item.betrag)+'</div><div style="font-size:9px;color:var(--text3)">'+fmtKo(item.betrag/12)+'/Mo</div></div>'+
+    '<button onclick="openKoOv(\'ja\',\''+item.id+'\')" style="background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;margin-left:6px">✎</button>'+
+    '<button onclick="delKo(\'ja\',\''+item.id+'\')" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;margin-left:4px">✕</button>'+
+    '</div>';}).join('');}}
+  var lrl=el('ko-list-rl');
+  if(lrl){if(!k.rl.length){lrl.innerHTML='<div class="rph"><div>Noch keine Rücklagen</div></div>';}
+  else{lrl.innerHTML=k.rl.map(function(item){
+    var pct=item.ziel>0?Math.min(100,Math.round(((item.gespart||0)/item.ziel)*100)):0;
+    var col=pct>=100?'var(--green)':pct>=60?'var(--gold)':'#1a5fa8';
+    return '<div class="card" style="margin-bottom:8px;padding:12px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+        '<div style="font-weight:700;font-size:13px;">'+esc(item.name)+'</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)">Ziel: '+fmtKo(item.ziel)+'</div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:6px">'+
+        '<span style="font-family:Syne,sans-serif;font-size:16px;font-weight:800;">'+fmtKo(item.gespart||0)+'</span>'+
+        '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:'+col+'">'+pct+'%</span>'+
+      '</div>'+
+      '<div style="background:var(--surface2);border-radius:20px;height:8px;overflow:hidden;margin-bottom:10px">'+
+        '<div style="height:100%;border-radius:20px;background:'+col+';width:'+pct+'%"></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button onclick="openKoOv(\'rl\',\''+item.id+'\')" style="flex:1;padding:7px;background:rgba(108,52,131,.1);color:#6c3483;border:1px solid rgba(108,52,131,.3);border-radius:7px;font-size:12px;cursor:pointer">Bearbeiten</button>'+
+        '<button onclick="delKo(\'rl\',\''+item.id+'\')" style="padding:7px 12px;background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:7px;font-size:12px;cursor:pointer">✕</button>'+
+      '</div>'+
+    '</div>';}).join('');}}
+  var lei=el('ko-list-einzel');
+  if(lei){
+    var ekItems=[];try{ekItems=JSON.parse(localStorage.getItem('madwms_grading_kosten')||'[]');}catch(e){}
+    if(!ekItems.length){lei.innerHTML='<div class="rph"><div>Noch keine Grading-Aufwände</div></div>';}
+    else{lei.innerHTML=ekItems.slice().reverse().map(function(item){
+      return '<div class="li"><div class="lim"><div class="lit">'+esc(item.sendung)+'</div><div class="lis">'+item.datum+(item.notiz?' · '+esc(item.notiz):'')+'</div></div>'+
+      '<span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:var(--red)">'+fmtKo(item.betrag)+'</span>'+
+      '</div>';}).join('');}
+  }
+}
 
 function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';}
-function renderAll(){rDash();rKarten();rTrans();rGrading();}
+function openDelKarte(id){var k=db.karten.find(function(x){return x.id===id;});if(!k)return;if(el('del-karte-name'))el('del-karte-name').textContent=k.name;if(el('del-karte-id-hidden'))el('del-karte-id-hidden').value=k.id;if(el('del-grund'))el('del-grund').value='';if(el('del-err'))el('del-err').style.display='none';os('ovDelKarte');}
 function activateViewerMode(){viewerMode=true;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){b.style.display='none';});var banner=el('viewer-banner');if(banner)banner.style.display='flex';go('karten');}
 function deactivateViewerMode(){viewerMode=false;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){b.style.display='';});var banner=el('viewer-banner');if(banner)banner.style.display='none';rDash();rKarten();}
 function openViewerConfirm(){os('ovViewer');}
@@ -775,19 +948,6 @@ function sCM(term){var b=el('rcm');if(!b)return;b.innerHTML='<div class="rph"><d
 function sEbay(term){var b=el('rebay');if(!b)return;b.innerHTML='<div class="rph"><div class="rphi">⏳</div><div>Lade eBay...</div></div>';var sel=el('rsel');var km=sel&&sel.value?db.karten.find(function(x){return x.id===sel.value;}):null;var et=term;if(km&&km.kondition!=='Raw')et=km.name+' '+km.kondition+' '+km.note;var eu='https://www.ebay.de/sch/i.html?_nkw='+encodeURIComponent(et+' trading card')+'&LH_Sold=1&LH_Complete=1&_sop=13&LH_DAYS=30&_ipg=25';fetch(PROXY+encodeURIComponent(eu)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var tr=/class="s-item__title[^"]*"[^>]*>(?:<span[^>]*>)?([^<]{5,80})/g;var pr=/class="s-item__price"[^>]*>[\s\S]*?([0-9]+[,.][0-9]{2}\s*EUR)/g;var ts=[],ps=[],m;while((m=tr.exec(h))!==null&&ts.length<25)ts.push(m[1].trim().replace(/&amp;/g,'&'));while((m=pr.exec(h))!==null&&ps.length<25){var p=parseFloat(m[1].replace(/[^0-9,.]/g,'').replace(',','.'));ps.push(p>0.5?p:null);}var rows=[];for(var i=0;i<Math.min(ts.length,25);i++){if(ts[i]&&ts[i].length>4&&ps[i])rows.push({t:ts[i],p:ps[i]});}if(!rows.length){b.innerHTML='<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">eBay ↗</a>';return;}var vp=rows.map(function(r){return r.p;});var av=vp.reduce(function(s,p){return s+p;},0)/vp.length;var mn=Math.min.apply(null,vp);var mx=Math.max.apply(null,vp);b.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px"><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">Ø 30T</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">'+av.toFixed(2)+'</div></div><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">MIN</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a7a3c">'+mn.toFixed(2)+'</div></div><div style="padding:8px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-size:8px;color:var(--text3);font-family:JetBrains Mono,monospace">MAX</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#c0392b">'+mx.toFixed(2)+'</div></div></div>'+rows.slice(0,10).map(function(r){return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">'+r.t+'</div><div style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:#1a7a3c">'+r.p.toFixed(2)+' €</div></div>';}).join('')+'<div style="font-size:10px;color:var(--text3);margin-top:6px;text-align:center">'+rows.length+' Verkäufe · 30 Tage</div><a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">eBay ↗</a>';}).catch(function(){b.innerHTML='<a href="'+eu+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;font-size:12px">eBay ↗</a>';});}
 function rKalk(){var sel=el('kk-karte');if(!sel)return;var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});sel.innerHTML='<option value="">-- Manuell --</option>'+b.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');}
 function doKalk(){var ek=parseFloat(el('kk-ek')?el('kk-ek').value:0)||0;if(!ek){toast('EK eingeben',false);return;}var gr=parseFloat(el('kk-grade')?el('kk-grade').value:0)||0;var vs=parseFloat(el('kk-versand')?el('kk-versand').value:1.5)||1.5;var mg=parseFloat(el('kk-marge')?el('kk-marge').value:30)||30;var plt=el('kk-plattform')?el('kk-plattform').value:'cardmarket';var ei=el('kk-einkauf')?el('kk-einkauf').value:'privat';var fee=FEES[plt]||FEES.cardmarket;var ust=parseFloat(db.einstellungen.ustSatz||19)/100;var ku=db.einstellungen.kleinunternehmer==='ja';var gk=ek+gr+vs;var mn=Math.ceil(((gk+ek*(mg/100)+fee.fix)/(1-fee.pct))*20)/20;var emp=Math.ceil(mn*1.05*20)/20;var geb=emp*fee.pct+fee.fix;var net=emp-geb-vs;var gw=net-ek-gr;var mwst=ku?0:(ei==='privat'?(gw>0?(gw/(1+ust))*ust:0):(net/(1+ust))*ust);var gwns=gw-mwst;var roi=ek>0?((gw/ek)*100).toFixed(1):'0';var rc=el('kk-res-card');if(rc)rc.style.display='block';var r=el('kk-res');if(!r)return;r.innerHTML='<div style="background:linear-gradient(135deg,rgba(184,134,11,.1),rgba(212,160,23,.05));border:1px solid rgba(184,134,11,.3);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px"><div style="font-size:9px;color:var(--text3);font-family:JetBrains Mono,monospace;letter-spacing:1px;margin-bottom:3px">EMPFOHLENER VK</div><div style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;color:var(--gold)">'+fmt(emp)+' €</div><div style="font-size:10px;color:var(--text3);margin-top:3px">Minimum: '+fmt(mn)+' €</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">PLATTFORM</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:#c0392b">'+fmt(geb)+' €</div></div><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">GEWINN</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:'+(gw>=0?'#1a7a3c':'#c0392b')+'">'+(gw>=0?'+':'')+fmt(gw)+' €</div></div><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">ROI</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:var(--gold)">'+roi+'%</div></div><div style="padding:9px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">NETTO</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:var(--text)">'+fmt(net)+' €</div></div></div>'+(!ku?'<div style="padding:9px;background:'+(gwns>=0?'rgba(26,122,60,.08)':'rgba(192,57,43,.06)')+';border-radius:8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--text2)">Nach MwSt</span><span style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:'+(gwns>=0?'#1a7a3c':'#c0392b')+'">'+(gwns>=0?'+':'')+fmt(gwns)+' €</span></div>':'');}
-function getAnkPct(){return parseFloat(el('ank-pct')?el('ank-pct').value:60)||60;}
-function calcAnkaufspreis(mw){return Math.round(mw*getAnkPct())/100;}
-function ankTab(tab){var e=tab==='einzel';el('ank-einzel-panel').style.display=e?'block':'none';el('ank-masse-panel').style.display=e?'none':'block';el('ank-tab-einzel').style.background=e?'linear-gradient(135deg,#b8860b,#d4a017)':'var(--surface2)';el('ank-tab-einzel').style.color=e?'#1a1208':'var(--text2)';el('ank-tab-einzel').style.border=e?'none':'1px solid var(--border)';el('ank-tab-masse').style.background=e?'var(--surface2)':'linear-gradient(135deg,#b8860b,#d4a017)';el('ank-tab-masse').style.color=e?'var(--text2)':'#1a1208';el('ank-tab-masse').style.border=e?'1px solid var(--border)':'none';}
-function fetchAnkaufPreis(name,serie,cb){var basis=el('ank-basis')?el('ank-basis').value:'cardmarket';var slug=serie==='Pokemon'?'Pokemon':(serie==='One Piece'?'OnePiece':'YuGiOh');var url='';if(basis==='cardmarket'){url='https://www.cardmarket.com/de/'+slug+'/Products/Search?searchString='+encodeURIComponent(name);fetch(PROXY+encodeURIComponent(url)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var re=/([0-9]+[,.][0-9]{2})\s*€/g,m,ps=[];while((m=re.exec(h))!==null){var p=parseFloat(m[1].replace(',','.'));if(p>0.5&&p<50000)ps.push(p);}if(!ps.length){cb(null,0,url);return;}ps.sort(function(a,b){return a-b;});var av=ps.slice(0,5).reduce(function(s,v){return s+v;},0)/Math.min(ps.length,5);cb(av,calcAnkaufspreis(av),url);}).catch(function(){cb(null,0,url);});}else{url='https://www.ebay.de/sch/i.html?_nkw='+encodeURIComponent(name+' trading card')+'&LH_Sold=1&LH_Complete=1&_sop=13&LH_DAYS=30&_ipg=25';fetch(PROXY+encodeURIComponent(url)).then(function(r){return r.json();}).then(function(d){var h=d.contents||'';var re=/([0-9]+[,.][0-9]{2})\s*EUR/g,m,ps=[];while((m=re.exec(h))!==null){var p=parseFloat(m[1].replace(',','.'));if(p>0.5&&p<50000)ps.push(p);}if(!ps.length){cb(null,0,url);return;}var av=ps.reduce(function(s,v){return s+v;},0)/ps.length;cb(av,calcAnkaufspreis(av),url);}).catch(function(){cb(null,0,url);});}}
-function doAnkaufSearch(){var name=el('ank-search')?el('ank-search').value.trim():'';var serie=el('ank-serie')?el('ank-serie').value:'Pokemon';if(!name){toast('Name eingeben',false);return;}var rc=el('ank-result'),rcont=el('ank-result-content'),ab=el('btn-ank-accept');if(rc)rc.style.display='block';if(ab)ab.style.display='none';if(rcont)rcont.innerHTML='<div class="rph"><div class="rphi">⏳</div><div>Preise werden ermittelt...</div></div>';fetchAnkaufPreis(name,serie,function(mw,ank,url){_ankLastResult=mw?{name:name,serie:serie,markt:mw,ankauf:ank}:null;if(!mw){if(rcont)rcont.innerHTML='<div class="rph"><div>Kein Preis gefunden</div></div><a href="'+url+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-top:8px;font-size:12px">Manuell suchen ↗</a>';return;}if(rcont)rcont.innerHTML='<div style="background:linear-gradient(135deg,rgba(26,122,60,0.08),rgba(26,122,60,0.03));border:1px solid rgba(26,122,60,0.25);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px"><div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:4px">ANKAUFSPREIS ('+getAnkPct()+'%)</div><div style="font-family:Syne,sans-serif;font-size:34px;font-weight:800;color:#1a7a3c">'+fmt(ank)+' €</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">MARKTWERT</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:15px;color:var(--gold)">'+fmt(mw)+' €</div></div><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">MARGE</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:15px;color:#1a5276">+'+fmt(mw-ank)+' €</div></div></div><a href="'+url+'" target="_blank" class="btn bout" style="display:block;text-align:center;text-decoration:none;margin-bottom:4px;font-size:12px">Preis prüfen ↗</a>';if(ab)ab.style.display='block';});}
-function doAnkaufAccept(){if(!_ankLastResult)return;var r=_ankLastResult;db.karten.push({id:'K'+Date.now(),name:r.name,serie:r.serie,set:'',lager:'',kondition:'Raw',note:'',einkauf:'privat',ek:r.ankauf,marktwert:r.markt,quelle:'Ankauf',notizen:'',status:'Im Bestand',kaufdatum:today()});saveDB();rKarten();rDash();toast('"'+r.name+'" für '+fmt(r.ankauf)+' € ins Inventar!');if(el('ank-search'))el('ank-search').value='';if(el('ank-result'))el('ank-result').style.display='none';_ankLastResult=null;}
-function ankMasseAdd(){var name=el('ank-m-name')?el('ank-m-name').value.trim():'';var serie=el('ank-m-serie')?el('ank-m-serie').value:'Pokemon';if(!name){toast('Name eingeben',false);return;}_ankMasseList.push({name:name,serie:serie,markt:null,ankauf:null});if(el('ank-m-name'))el('ank-m-name').value='';renderAnkMasseList();var sb=el('btn-ank-masse-search');if(sb)sb.style.display='block';}
-function renderAnkMasseList(){var li=el('ank-masse-list');if(!li)return;if(!_ankMasseList.length){li.innerHTML='';return;}li.innerHTML=_ankMasseList.map(function(item,i){return '<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--surface2);border-radius:8px;margin-bottom:6px"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.name+'</div><div style="font-size:10px;color:var(--text3)">'+item.serie+(item.markt?' · MW: '+fmt(item.markt)+' € · Ankauf: <b style="color:#1a7a3c">'+fmt(item.ankauf)+' €</b>':'')+'</div></div><button data-rm="'+i+'" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;flex-shrink:0">X</button></div>';}).join('');li.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){_ankMasseList.splice(parseInt(this.dataset.rm),1);renderAnkMasseList();if(!_ankMasseList.length){var sb=el('btn-ank-masse-search');if(sb)sb.style.display='none';var rr=el('ank-masse-results');if(rr)rr.style.display='none';}});});}
-function doAnkaufMasseSearch(){if(!_ankMasseList.length){toast('Liste ist leer',false);return;}var btn=el('btn-ank-masse-search');if(btn){btn.textContent='Laden...';btn.disabled=true;}function next(i){if(i>=_ankMasseList.length){if(btn){btn.textContent='Alle Preise ermitteln';btn.disabled=false;}renderAnkMasseList();showAnkMasseResults();return;}fetchAnkaufPreis(_ankMasseList[i].name,_ankMasseList[i].serie,function(mw,ank){_ankMasseList[i].markt=mw||0;_ankMasseList[i].ankauf=ank||0;renderAnkMasseList();setTimeout(function(){next(i+1);},600);});}next(0);}
-function showAnkMasseResults(){var res=el('ank-masse-results');if(!res)return;res.style.display='block';var content=el('ank-masse-result-content');if(!content)return;var tm=_ankMasseList.reduce(function(s,k){return s+(k.markt||0);},0);var ta=_ankMasseList.reduce(function(s,k){return s+(k.ankauf||0);},0);var html='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px"><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">GESAMTANKAUF</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:#1a7a3c">'+fmt(ta)+' €</div></div><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">GESAMT MW</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:var(--gold)">'+fmt(tm)+' €</div></div><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">POT. MARGE</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:#1a5276">+'+fmt(tm-ta)+' €</div></div></div>';_ankMasseList.forEach(function(k){html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%">'+k.name+'</div><div style="text-align:right;flex-shrink:0">'+(k.markt?'<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3)">MW: '+fmt(k.markt)+'</div>':'')+'<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:#1a7a3c">'+(k.ankauf?fmt(k.ankauf)+' €':'n/v')+'</div></div></div>';});content.innerHTML=html;}
-function doAnkaufMasseAccept(){var added=0;_ankMasseList.forEach(function(item){if(!item.name)return;db.karten.push({id:'K'+Date.now()+added,name:item.name,serie:item.serie,set:'',lager:'',kondition:'Raw',note:'',einkauf:'privat',ek:item.ankauf||0,marktwert:item.markt||0,quelle:'Ankauf',notizen:'',status:'Im Bestand',kaufdatum:today()});added++;});saveDB();rKarten();rDash();toast(added+' Karten ins Inventar!');_ankMasseList=[];renderAnkMasseList();var rr=el('ank-masse-results');if(rr)rr.style.display='none';var sb=el('btn-ank-masse-search');if(sb)sb.style.display='none';}
-function rAnkauf(){var pct=el('ank-pct'),disp=el('ank-pct-display');if(pct&&disp)pct.oninput=function(){disp.textContent=this.value;};}
-
 function saveP(){if(!cu)return;var n=el('pname')?el('pname').value.trim():'';if(!n){toast('Name darf nicht leer',false);return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;u.name=n;u.email=el('pemail')?el('pemail').value.trim():'';cu.name=n;var av=el('pav');if(av)av.textContent=n[0].toUpperCase();if(el('pnd'))el('pnd').textContent=n;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(n||u.username)+' · '+(R[u.rolle]||'');if(el('sav'))el('sav').textContent=n[0].toUpperCase();saveDB();toast('Profil gespeichert!');}
 function changeP(){if(!cu)return;var op=el('ppold')?el('ppold').value:'',np=el('ppnew')?el('ppnew').value:'',np2=el('ppnew2')?el('ppnew2').value:'';var err=el('pperr');if(err)err.style.display='none';function se(m){if(err){err.textContent=m;err.style.display='block';}}if(!op||!np||!np2){se('Alle Felder ausfüllen');return;}if(np.length<4){se('Mind. 4 Zeichen');return;}if(np!==np2){se('Nicht übereinstimmend');return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;if(hashPass(op,u.salt)!==u.passHash){se('Aktuelles PW falsch');return;}var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(np,ns);cu.salt=ns;cu.passHash=u.passHash;['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});saveDB();toast('Passwort geändert!');}
 
