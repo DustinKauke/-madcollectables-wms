@@ -7,7 +7,12 @@
 <title>MADCollectables · WMS Desktop</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+.adm-tile{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:100px;text-align:center;box-shadow:0 2px 8px rgba(184,134,11,.06);transition:all .15s;}
+.adm-tile:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(184,134,11,.12);border-color:var(--gold);}
+.adm-tile-ico{font-size:26px;margin-bottom:6px;}
+.adm-tile-lbl{font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark);}
+.adm-tile-sub{font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-top:3px;}
+.adm-sub-content{display:none;}
 :root{--bg:#f5f0e8;--surface:#fffdf7;--surface2:#f0ead8;--border:#ddd5bc;--gold:#b8860b;--gold2:#d4a017;--dark:#1a1208;--text:#1a1208;--text2:#4a3f2a;--text3:#8c7a5a;--green:#1a7a3c;--red:#c0392b;--purple:#6c3483;--sidebar:230px;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:Outfit,sans-serif;color:var(--text);}
@@ -248,82 +253,89 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
         <div class="card"><div class="ctit">Letzte Aktivitäten</div><div id="d-letzte"></div></div>
       </div>
 
-      <!-- GADGETS (nur Admin) -->
+      <!-- GADGETS (nur Admin) - MAINPAGE -->
       <div class="view" id="view-gadgets">
-        <div class="vtit">⚙ Gadgets</div>
-        <div class="dcols">
-          <div>
-            <!-- NOTIZMODUS -->
-            <div class="card">
-              <div class="ctit">📝 Notizen &amp; To-Dos</div>
-              <div id="notiz-list" style="margin-bottom:10px;"></div>
-              <div class="fg"><input id="notiz-inp" class="fi" placeholder="Neue Notiz oder To-Do..."></div>
-              <div class="fg2">
-                <select id="notiz-typ" class="fi"><option value="notiz">📝 Notiz</option><option value="todo">✅ To-Do</option><option value="idee">💡 Idee</option></select>
-                <button class="btn bgold" id="btn-notiz-add">+ Hinzufügen</button>
+        <!-- MAINPAGE -->
+        <div id="adm-main">
+          <div class="vtit">⚙ Admin-Center</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+            <div class="adm-tile" onclick="openAdmTile('viewer')"><div class="adm-tile-ico">👁</div><div class="adm-tile-lbl">Viewer-Modus</div></div>
+            <div class="adm-tile" onclick="openAdmTile('bb')"><div class="adm-tile-ico">📌</div><div class="adm-tile-lbl">Schwarzes Brett</div><div id="adm-bb-preview" class="adm-tile-sub"></div></div>
+            <div class="adm-tile" onclick="openAdmTile('notizen')"><div class="adm-tile-ico">📝</div><div class="adm-tile-lbl">Notizen</div><div id="adm-notiz-count" class="adm-tile-sub"></div></div>
+            <div class="adm-tile" onclick="openAdmTile('kosten')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Kostenplanung</div><div id="adm-kosten-sub" class="adm-tile-sub"></div></div>
+            <div class="adm-tile" onclick="openAdmTile('dellog')"><div class="adm-tile-ico">🗑</div><div class="adm-tile-lbl">Löschprotokoll</div></div>
+            <div class="adm-tile" onclick="openAdmTile('feedback')"><div class="adm-tile-ico">💬</div><div class="adm-tile-lbl">Mitarbeiter-Nachrichten</div><div id="adm-fb-count" class="adm-tile-sub"></div></div>
+            <div class="adm-tile" onclick="openAdmTile('benutzer')"><div class="adm-tile-ico">👥</div><div class="adm-tile-lbl">Benutzerverwaltung</div><div id="adm-usr-count" class="adm-tile-sub"></div></div>
+            <div class="adm-tile" style="background:transparent;border:1px dashed var(--border);cursor:default;"></div>
+            <div class="adm-tile" style="background:transparent;border:1px dashed var(--border);cursor:default;"></div>
+          </div>
+        </div>
+        <!-- SUB-VIEWS -->
+        <div id="adm-sub" style="display:none;">
+          <button onclick="closeAdmTile()" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 16px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--dark);margin-bottom:18px;">← Zurück</button>
+          <!-- VIEWER -->
+          <div id="adm-tile-viewer" class="adm-sub-content" style="display:none;">
+            <div class="vtit">👁 Viewer-Modus</div>
+            <div class="card"><div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">Im Viewer-Modus sehen Besucher nur Bestand und Grading-Sendungen ohne Preise oder sensible Daten.</div>
+            <button class="btn bgold" onclick="openViewerConfirm()">👁 Viewer-Modus aktivieren</button></div>
+          </div>
+          <!-- SCHWARZES BRETT -->
+          <div id="adm-tile-bb" class="adm-sub-content" style="display:none;">
+            <div class="vtit">📌 Schwarzes Brett</div>
+            <div class="dcols">
+              <div class="card">
+                <div class="fg"><input id="bb-titel" class="fi" placeholder="Titel..."></div>
+                <div class="fg"><textarea id="bb-text" class="fi" placeholder="Nachricht für alle..." style="height:100px;resize:none;"></textarea></div>
+                <div class="fg"><label class="flbl">Kategorie</label><select id="bb-kat" class="fi"><option value="info">ℹ️ Information</option><option value="wartung">🔧 Wartung</option><option value="wichtig">🚨 Wichtig</option><option value="news">🎉 News</option></select></div>
+                <button class="btn bgold" id="btn-bb-post">Veröffentlichen</button>
               </div>
-            </div>
-            <!-- LÖSCHPROTOKOLL -->
-            <div class="card">
-              <div class="ctit">🗑 Löschprotokoll</div>
-              <button class="btn bred" id="btn-show-dellog2">Löschprotokoll abrufen</button>
-            </div>
-            <!-- KOSTENPLANUNG -->
-            <div class="card">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-                <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📊</div>
-                <div><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;">Kostenplanung</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);">MADCollectables GbR</div></div>
-              </div>
-              <!-- KOSTEN TABS -->
-              <div style="display:flex;gap:6px;margin-bottom:12px;">
-                <button class="kost-tab-btn" data-kt="monat" onclick="kostTab('monat',this)" style="flex:1;padding:7px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Monatlich</button>
-                <button class="kost-tab-btn" data-kt="jahr" onclick="kostTab('jahr',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Jährlich</button>
-                <button class="kost-tab-btn" data-kt="rl" onclick="kostTab('rl',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Rücklagen</button>
-                <button class="kost-tab-btn" data-kt="einzel" onclick="kostTab('einzel',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Einzelkosten</button>
-              </div>
-              <!-- KPI ÜBERSICHT -->
-              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
-                <div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Monatlich</div><div class="kval" style="font-size:14px;" id="ko-sum-mo">0,00 €</div></div>
-                <div class="kpi" style="border-top-color:#1a5fa8"><div class="klbl">Jährl. ÷12</div><div class="kval" style="font-size:14px;" id="ko-sum-ja">0,00 €</div></div>
-                <div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Gesamt/Mo</div><div class="kval" style="font-size:14px;" id="ko-sum-ges">0,00 €</div></div>
-                <div class="kpi" style="border-top-color:var(--purple)"><div class="klbl">Rücklagen/Mo</div><div class="kval" style="font-size:14px;" id="ko-sum-rl">0,00 €</div></div>
-              </div>
-              <div id="ko-tab-monat">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Monatliche Kosten</span><button class="btn bgold bsm" onclick="openKoOv('mo')">+ Neu</button></div>
-                <div id="ko-list-mo"></div>
-              </div>
-              <div id="ko-tab-jahr" style="display:none;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Jährliche Kosten</span><button class="btn bgold bsm" onclick="openKoOv('ja')">+ Neu</button></div>
-                <div id="ko-list-ja"></div>
-              </div>
-              <div id="ko-tab-rl" style="display:none;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Rücklagen</span><button class="btn bgold bsm" onclick="openKoOv('rl')">+ Neu</button></div>
-                <div id="ko-list-rl"></div>
-              </div>
-              <div id="ko-tab-einzel" style="display:none;">
-                <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;">Grading-Aufwände</div>
-                <div id="ko-list-einzel"></div>
-              </div>
+              <div><div id="bb-list"></div></div>
             </div>
           </div>
-          <div>
-            <!-- SCHWARZES BRETT -->
+          <!-- NOTIZEN -->
+          <div id="adm-tile-notizen" class="adm-sub-content" style="display:none;">
+            <div class="vtit">📝 Notizen &amp; To-Dos</div>
             <div class="card">
-              <div class="ctit">📌 Schwarzes Brett verwalten</div>
-              <div class="fg"><input id="bb-titel" class="fi" placeholder="Titel der Nachricht..."></div>
-              <div class="fg"><textarea id="bb-text" class="fi" placeholder="Nachricht für alle Mitarbeiter..." style="height:100px;resize:none;"></textarea></div>
-              <div class="fg">
-                <label class="flbl">Kategorie</label>
-                <select id="bb-kat" class="fi">
-                  <option value="info">ℹ️ Information</option>
-                  <option value="wartung">🔧 Wartung / Update</option>
-                  <option value="wichtig">🚨 Wichtig</option>
-                  <option value="news">🎉 News</option>
-                </select>
-              </div>
-              <button class="btn bgold" id="btn-bb-post">Veröffentlichen</button>
-              <div id="bb-list" style="margin-top:14px;"></div>
+              <div class="fg"><input id="notiz-inp" class="fi" placeholder="Neue Notiz oder To-Do..."></div>
+              <div class="fg2"><select id="notiz-typ" class="fi"><option value="notiz">📝 Notiz</option><option value="todo">✅ To-Do</option><option value="idee">💡 Idee</option></select><button class="btn bgold" id="btn-notiz-add">+ Hinzufügen</button></div>
             </div>
+            <div id="notiz-list"></div>
+          </div>
+          <!-- KOSTENPLANUNG -->
+          <div id="adm-tile-kosten" class="adm-sub-content" style="display:none;">
+            <div class="vtit">📊 Kostenplanung</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+              <div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Monatlich</div><div class="kval" id="ko-sum-mo">0,00 €</div></div>
+              <div class="kpi" style="border-top-color:#1a5fa8"><div class="klbl">Jährl. ÷12</div><div class="kval" id="ko-sum-ja">0,00 €</div></div>
+              <div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Gesamt/Mo</div><div class="kval" id="ko-sum-ges">0,00 €</div></div>
+              <div class="kpi" style="border-top-color:var(--purple)"><div class="klbl">Rücklagen/Mo</div><div class="kval" id="ko-sum-rl">0,00 €</div></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+              <button class="kost-tab-btn" onclick="kostTab('monat',this)" style="flex:1;padding:8px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Monatlich</button>
+              <button class="kost-tab-btn" onclick="kostTab('jahr',this)" style="flex:1;padding:8px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Jährlich</button>
+              <button class="kost-tab-btn" onclick="kostTab('rl',this)" style="flex:1;padding:8px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Rücklagen</button>
+              <button class="kost-tab-btn" onclick="kostTab('einzel',this)" style="flex:1;padding:8px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Einzelkosten</button>
+            </div>
+            <div id="ko-tab-monat"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Monatliche Kosten</span><button class="btn bgold bsm" onclick="openKoOv('mo')">+ Neu</button></div><div id="ko-list-mo"></div></div>
+            <div id="ko-tab-jahr" style="display:none;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Jährliche Kosten</span><button class="btn bgold bsm" onclick="openKoOv('ja')">+ Neu</button></div><div id="ko-list-ja"></div></div>
+            <div id="ko-tab-rl" style="display:none;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">Rücklagen</span><button class="btn bgold bsm" onclick="openKoOv('rl')">+ Neu</button></div><div id="ko-list-rl"></div></div>
+            <div id="ko-tab-einzel" style="display:none;"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:10px;">Grading-Aufwände</div><div id="ko-list-einzel"></div></div>
+          </div>
+          <!-- LÖSCHPROTOKOLL -->
+          <div id="adm-tile-dellog" class="adm-sub-content" style="display:none;">
+            <div class="vtit">🗑 Löschprotokoll</div>
+            <div id="del-log-inline"></div>
+          </div>
+          <!-- FEEDBACK -->
+          <div id="adm-tile-feedback" class="adm-sub-content" style="display:none;">
+            <div class="vtit">💬 Mitarbeiternachrichten</div>
+            <div id="adm-feedback-list"></div>
+          </div>
+          <!-- BENUTZERVERWALTUNG -->
+          <div id="adm-tile-benutzer" class="adm-sub-content" style="display:none;">
+            <div class="vtit">👥 Benutzerverwaltung</div>
+            <button class="btn bgold bsm" style="margin-bottom:16px;" onclick="openAdmUser(null)">+ Neuer Benutzer</button>
+            <div id="adm-user-list"></div>
           </div>
         </div>
       </div>
@@ -430,6 +442,9 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
               <div id="pperr" style="display:none;background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:9px;font-size:12px;color:var(--red);margin-bottom:8px;"></div>
               <button class="btn bgrn" id="btn-cp">Passwort ändern</button>
             </div>
+            <div id="feedback-btn-wrap" style="margin-top:4px;">
+              <button class="btn" id="btn-feedback" style="background:rgba(26,95,168,.1);color:#1a5fa8;border:1.5px solid rgba(26,95,168,.3);">💬 Bug melden / Verbesserung vorschlagen</button>
+            </div>
             <button class="btn bout" id="btn-lop" style="border-color:rgba(192,57,43,.3);color:var(--red);margin-top:4px;">Abmelden</button>
           </div>
         </div>
@@ -441,6 +456,48 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
 
 <!-- TOAST -->
 <div id="toast-wrap"></div>
+
+<!-- FEEDBACK OVERLAY -->
+<div class="sov" id="ovFeedback" onclick="if(event.target===this)cs('ovFeedback')"><div class="sheet">
+  <div class="stit">💬 Nachricht an Admin</div>
+  <div class="fg"><label class="flbl">Typ</label><select class="fi" id="fb-typ"><option value="bug">🐛 Bug melden</option><option value="idee">💡 Verbesserungsvorschlag</option><option value="sonstiges">💬 Sonstiges</option></select></div>
+  <div class="fg"><label class="flbl">Nachricht *</label><textarea class="fi" id="fb-text" placeholder="Beschreibe dein Anliegen..." style="height:120px;resize:none;"></textarea></div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn bgold" onclick="sendFeedback()" style="flex:2;">Absenden</button>
+    <button class="btn bout" onclick="cs('ovFeedback')" style="flex:1;">Abbrechen</button>
+  </div>
+</div></div>
+
+<!-- BENUTZER OVERLAY -->
+<div class="sov" id="ovAdmUser" onclick="if(event.target===this)cs('ovAdmUser')"><div class="sheet">
+  <div class="stit" id="ovAdmUser-tit">Benutzer anlegen</div>
+  <input type="hidden" id="adm-user-id">
+  <div class="fg2">
+    <div class="fg"><label class="flbl">Name *</label><input class="fi" id="adm-u-name" placeholder="Vor- und Nachname"></div>
+    <div class="fg"><label class="flbl">Benutzername *</label><input class="fi" id="adm-u-user" placeholder="z.B. ma_dustin"></div>
+    <div class="fg"><label class="flbl">E-Mail</label><input class="fi" id="adm-u-email" type="email" placeholder="optional"></div>
+    <div class="fg"><label class="flbl">Rolle</label><select class="fi" id="adm-u-rolle"><option value="2">Einkauf / Trade</option><option value="3">Buchhaltung</option><option value="4">Angestellter</option><option value="1">Admin</option></select></div>
+  </div>
+  <div id="adm-u-pw-wrap" class="fg"><label class="flbl">Passwort *</label><input class="fi" id="adm-u-pw" type="password" placeholder="mind. 4 Zeichen"></div>
+  <div id="adm-u-aktiv-wrap" class="fg" style="display:none;"><label class="flbl">Status</label><select class="fi" id="adm-u-aktiv"><option value="1">Aktiv</option><option value="0">Deaktiviert</option></select></div>
+  <div id="adm-u-err" style="display:none;background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:9px;font-size:12px;color:var(--red);margin-bottom:8px;"></div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn bgold" onclick="saveAdmUser()" style="flex:2;">Speichern</button>
+    <button class="btn bout" onclick="cs('ovAdmUser')" style="flex:1;">Abbrechen</button>
+  </div>
+</div></div>
+
+<!-- PW RESET OVERLAY -->
+<div class="sov" id="ovPwReset" onclick="if(event.target===this)cs('ovPwReset')"><div class="sheet">
+  <div class="stit">🔑 Passwort zurücksetzen</div>
+  <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);margin-bottom:12px;" id="pw-reset-user">-</div>
+  <input type="hidden" id="pw-reset-uid">
+  <div class="fg"><label class="flbl">Neues Passwort *</label><input class="fi" id="pw-reset-val" type="password" placeholder="mind. 4 Zeichen"></div>
+  <div style="display:flex;gap:10px;margin-top:4px;">
+    <button class="btn bgrn" onclick="doAdmPwReset()" style="flex:2;">Passwort setzen</button>
+    <button class="btn bout" onclick="cs('ovPwReset')" style="flex:1;">Abbrechen</button>
+  </div>
+</div></div>
 
 <!-- ── SHEETS (same IDs as mobile – JS unchanged) ────────────────── -->
 
@@ -687,9 +744,133 @@ function loadBBFromDB(){return(db.schwarzesbrett||[]);}
 function postBB(){var titel=el('bb-titel')?el('bb-titel').value.trim():'';var text=el('bb-text')?el('bb-text').value.trim():'';var kat=el('bb-kat')?el('bb-kat').value:'info';if(!titel||!text){toast('Titel und Text eingeben',false);return;}var katDef={info:{icon:'ℹ️',col:'rgba(26,95,168,.12)',border:'rgba(26,95,168,.3)'},wartung:{icon:'🔧',col:'rgba(184,134,11,.1)',border:'rgba(184,134,11,.35)'},wichtig:{icon:'🚨',col:'rgba(192,57,43,.08)',border:'rgba(192,57,43,.3)'},news:{icon:'🎉',col:'rgba(26,122,60,.08)',border:'rgba(26,122,60,.3)'}};if(!db.schwarzesbrett)db.schwarzesbrett=[];db.schwarzesbrett.unshift({id:'B'+Date.now(),titel:titel,text:text,kat:kat,icon:katDef[kat].icon,col:katDef[kat].col,border:katDef[kat].border,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});if(el('bb-titel'))el('bb-titel').value='';if(el('bb-text'))el('bb-text').value='';saveDB();rBBAdmin();rBBDash();toast('Nachricht veröffentlicht!');}
 function rBBAdmin(){var li=el('bb-list');if(!li)return;var bb=loadBBFromDB();if(!bb.length){li.innerHTML='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);text-align:center;padding:10px;">Noch keine Einträge</div>';return;}li.innerHTML=bb.map(function(b,i){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:18px;flex-shrink:0">'+b.icon+'</span><div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div><div style="font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5">'+esc(b.text)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div><button data-bi="'+i+'" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;flex-shrink:0">✕</button></div>';}).join('');li.querySelectorAll('button[data-bi]').forEach(function(b){b.addEventListener('click',function(){if(!db.schwarzesbrett)return;db.schwarzesbrett.splice(parseInt(this.dataset.bi),1);saveDB();rBBAdmin();rBBDash();toast('Gelöscht');});});}
 function rBBDash(){var cont=el('bb-dashboard');if(!cont)return;var bb=loadBBFromDB();if(!bb.length){cont.style.display='none';return;}cont.style.display='block';cont.innerHTML=bb.slice(0,3).map(function(b){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:13px;padding:14px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px"><span style="font-size:20px;flex-shrink:0">'+b.icon+'</span><div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div><div style="font-size:13px;color:var(--text2);margin-top:4px;line-height:1.5">'+esc(b.text)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:5px">'+b.datum+' · '+esc(b.autor)+'</div></div></div>';}).join('');}
-function rGadgets(){rNotizen();rBBAdmin();rKosten();}
+function rGadgets(){
+  var main=el('adm-main');var sub=el('adm-sub');
+  if(main)main.style.display='block';if(sub)sub.style.display='none';
+  var bb=loadBBFromDB();var prev=el('adm-bb-preview');
+  if(prev)prev.textContent=bb.length?bb[0].titel:'Keine Einträge';
+  var nz=loadNotizen();var nc=el('adm-notiz-count');
+  if(nc)nc.textContent=nz.length+' Einträge';
+  var k=getKosten();var ks=el('adm-kosten-sub');
+  var sumMo=k.monat.reduce(function(s,x){return s+(x.betrag||0);},0);
+  if(ks)ks.textContent=fmtKo(sumMo)+'/Mo';
+  var fb=loadFeedback();var fc=el('adm-fb-count');
+  if(fc)fc.textContent=fb.length?fb.length+' neu':'Keine';
+  var uc=el('adm-usr-count');
+  if(uc)uc.textContent=db.benutzer.length+' Benutzer';
+}
+function openAdmTile(tile){
+  var main=el('adm-main');var sub=el('adm-sub');
+  if(main)main.style.display='none';if(sub)sub.style.display='block';
+  document.querySelectorAll('.adm-sub-content').forEach(function(x){x.style.display='none';});
+  var t=el('adm-tile-'+tile);if(t)t.style.display='block';
+  if(tile==='notizen')rNotizen();
+  if(tile==='bb')rBBAdmin();
+  if(tile==='kosten')rKosten();
+  if(tile==='dellog')rDelLogInline();
+  if(tile==='feedback')rFeedbackAdmin();
+  if(tile==='benutzer')rAdmUserList();
+}
+function closeAdmTile(){
+  var main=el('adm-main');var sub=el('adm-sub');
+  if(main)main.style.display='block';if(sub)sub.style.display='none';
+  rGadgets();
+}
+function rDelLogInline(){
+  var c=el('del-log-inline');if(!c)return;
+  var log=getDelLog();
+  if(!log.length){c.innerHTML='<div class="rph"><div>Keine Einträge</div></div>';return;}
+  c.innerHTML=log.slice().reverse().map(function(e){
+    return '<div class="li" style="flex-direction:column;align-items:flex-start;gap:4px;">'+
+      '<div style="font-weight:600;">'+esc(e.karte)+'</div>'+
+      '<div style="font-size:10px;color:var(--text3);">'+e.datum+' · '+esc(e.geloeschtVon)+' · EK: '+fmt(e.ek)+' €</div>'+
+      '<div style="font-size:11px;color:var(--text2);">Grund: '+esc(e.grund)+'</div>'+
+    '</div>';
+  }).join('');
+}
+// ── FEEDBACK ─────────────────────────────────────────────────────
+var FB_KEY='madwms_feedback';
+function loadFeedback(){try{return JSON.parse(localStorage.getItem(FB_KEY)||'[]');}catch(e){return[];}}
+function saveFeedback(f){try{localStorage.setItem(FB_KEY,JSON.stringify(f));}catch(e){}}
+function sendFeedback(){
+  var typ=el('fb-typ')?el('fb-typ').value:'sonstiges';
+  var text=el('fb-text')?el('fb-text').value.trim():'';
+  if(!text){toast('Nachricht eingeben',false);return;}
+  var icons={bug:'🐛',idee:'💡',sonstiges:'💬'};
+  var fb=loadFeedback();
+  fb.unshift({id:'FB'+Date.now(),typ:typ,icon:icons[typ]||'💬',text:text,autor:cu?(cu.name||cu.username):'?',datum:new Date().toLocaleDateString('de-DE')});
+  saveFeedback(fb);
+  if(el('fb-text'))el('fb-text').value='';
+  cs('ovFeedback');toast('Nachricht gesendet!');
+}
+function rFeedbackAdmin(){
+  var c=el('adm-feedback-list');if(!c)return;
+  var fb=loadFeedback();
+  if(!fb.length){c.innerHTML='<div class="rph"><div>Keine Nachrichten</div></div>';return;}
+  c.innerHTML=fb.map(function(f,i){
+    return '<div class="card" style="margin-bottom:10px;padding:14px;">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+        '<span style="font-size:18px;">'+f.icon+'</span>'+
+        '<div style="flex:1;"><div style="font-weight:700;">'+esc(f.autor)+'</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);">'+f.datum+'</div></div>'+
+        '<button onclick="delFeedback('+i+')" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;">✕</button>'+
+      '</div>'+
+      '<div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5;">'+esc(f.text)+'</div>'+
+      '<button onclick="fbToNotiz('+i+')" style="width:100%;padding:9px;background:rgba(26,122,60,.1);color:#1a7a3c;border:1px solid rgba(26,122,60,.3);border-radius:8px;font-size:12px;cursor:pointer;">📝 Als Notiz übernehmen</button>'+
+    '</div>';
+  }).join('');
+}
+function delFeedback(i){var fb=loadFeedback();fb.splice(i,1);saveFeedback(fb);rFeedbackAdmin();toast('Gelöscht');}
+function fbToNotiz(i){
+  var fb=loadFeedback();var f=fb[i];if(!f)return;
+  var nz=loadNotizen();
+  nz.unshift({id:'N'+Date.now(),text:f.icon+' ['+f.autor+']: '+f.text,typ:'notiz',icon:'📝',erledigt:false,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});
+  saveNotizen(nz);toast('Als Notiz übernommen!');
+}
+// ── BENUTZERVERWALTUNG ────────────────────────────────────────────
+function rAdmUserList(){
+  var c=el('adm-user-list');if(!c)return;
+  var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};
+  if(!db.benutzer.length){c.innerHTML='<div class="rph"><div>Keine Benutzer</div></div>';return;}
+  c.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'+db.benutzer.map(function(u){
+    return '<div class="card" style="padding:14px;">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">'+
+        '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:17px;font-weight:800;color:#1a1208;flex-shrink:0;">'+(u.name||u.username||'?')[0].toUpperCase()+'</div>'+
+        '<div style="flex:1;min-width:0;"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">'+esc(u.name||u.username)+'</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);">'+esc(u.username)+' · '+(R[u.rolle]||'?')+'</div></div>'+
+        '<span class="bd '+(u.aktiv?'bg':'br')+'">'+( u.aktiv?'Aktiv':'Inaktiv')+'</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;">'+
+        '<button onclick="openAdmUser(\''+u.id+'\')" style="flex:2;padding:8px;background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:8px;font-size:12px;cursor:pointer;">✎ Bearbeiten</button>'+
+        '<button onclick="openPwReset(\''+u.id+'\')" style="flex:1;padding:8px;background:rgba(26,95,168,.1);color:#1a5fa8;border:1px solid rgba(26,95,168,.3);border-radius:8px;font-size:12px;cursor:pointer;">🔑 PW</button>'+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>';
+}
+function openAdmUser(id){
+  el('adm-user-id').value=id||'';el('adm-u-name').value='';el('adm-u-user').value='';el('adm-u-email').value='';el('adm-u-rolle').value='4';el('adm-u-pw').value='';
+  var errEl=el('adm-u-err');if(errEl)errEl.style.display='none';
+  if(id){
+    el('ovAdmUser-tit').textContent='Benutzer bearbeiten';
+    el('adm-u-pw-wrap').style.display='none';el('adm-u-aktiv-wrap').style.display='block';
+    var u=db.benutzer.find(function(x){return x.id===id;});
+    if(u){el('adm-u-name').value=u.name||'';el('adm-u-user').value=u.username||'';el('adm-u-email').value=u.email||'';el('adm-u-rolle').value=u.rolle||'4';el('adm-u-aktiv').value=u.aktiv?'1':'0';}
+  }else{el('ovAdmUser-tit').textContent='Neuer Benutzer';el('adm-u-pw-wrap').style.display='block';el('adm-u-aktiv-wrap').style.display='none';}
+  os('ovAdmUser');
+}
+function saveAdmUser(){
+  var id=el('adm-user-id').value;var name=el('adm-u-name').value.trim();var user=el('adm-u-user').value.trim().toLowerCase();
+  var email=el('adm-u-email').value.trim();var rolle=parseInt(el('adm-u-rolle').value)||4;
+  var errEl=el('adm-u-err');function se(m){if(errEl){errEl.textContent=m;errEl.style.display='block';}}
+  if(!name){se('Name fehlt');return;}if(!user){se('Benutzername fehlt');return;}
+  if(id){var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.name=name;u.username=user;u.email=email;u.rolle=rolle;u.aktiv=el('adm-u-aktiv').value==='1';}
+  else{var pw=el('adm-u-pw').value;if(!pw||pw.length<4){se('Passwort mind. 4 Zeichen');return;}if(db.benutzer.find(function(x){return x.username===user;})){se('Benutzername bereits vergeben');return;}var salt=user+Date.now().toString(16);db.benutzer.push({id:'U'+Date.now(),username:user,name:name,email:email,passHash:hashPass(pw,salt),salt:salt,rolle:rolle,aktiv:true});}
+  saveDB();cs('ovAdmUser');rAdmUserList();toast(id?'Benutzer aktualisiert!':'Benutzer angelegt!');
+}
+function openPwReset(id){el('pw-reset-uid').value=id;var u=db.benutzer.find(function(x){return x.id===id;});if(el('pw-reset-user'))el('pw-reset-user').textContent=u?(u.name||u.username):'?';if(el('pw-reset-val'))el('pw-reset-val').value='';os('ovPwReset');}
+function doAdmPwReset(){var id=el('pw-reset-uid').value;var pw=el('pw-reset-val').value;if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(pw,ns);saveDB();cs('ovPwReset');toast('Passwort zurückgesetzt!');}
 
-// ── KOSTENPLANUNG (Supabase) ──────────────────────────────────────
+function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';var fbw=el('feedback-btn-wrap');if(fbw)fbw.style.display=isAdmin?'none':'block';}
 function getKosten(){return db.einstellungen._kosten||{monat:[],jahr:[],rl:[]};}
 function saveKosten(k){db.einstellungen._kosten=k;saveDB();}
 function fmtKo(n){return Number(n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
@@ -814,7 +995,6 @@ function rKosten(){
   }
 }
 
-function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';}
 function openDelKarte(id){var k=db.karten.find(function(x){return x.id===id;});if(!k)return;if(el('del-karte-name'))el('del-karte-name').textContent=k.name;if(el('del-karte-id-hidden'))el('del-karte-id-hidden').value=k.id;if(el('del-grund'))el('del-grund').value='';if(el('del-err'))el('del-err').style.display='none';os('ovDelKarte');}
 function activateViewerMode(){viewerMode=true;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){b.style.display='none';});var banner=el('viewer-banner');if(banner)banner.style.display='flex';go('karten');}
 function deactivateViewerMode(){viewerMode=false;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){b.style.display='';});var banner=el('viewer-banner');if(banner)banner.style.display='none';rDash();rKarten();}
@@ -1002,6 +1182,7 @@ document.addEventListener('DOMContentLoaded',function(){
   el('btn-notiz-add')&&el('btn-notiz-add').addEventListener('click',addNotiz);
   el('notiz-inp')&&el('notiz-inp').addEventListener('keydown',function(e){if(e.key==='Enter')addNotiz();});
   el('btn-bb-post')&&el('btn-bb-post').addEventListener('click',postBB);
+  el('btn-feedback')&&el('btn-feedback').addEventListener('click',function(){os('ovFeedback');});
   document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
   loadDB();
 });
