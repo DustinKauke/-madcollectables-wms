@@ -183,6 +183,18 @@ body{background:var(--bg);color:var(--text);font-family:Outfit,sans-serif;displa
     <div id="list-rl"></div>
   </div>
 
+  <!-- EINZELKOSTEN (Grading-Aufwände) -->
+  <div class="view" id="v-einzel">
+    <div class="vtit">Einzelkosten</div>
+    <div class="card" style="padding:10px 13px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase">Gesamt Einzelkosten</span>
+        <span style="font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:var(--red)" id="ek-summe">0,00 €</span>
+      </div>
+    </div>
+    <div id="list-einzel"></div>
+  </div>
+
 </div><!-- /sarea -->
 
 <!-- BOTTOM NAV -->
@@ -202,6 +214,10 @@ body{background:var(--bg);color:var(--text);font-family:Outfit,sans-serif;displa
   <button class="nbtn" data-v="v-rl" onclick="go('v-rl',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l3 3"/><path d="M17 12h2M5 12h2M12 5V3M12 21v-2"/></svg>
     <span>Rücklagen</span>
+  </button>
+  <button class="nbtn" data-v="v-einzel" onclick="go('v-einzel',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/><path d="M8 12h8"/></svg>
+    <span>Einzelkosten</span>
   </button>
 </nav>
 
@@ -344,20 +360,49 @@ body{background:var(--bg);color:var(--text);font-family:Outfit,sans-serif;displa
 <script>
 // ── DATA ────────────────────────────────────────────────────────────
 var DB_KEY = 'mad_kosten_v1';
-var db = {monat:[], jahr:[], rl:[]};
+var db = {monat:[], jahr:[], rl:[], einzel:[]};
 
 function loadDB(){
   try{var s=localStorage.getItem(DB_KEY);if(s)db=JSON.parse(s);}catch(e){}
   if(!db.monat)db.monat=[];
   if(!db.jahr)db.jahr=[];
   if(!db.rl)db.rl=[];
+  if(!db.einzel)db.einzel=[];
 }
 function saveDB(){try{localStorage.setItem(DB_KEY,JSON.stringify(db));}catch(e){}}
 function uid(){return 'id'+Date.now()+Math.random().toString(36).slice(2,6);}
 
-// ── FORMAT ───────────────────────────────────────────────────────────
+// ── EINZELKOSTEN von Grading ─────────────────────────────────────────
+var EK_SHARE_KEY='madwms_grading_kosten';
+function loadEinzelkosten(){try{return JSON.parse(localStorage.getItem(EK_SHARE_KEY)||'[]');}catch(e){return[];}}
+function rEinzel(){
+  var list=el('list-einzel');if(!list)return;
+  var items=loadEinzelkosten();
+  var sum=0;items.forEach(function(x){sum+=x.betrag||0;});
+  if(el('ek-summe'))el('ek-summe').textContent=fmt(sum);
+  if(!items.length){list.innerHTML='<div class="empty">Noch keine Grading-Aufwände</div>';return;}
+  var sorted=items.slice().sort(function(a,b){return (b.datum||'').localeCompare(a.datum||'');});
+  list.innerHTML=sorted.map(function(item){
+    return '<div class="kitem">'+
+      '<div class="kitem-dot" style="background:#6c3483"></div>'+
+      '<div class="kitem-body">'+
+        '<div class="kitem-name">'+esc(item.sendung)+'</div>'+
+        '<div class="kitem-meta">'+item.datum+(item.notiz?' · '+esc(item.notiz):'')+'</div>'+
+      '</div>'+
+      '<div class="kitem-amount" style="color:var(--red)">'+fmt(item.betrag)+'</div>'+
+      '<button class="kitem-del" onclick="delEinzel(\''+item.id+'\')" title="Löschen">✕</button>'+
+    '</div>';
+  }).join('');
+}
+function delEinzel(id){
+  if(!confirm('Eintrag löschen?'))return;
+  var items=loadEinzelkosten();
+  items=items.filter(function(x){return x.id!==id;});
+  try{localStorage.setItem(EK_SHARE_KEY,JSON.stringify(items));}catch(e){}
+  rEinzel();toast('Gelöscht');
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function fmt(n){return Number(n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
-function el(id){return document.getElementById(id);}
 
 // ── NAV ─────────────────────────────────────────────────────────────
 function go(vid, btn){
@@ -370,6 +415,7 @@ function go(vid, btn){
   if(vid==='v-monat')rMonat();
   if(vid==='v-jahr')rJahr();
   if(vid==='v-rl')rRL();
+  if(vid==='v-einzel')rEinzel();
 }
 
 // ── OVERLAYS ─────────────────────────────────────────────────────────
