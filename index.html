@@ -115,6 +115,8 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
+      <!-- SCHWARZES BRETT (alle außer Viewer) -->
+      <div id="bb-dashboard" style="display:none"></div>
       <div style="margin-bottom:12px"><button id="btn-viewer-mode" style="width:100%;padding:11px;background:rgba(184,134,11,0.1);color:#b8860b;border:1.5px solid rgba(184,134,11,0.4);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">&#128065; Viewer-Modus aktivieren</button></div>
       <div id="viewer-dash" style="display:none"></div>
       <div class="kgrid">
@@ -130,6 +132,55 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       </div>
       <div class="card"><div class="ctit">Letzte Aktivit&auml;ten</div><div id="d-letzte"></div></div>
       <div class="card"><div class="ctit">Aktive Grading-Sendungen</div><div id="d-send"></div></div>
+    </div>
+
+    <!-- GADGETS (nur Admin) -->
+    <div class="view" id="view-gadgets">
+      <div class="vtit">&#9881; Gadgets</div>
+
+      <!-- NOTIZMODUS -->
+      <div class="card">
+        <div class="ctit">&#128221; Notizen &amp; To-Dos</div>
+        <div id="notiz-list" style="margin-bottom:10px"></div>
+        <div class="fg"><input id="notiz-inp" class="fi" placeholder="Neue Notiz oder To-Do..."></div>
+        <div class="fg2">
+          <select id="notiz-typ" class="fi"><option value="notiz">&#128221; Notiz</option><option value="todo">&#9989; To-Do</option><option value="idee">&#128161; Idee</option></select>
+          <button class="btn bgold" id="btn-notiz-add">+ Hinzuf&uuml;gen</button>
+        </div>
+      </div>
+
+      <!-- SCHWARZES BRETT VERWALTEN -->
+      <div class="card">
+        <div class="ctit">&#128219; Schwarzes Brett verwalten</div>
+        <div class="fg"><input id="bb-titel" class="fi" placeholder="Titel der Nachricht..."></div>
+        <div class="fg"><textarea id="bb-text" class="fi" placeholder="Nachricht f&uuml;r alle Mitarbeiter..." style="height:90px;resize:none;"></textarea></div>
+        <div class="fg">
+          <label class="flbl">Kategorie</label>
+          <select id="bb-kat" class="fi">
+            <option value="info">&#8505;&#65039; Information</option>
+            <option value="wartung">&#128296; Wartung / Update</option>
+            <option value="wichtig">&#128680; Wichtig</option>
+            <option value="news">&#127381; News</option>
+          </select>
+        </div>
+        <button class="btn bgold" id="btn-bb-post">Ver&ouml;ffentlichen</button>
+        <div id="bb-list" style="margin-top:12px"></div>
+      </div>
+
+      <!-- L&Ouml;SCHPROTOKOLL -->
+      <div class="card">
+        <div class="ctit">&#128221; L&ouml;schprotokoll</div>
+        <button class="btn bred" id="btn-show-dellog2">L&ouml;schprotokoll abrufen</button>
+      </div>
+
+      <!-- KOSTENPLANUNG -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+          <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128184;</div>
+          <div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">Kostenplanung</div><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3)">MADCollectables GbR</div></div>
+        </div>
+        <a href="kosten.html" style="display:block;text-align:center;padding:11px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border-radius:10px;font-family:Syne,sans-serif;font-size:14px;font-weight:800;text-decoration:none">&#128200; Zur Kostenplanung</a>
+      </div>
     </div>
 
     <!-- KARTEN -->
@@ -239,17 +290,13 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       <div id="del-log-btn-wrap" style="display:none;margin-bottom:12px">
         <button class="btn bred" id="btn-show-dellog">&#128221; L&ouml;schprotokoll abrufen</button>
       </div>
-      <div id="admin-kosten-wrap" style="display:none;margin-bottom:12px">
-        <div style="background:linear-gradient(135deg,rgba(184,134,11,.08),rgba(212,160,23,.12));border:1.5px solid rgba(184,134,11,.35);border-radius:14px;padding:14px 15px">
-          <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
-            <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128184;</div>
-            <div>
-              <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">Kostenplanung</div>
-              <div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);letter-spacing:.5px">NUR ADMIN · MADCollectables GbR</div>
-            </div>
+      <div id="admin-gadgets-hint" style="display:none;margin-bottom:12px">
+        <div style="background:linear-gradient(135deg,rgba(184,134,11,.08),rgba(212,160,23,.12));border:1.5px solid rgba(184,134,11,.35);border-radius:14px;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">&#9881;</div>
+            <div style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark)">Admin-Gadgets</div>
           </div>
-          <div style="font-family:Outfit,sans-serif;font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5">Monatliche &amp; j&auml;hrliche Kosten, R&uuml;cklagen kalkulieren und planen.</div>
-          <a href="kosten.html" style="display:block;text-align:center;padding:11px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border-radius:10px;font-family:Syne,sans-serif;font-size:14px;font-weight:800;text-decoration:none">&#128200; Zur Kostenplanung</a>
+          <button class="btn bgold bsm" onclick="go('gadgets')" style="white-space:nowrap">&#8594; Gadgets</button>
         </div>
       </div>
       <div class="card" style="display:flex;align-items:center;gap:12px">
@@ -284,6 +331,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <button class="nbtn" data-v="research"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><span>Research</span></button>
     <button class="nbtn" data-v="kalkulation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h8M8 14h4"/></svg><span>Kalkul.</span></button>
     <button class="nbtn" data-v="ankauf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Ankauf</span></button>
+    <button class="nbtn" id="nav-gadgets" data-v="gadgets" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg><span>Gadgets</span></button>
     <button class="nbtn" data-v="profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Profil</span></button>
   </nav>
 </div>
@@ -433,8 +481,47 @@ function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-p
   function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();renderAll();setInterval(function(){loadDB().then(renderAll);},30000);}
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
 function doLogout(){cu=null;viewerMode=false;el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
-function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='ankauf')rAnkauf();if(v==='profil')rProfil();}
+function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='ankauf')rAnkauf();if(v==='profil')rProfil();if(v==='gadgets')rGadgets();}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
+
+// ── NOTIZEN ──────────────────────────────────────────────────────────
+var NOTIZ_KEY='madwms_notizen';
+function loadNotizen(){try{return JSON.parse(localStorage.getItem(NOTIZ_KEY)||'[]');}catch(e){return[];}}
+function saveNotizen(n){try{localStorage.setItem(NOTIZ_KEY,JSON.stringify(n));}catch(e){}}
+function addNotiz(){var inp=el('notiz-inp');var typ=el('notiz-typ');var text=inp?inp.value.trim():'';if(!text){toast('Text eingeben',false);return;}var notizen=loadNotizen();var icons={notiz:'📝',todo:'✅',idee:'💡'};notizen.unshift({id:'N'+Date.now(),text:text,typ:typ?typ.value:'notiz',icon:icons[typ?typ.value:'notiz']||'📝',erledigt:false,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});saveNotizen(notizen);if(inp)inp.value='';rNotizen();toast('Notiz gespeichert!');}
+function rNotizen(){var li=el('notiz-list');if(!li)return;var notizen=loadNotizen();if(!notizen.length){li.innerHTML='<div class="rph"><div>Noch keine Notizen</div></div>';return;}li.innerHTML=notizen.map(function(n,i){return '<div style="background:'+(n.erledigt?'var(--surface2)':'var(--surface)')+';border:1px solid var(--border);border-radius:12px;padding:11px;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px">'+
+'<span style="font-size:16px;flex-shrink:0">'+n.icon+'</span>'+
+'<div style="flex:1;min-width:0">'+
+'<div style="font-size:13px;font-weight:600;color:'+(n.erledigt?'var(--text3)':'var(--dark)')+';'+(n.erledigt?'text-decoration:line-through':'')+'">'+esc(n.text)+'</div>'+
+'<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-top:3px">'+n.datum+' · '+esc(n.autor)+'</div>'+
+'</div>'+
+(n.typ==='todo'?'<button data-ni="'+i+'" data-act="done" style="background:'+(n.erledigt?'rgba(26,122,60,.2)':'rgba(26,122,60,.1)')+';color:#1a7a3c;border:1px solid rgba(26,122,60,.3);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;flex-shrink:0">'+(n.erledigt?'↩':'✓')+'</button>':'')+
+'<button data-ni="'+i+'" data-act="del" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;flex-shrink:0">✕</button>'+
+'</div>';}).join('');li.querySelectorAll('[data-act="del"]').forEach(function(b){b.addEventListener('click',function(){var notizen=loadNotizen();notizen.splice(parseInt(this.dataset.ni),1);saveNotizen(notizen);rNotizen();});});li.querySelectorAll('[data-act="done"]').forEach(function(b){b.addEventListener('click',function(){var notizen=loadNotizen();var i=parseInt(this.dataset.ni);notizen[i].erledigt=!notizen[i].erledigt;saveNotizen(notizen);rNotizen();});});}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── SCHWARZES BRETT ────────────────────────────────────────────────
+var BB_KEY='madwms_bb';
+function loadBB(){try{return JSON.parse(localStorage.getItem(BB_KEY)||'[]');}catch(e){return[];}}
+function saveBB(b){try{localStorage.setItem(BB_KEY,JSON.stringify(b));}catch(e){}}
+function postBB(){var titel=el('bb-titel')?el('bb-titel').value.trim():'';var text=el('bb-text')?el('bb-text').value.trim():'';var kat=el('bb-kat')?el('bb-kat').value:'info';if(!titel||!text){toast('Titel und Text eingeben',false);return;}var katDef={info:{icon:'ℹ️',col:'rgba(26,95,168,.15)',border:'rgba(26,95,168,.3)'},wartung:{icon:'🔧',col:'rgba(184,134,11,.12)',border:'rgba(184,134,11,.35)'},wichtig:{icon:'🚨',col:'rgba(192,57,43,.1)',border:'rgba(192,57,43,.3)'},news:{icon:'🎉',col:'rgba(26,122,60,.1)',border:'rgba(26,122,60,.3)'}};var bb=loadBB();bb.unshift({id:'B'+Date.now(),titel:titel,text:text,kat:kat,icon:katDef[kat].icon,col:katDef[kat].col,border:katDef[kat].border,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});saveBB(bb);if(el('bb-titel'))el('bb-titel').value='';if(el('bb-text'))el('bb-text').value='';rBBAdmin();rBBDash();toast('Nachricht veröffentlicht!');}
+function rBBAdmin(){var li=el('bb-list');if(!li)return;var bb=loadBB();if(!bb.length){li.innerHTML='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);text-align:center;padding:10px;">Noch keine Einträge</div>';return;}li.innerHTML=bb.map(function(b,i){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:10px;padding:10px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px">'+
+'<span style="font-size:16px;flex-shrink:0">'+b.icon+'</span>'+
+'<div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div>'+
+'<div style="font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4">'+esc(b.text)+'</div>'+
+'<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div>'+
+'<button data-bi="'+i+'" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;flex-shrink:0">✕</button>'+
+'</div>';}).join('');li.querySelectorAll('button[data-bi]').forEach(function(b){b.addEventListener('click',function(){var bb=loadBB();bb.splice(parseInt(this.dataset.bi),1);saveBB(bb);rBBAdmin();rBBDash();toast('Eintrag gelöscht');});});}
+function rBBDash(){var cont=el('bb-dashboard');if(!cont)return;var bb=loadBB();if(!bb.length){cont.style.display='none';return;}cont.style.display='block';cont.innerHTML=bb.slice(0,3).map(function(b){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:13px;padding:12px 13px;margin-bottom:10px;display:flex;align-items:flex-start;gap:9px">'+
+'<span style="font-size:18px;flex-shrink:0">'+b.icon+'</span>'+
+'<div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div>'+
+'<div style="font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5">'+esc(b.text)+'</div>'+
+'<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div>'+
+'</div>';}).join('');}
+
+function rGadgets(){rNotizen();rBBAdmin();}
+
+function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var dlw=el('del-log-btn-wrap');if(dlw)dlw.style.display=isAdmin?'block':'none';var gh=el('admin-gadgets-hint');if(gh)gh.style.display=isAdmin?'block':'none';var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';}
 function activateViewerMode(){viewerMode=true;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){b.style.display='none';});var banner=el('viewer-banner');if(banner)banner.style.display='flex';go('karten');}
 function deactivateViewerMode(){viewerMode=false;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){b.style.display='';});var banner=el('viewer-banner');if(banner)banner.style.display='none';rDash();rKarten();}
 function openViewerConfirm(){os('ovViewer');}
@@ -463,6 +550,7 @@ function rDash(){
     var ld=el('d-letzte');if(ld&&ld.closest('.card'))ld.closest('.card').style.display='none';
     var sd=el('d-send');if(sd&&sd.closest('.card'))sd.closest('.card').style.display='none';
     var vb=el('btn-viewer-mode');if(vb)vb.style.display='none';
+    var bbd=el('bb-dashboard');if(bbd)bbd.style.display='none';
     return;
   }
   var vd2=el('viewer-dash');if(vd2)vd2.style.display='none';
@@ -471,6 +559,7 @@ function rDash(){
   var ld2=el('d-letzte');if(ld2&&ld2.closest('.card'))ld2.closest('.card').style.display='';
   var sd2=el('d-send');if(sd2&&sd2.closest('.card'))sd2.closest('.card').style.display='';
   var vb2=el('btn-viewer-mode');if(vb2)vb2.style.display='';
+  rBBDash();
   var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length;
   var gr=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.kondition!=='Raw';}).length;
   var zg=db.karten.filter(function(k){return k&&k.status==='Zum Grading';}).length;
@@ -556,7 +645,6 @@ function doAnkaufMasseSearch(){if(!_ankMasseList.length){toast('Liste ist leer',
 function showAnkMasseResults(){var res=el('ank-masse-results');if(!res)return;res.style.display='block';var content=el('ank-masse-result-content');if(!content)return;var tm=_ankMasseList.reduce(function(s,k){return s+(k.markt||0);},0);var ta=_ankMasseList.reduce(function(s,k){return s+(k.ankauf||0);},0);var html='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px"><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">GESAMTANKAUF</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:#1a7a3c">'+fmt(ta)+' \u20ac</div></div><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">GESAMT MW</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:var(--gold)">'+fmt(tm)+' \u20ac</div></div><div style="padding:10px;background:var(--surface2);border-radius:8px;text-align:center"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:3px">POT. MARGE</div><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:12px;color:#1a5276">+'+fmt(tm-ta)+' \u20ac</div></div></div>';_ankMasseList.forEach(function(k){html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%">'+k.name+'</div><div style="text-align:right;flex-shrink:0">'+(k.markt?'<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3)">MW: '+fmt(k.markt)+'</div>':'')+'<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:#1a7a3c">'+(k.ankauf?fmt(k.ankauf)+' \u20ac':'n/v')+'</div></div></div>';});content.innerHTML=html;}
 function doAnkaufMasseAccept(){var added=0;_ankMasseList.forEach(function(item){if(!item.name)return;db.karten.push({id:'K'+Date.now()+added,name:item.name,serie:item.serie,set:'',lager:'',kondition:'Raw',note:'',einkauf:'privat',ek:item.ankauf||0,marktwert:item.markt||0,quelle:'Ankauf',notizen:'',status:'Im Bestand',kaufdatum:today()});added++;});saveDB();rKarten();rDash();toast(added+' Karten ins Inventar!');_ankMasseList=[];renderAnkMasseList();var rr=el('ank-masse-results');if(rr)rr.style.display='none';var sb=el('btn-ank-masse-search');if(sb)sb.style.display='none';}
 function rAnkauf(){var pct=el('ank-pct'),disp=el('ank-pct-display');if(pct&&disp)pct.oninput=function(){disp.textContent=this.value;};}
-function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' \u00b7 '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var dlw=el('del-log-btn-wrap');if(dlw)dlw.style.display=cu.rolle===1?'block':'none';var kw=el('admin-kosten-wrap');if(kw)kw.style.display=cu.rolle===1?'block':'none';}
 function saveP(){if(!cu)return;var n=el('pname')?el('pname').value.trim():'';if(!n){toast('Name darf nicht leer',false);return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;u.name=n;u.email=el('pemail')?el('pemail').value.trim():'';cu.name=n;var av=el('pav');if(av)av.textContent=n[0].toUpperCase();if(el('pnd'))el('pnd').textContent=n;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(n||u.username)+' \u00b7 '+(R[u.rolle]||'');saveDB();toast('Profil gespeichert!');}
 function changeP(){if(!cu)return;var op=el('ppold')?el('ppold').value:'',np=el('ppnew')?el('ppnew').value:'',np2=el('ppnew2')?el('ppnew2').value:'';var err=el('pperr');if(err)err.style.display='none';function se(m){if(err){err.textContent=m;err.style.display='block';}}if(!op||!np||!np2){se('Alle Felder ausf\u00fcllen');return;}if(np.length<4){se('Mind. 4 Zeichen');return;}if(np!==np2){se('Nicht \u00fcbereinstimmend');return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;if(hashPass(op,u.salt)!==u.passHash){se('Aktuelles PW falsch');return;}var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(np,ns);cu.salt=ns;cu.passHash=u.passHash;['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});saveDB();toast('Passwort ge\u00e4ndert!');}
 
@@ -600,6 +688,7 @@ document.addEventListener('DOMContentLoaded',function(){
   el('btn-confirm-del')&&el('btn-confirm-del').addEventListener('click',confirmDelKarte);
   el('btn-cancel-del')&&el('btn-cancel-del').addEventListener('click',function(){cs('ovDelKarte');});
   el('btn-show-dellog')&&el('btn-show-dellog').addEventListener('click',showDeleteLog);
+  el('btn-show-dellog2')&&el('btn-show-dellog2').addEventListener('click',showDeleteLog);
   el('btn-close-dellog')&&el('btn-close-dellog').addEventListener('click',function(){cs('ovDelLog');});
   el('btn-viewer-mode')&&el('btn-viewer-mode').addEventListener('click',openViewerConfirm);
   el('btn-viewer-yes')&&el('btn-viewer-yes').addEventListener('click',function(){cs('ovViewer');activateViewerMode();});
@@ -608,6 +697,9 @@ document.addEventListener('DOMContentLoaded',function(){
   el('btn-sp')&&el('btn-sp').addEventListener('click',saveP);
   el('btn-cp')&&el('btn-cp').addEventListener('click',changeP);
   el('btn-lop')&&el('btn-lop').addEventListener('click',doLogout);
+  el('btn-notiz-add')&&el('btn-notiz-add').addEventListener('click',addNotiz);
+  el('notiz-inp')&&el('notiz-inp').addEventListener('keydown',function(e){if(e.key==='Enter')addNotiz();});
+  el('btn-bb-post')&&el('btn-bb-post').addEventListener('click',postBB);
   document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
   loadDB();
 });
