@@ -185,10 +185,6 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
         Verkauf &amp; Trade
       </div>
-      <div class="ni" data-v="ankauf" onclick="go('ankauf')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        Ankauf
-      </div>
       <div class="nsec">Tools</div>
       <div class="ni" data-v="research" onclick="go('research')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -376,57 +372,6 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
             <button class="btn bgold" id="btn-kk">Berechnen</button>
           </div>
           <div id="kk-res-card" style="display:none;" class="card"><div class="ctit">Ergebnis</div><div id="kk-res"></div></div>
-        </div>
-      </div>
-
-      <!-- ANKAUF -->
-      <div class="view" id="view-ankauf">
-        <div class="vtit">Ankauf</div>
-        <div class="card" style="margin-bottom:14px;">
-          <div class="ctit">⚙ Einstellungen</div>
-          <div class="fg2">
-            <div class="fg"><label class="flbl">Ankaufsquote (%)</label><input id="ank-pct" class="fi" type="number" value="60" min="1" max="99"></div>
-            <div class="fg"><label class="flbl">Preisbasis</label><select id="ank-basis" class="fi"><option value="cardmarket">Cardmarket</option><option value="ebay">eBay (30T)</option></select></div>
-          </div>
-          <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);padding:6px 8px;background:var(--surface2);border-radius:7px;">Ankaufspreis = <span id="ank-pct-display">60</span>% des Marktwertes</div>
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <button id="ank-tab-einzel" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer;">Einzelankauf</button>
-          <button id="ank-tab-masse" style="flex:1;padding:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Massenankauf</button>
-        </div>
-        <div id="ank-einzel-panel">
-          <div class="dcols">
-            <div class="card">
-              <div class="ctit">🔍 Karte suchen</div>
-              <div class="fg"><label class="flbl">Kartenname / Nummer</label><input id="ank-search" class="fi" placeholder="z.B. Charizard oder OP01-120"></div>
-              <div class="fg"><label class="flbl">Serie</label><select id="ank-serie" class="fi"><option value="Pokemon">Pokemon</option><option value="One Piece">One Piece</option><option value="Yu-Gi-Oh">Yu-Gi-Oh</option></select></div>
-              <button class="btn bgold" id="btn-ank-search">Preis ermitteln</button>
-            </div>
-            <div id="ank-result" style="display:none;" class="card">
-              <div class="ctit">Ankaufsergebnis</div>
-              <div id="ank-result-content"></div>
-              <button class="btn bgrn" id="btn-ank-accept" style="display:none;margin-top:10px;">✓ Karte ankaufen &amp; ins Inventar</button>
-            </div>
-          </div>
-        </div>
-        <div id="ank-masse-panel" style="display:none;">
-          <div class="dcols">
-            <div class="card">
-              <div class="ctit">📋 Karten-Liste</div>
-              <div class="fg2">
-                <div class="fg"><label class="flbl">Kartenname</label><input id="ank-m-name" class="fi" placeholder="z.B. Pikachu"></div>
-                <div class="fg"><label class="flbl">Serie</label><select id="ank-m-serie" class="fi"><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option></select></div>
-              </div>
-              <button class="btn bgrn bsm" id="btn-ank-m-add">+ Hinzufügen</button>
-              <div id="ank-masse-list" style="margin-top:8px;"></div>
-              <button class="btn bgold" id="btn-ank-masse-search" style="display:none;margin-top:10px;">Alle Preise ermitteln</button>
-            </div>
-            <div id="ank-masse-results" style="display:none;" class="card">
-              <div class="ctit">Gesamtergebnis</div>
-              <div id="ank-masse-result-content"></div>
-              <button class="btn bgrn" id="btn-ank-masse-accept" style="margin-top:10px;">✓ Alle ankaufen &amp; ins Inventar</button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -642,7 +587,7 @@ function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-p
 function doLogout(){cu=null;viewerMode=false;el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
 
-var PAGE_TITLES={dashboard:'Dashboard',karten:'Karten',trans:'Verkauf & Trade',grading:'Grading',research:'KI-Research',kalkulation:'Kalkulation',ankauf:'Ankauf',profil:'Profil',gadgets:'⚙ Gadgets'};
+var PAGE_TITLES={dashboard:'Dashboard',karten:'Karten',trans:'Verkauf & Trade',grading:'Grading',research:'KI-Research',kalkulation:'Kalkulation',profil:'Profil',gadgets:'⚙ Gadgets'};
 function go(v){
   document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
   document.querySelectorAll('.ni').forEach(function(x){x.classList.remove('active');});
@@ -652,7 +597,7 @@ function go(v){
   var sa=document.querySelector('.sarea');if(sa)sa.scrollTop=0;
   if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();
   if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();
-  if(v==='ankauf')rAnkauf();if(v==='profil')rProfil();if(v==='gadgets')rGadgets();
+  if(v==='profil')rProfil();if(v==='gadgets')rGadgets();
 }
 
 // ── NOTIZEN ──────────────────────────────────────────────────────────
@@ -674,8 +619,8 @@ function rGadgets(){rNotizen();rBBAdmin();}
 
 function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
-function activateViewerMode(){viewerMode=true;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){b.style.display='none';});var banner=el('viewer-banner');if(banner)banner.style.display='flex';go('karten');}
-function deactivateViewerMode(){viewerMode=false;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"],[data-v="ankauf"]').forEach(function(b){b.style.display='';});var banner=el('viewer-banner');if(banner)banner.style.display='none';rDash();rKarten();}
+function activateViewerMode(){viewerMode=true;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){b.style.display='none';});var banner=el('viewer-banner');if(banner)banner.style.display='flex';go('karten');}
+function deactivateViewerMode(){viewerMode=false;document.querySelectorAll('[data-v="trans"],[data-v="research"],[data-v="kalkulation"]').forEach(function(b){b.style.display='';});var banner=el('viewer-banner');if(banner)banner.style.display='none';rDash();rKarten();}
 function openViewerConfirm(){os('ovViewer');}
 
 function rDash(){
@@ -704,7 +649,7 @@ function saveVK(){var kid=el('vfk')?el('vfk').value:'';if(!kid){toast('Karte aus
 function openTradeSheet(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('tfk'))el('tfk').innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');['tfr','tfe','tr-nk-name','tr-nk-ek','tr-nk-mw'].forEach(function(f){if(el(f))el(f).value='';});if(el('tfd'))el('tfd').value=today();if(el('tfdd')){el('tfdd').textContent='-';el('tfdd').style.color='var(--text3)';}os('ovTR');}
 function saveTR(){var kid=el('tfk')?el('tfk').value:'';if(!kid){toast('Karte auswählen',false);return;}var nkName=el('tr-nk-name')?el('tr-nk-name').value.trim():'';if(!nkName){toast('Neue Karte erfassen',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var wr=parseFloat(el('tfr')?el('tfr').value:0)||0;var we=parseFloat(el('tfe')?el('tfe').value:0)||0;var tx={id:'T'+Date.now(),typ:'trade',kartenId:kid,kartenName:k?k.name:kid,ek:k?parseFloat(k.ek||0):0,wertRaus:wr,karteRein:nkName,wertRein:we,diff:we-wr,datum:el('tfd')?el('tfd').value:today()};if(k){logDeletion(k,'Getauscht gegen: '+nkName);sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}var newK={id:'K'+Date.now(),name:nkName,serie:el('tr-nk-serie')?el('tr-nk-serie').value:'Pokemon',set:'',lager:'',kondition:'Raw',note:'',einkauf:el('tr-nk-ei')?el('tr-nk-ei').value:'privat',ek:parseFloat(el('tr-nk-ek')?el('tr-nk-ek').value:0)||we||0,marktwert:parseFloat(el('tr-nk-mw')?el('tr-nk-mw').value:0)||0,quelle:'Trade',notizen:'',status:'Im Bestand',kaufdatum:today()};db.karten.push(newK);db.transaktionen.push(tx);cs('ovTR');saveDB();rTrans();rDash();rKarten();toast('Tausch gespeichert! "'+nkName+'" im Bestand.');}
 function rGrading(){var li=el('glist');if(!li)return;var s=db.sendungen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});if(!s.length){li.innerHTML='<div class="rph"><div>Keine Sendungen</div></div>';return;}li.innerHTML=s.map(function(snd){var sc=snd.status==='Unterwegs'?'by':(snd.status==='Abgeschlossen'?'bg':'bb');return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">'+snd.name+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px;">'+snd.dienst+' · '+(snd.karten||[]).length+' Karten · '+fmt(snd.gesamt)+' EUR</div></div><span class="bd '+sc+'">'+snd.status+'</span></div>'+(snd.karten||[]).map(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><span>'+(k?k.name:ki.id)+'</span>'+(ki.note?'<span class="bd by">'+snd.dienst+' '+ki.note+'</span>':'<span style="font-size:10px;color:var(--text3)">Ausstehend</span>')+'</div>';}).join('')+'</div>';}).join('');}
-function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});if(el('sfka'))el('sfka').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');rSKL();os('ovSDG');}
+function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});if(el('sfka'))el('sfka').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');rSKL();os('ovSDG');}
 function rSKL(){var li=el('sfkl');if(!li)return;if(!_sk.length){li.innerHTML='';return;}li.innerHTML=_sk.map(function(ki,i){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div class="li" style="padding:8px"><div class="lim"><div class="lit">'+(k?k.name:ki.id)+'</div></div><button data-rm="'+i+'" style="border:none;background:rgba(192,57,43,.1);color:#c0392b;border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px">X</button></div>';}).join('');li.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){_sk.splice(parseInt(this.dataset.rm),1);rSKL();});});}
 function saveSDG(){var n=el('sfn')?el('sfn').value.trim():'';if(!n){toast('Name erforderlich',false);return;}var v=parseFloat(el('sfv')?el('sfv').value:0)||0;var g=parseFloat(el('sfg')?el('sfg').value:0)||0;var s={id:'S'+Date.now(),name:n,dienst:el('sfd')?el('sfd').value:'PSA',datum:el('sfdat')?el('sfdat').value:today(),status:'Unterwegs',versand:v,gebuehr:g,gesamt:v+g,karten:_sk.slice(),notizen:''};_sk.forEach(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});if(k&&k.status==='Im Bestand')k.status='Zum Grading';});db.sendungen.push(s);cs('ovSDG');saveDB();rGrading();rDash();toast('Sendung gespeichert!');}
 function rResearch(){var sel=el('rsel');if(!sel)return;var b=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});sel.innerHTML='<option value="">-- auswählen --</option>'+b.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.nr?' ('+k.nr+')':'')+'</option>';}).join('');}
