@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="app-version" content="2.1.2">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MAD WMS Desktop">
+<meta name="theme-color" content="#1a1208">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;MADCollectables WMS&quot;,&quot;short_name&quot;:&quot;MAD WMS&quot;,&quot;start_url&quot;:&quot;desktop.html&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%231a1208&quot;,&quot;theme_color&quot;:&quot;%231a1208&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231a1208'/%3E%3Ctext y='.9em' font-size='80' x='10'%3EM%3C/text%3E%3C/svg%3E&quot;,&quot;sizes&quot;:&quot;any&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
 <title>MADCollectables · WMS Desktop</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -1186,6 +1191,13 @@ document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
   loadDB();
 });
+</script>
+<script>
+if('serviceWorker' in navigator){
+  var sw='data:application/javascript,self.addEventListener(\'fetch\',function(e){e.respondWith(fetch(e.request).catch(function(){return new Response(\'Offline\');}));});';
+  var blob=new Blob([atob('c2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsZnVuY3Rpb24oZSl7ZS5yZXNwb25kV2l0aChmZXRjaChlLnJlcXVlc3QpLmNhdGNoKGZ1bmN0aW9uKCl7cmV0dXJuIG5ldyBSZXNwb25zZSgnT2ZmbGluZScpO30pKTt9KTs=')],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(function(){});
+}
 </script>
 </body>
 </html>
