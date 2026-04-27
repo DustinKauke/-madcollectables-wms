@@ -539,6 +539,31 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
   </div>
 </div></div>
 
+<!-- GRADING ABSCHLIESSEN -->
+<div class="sov" id="ovGrdDone" style="display:none;"><div class="sheet">
+  <div class="stit">✓ Sendung abgeschlossen</div>
+  <div style="background:rgba(26,122,60,.08);border:1px solid rgba(26,122,60,.25);border-radius:10px;padding:13px;margin-bottom:16px;">
+    <div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:var(--dark);" id="grd-done-sndname">-</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:3px;">Alle Karten wurden in den Bestand zurückgeführt.</div>
+  </div>
+  <input type="hidden" id="grd-done-sndid">
+  <div class="fg2">
+    <div class="fg">
+      <label class="flbl">Entstandener Aufwand (€)</label>
+      <input class="fi" id="grd-done-betrag" type="number" step="0.01" min="0" placeholder="0,00 – optional">
+    </div>
+    <div class="fg">
+      <label class="flbl">Notiz (optional)</label>
+      <input class="fi" id="grd-done-notiz" placeholder="z.B. PSA Express...">
+    </div>
+  </div>
+  <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-bottom:12px;">Kosten werden automatisch unter „Einzelkosten" in der Kostenplanung erfasst.</div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn bgold" onclick="saveGrdKosten()" style="flex:2;">Speichern &amp; Abschließen</button>
+    <button class="btn bout" onclick="cs('ovGrdDone')" style="flex:1;">Ohne Kosten</button>
+  </div>
+</div></div>
+
 <!-- ── SCRIPT (identical logic to mobile) ────────────────────────── -->
 <script>
 var SB_URL='https://wswzqvmcqpvhnvfxguet.supabase.co';
@@ -648,7 +673,96 @@ function openVK(){var av=db.karten.filter(function(k){return k&&k.status==='Im B
 function saveVK(){var kid=el('vfk')?el('vfk').value:'';if(!kid){toast('Karte auswählen',false);return;}var vkp=parseFloat(el('vfvk')?el('vfvk').value:0)||0;if(!vkp){toast('VK eingeben',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var ekp=parseFloat(el('vfek')?el('vfek').value:0)||0;var gw=vkp-ekp;var tx={id:'T'+Date.now(),typ:'verkauf',kartenId:kid,kartenName:k?k.name:kid,plattform:el('vfp')?el('vfp').value:'',ek:ekp,vk:vkp,gewinn:gw,datum:el('vfd')?el('vfd').value:today()};if(k){logDeletion(k,'Verkauft über '+(el('vfp')?el('vfp').value:''));sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}db.transaktionen.push(tx);cs('ovVK');saveDB();rTrans();rDash();rKarten();toast('"'+(k?k.name:kid)+'" für '+fmt(vkp)+' € verkauft!');}
 function openTradeSheet(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('tfk'))el('tfk').innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');['tfr','tfe','tr-nk-name','tr-nk-ek','tr-nk-mw'].forEach(function(f){if(el(f))el(f).value='';});if(el('tfd'))el('tfd').value=today();if(el('tfdd')){el('tfdd').textContent='-';el('tfdd').style.color='var(--text3)';}os('ovTR');}
 function saveTR(){var kid=el('tfk')?el('tfk').value:'';if(!kid){toast('Karte auswählen',false);return;}var nkName=el('tr-nk-name')?el('tr-nk-name').value.trim():'';if(!nkName){toast('Neue Karte erfassen',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var wr=parseFloat(el('tfr')?el('tfr').value:0)||0;var we=parseFloat(el('tfe')?el('tfe').value:0)||0;var tx={id:'T'+Date.now(),typ:'trade',kartenId:kid,kartenName:k?k.name:kid,ek:k?parseFloat(k.ek||0):0,wertRaus:wr,karteRein:nkName,wertRein:we,diff:we-wr,datum:el('tfd')?el('tfd').value:today()};if(k){logDeletion(k,'Getauscht gegen: '+nkName);sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}var newK={id:'K'+Date.now(),name:nkName,serie:el('tr-nk-serie')?el('tr-nk-serie').value:'Pokemon',set:'',lager:'',kondition:'Raw',note:'',einkauf:el('tr-nk-ei')?el('tr-nk-ei').value:'privat',ek:parseFloat(el('tr-nk-ek')?el('tr-nk-ek').value:0)||we||0,marktwert:parseFloat(el('tr-nk-mw')?el('tr-nk-mw').value:0)||0,quelle:'Trade',notizen:'',status:'Im Bestand',kaufdatum:today()};db.karten.push(newK);db.transaktionen.push(tx);cs('ovTR');saveDB();rTrans();rDash();rKarten();toast('Tausch gespeichert! "'+nkName+'" im Bestand.');}
-function rGrading(){var li=el('glist');if(!li)return;var s=db.sendungen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});if(!s.length){li.innerHTML='<div class="rph"><div>Keine Sendungen</div></div>';return;}li.innerHTML=s.map(function(snd){var sc=snd.status==='Unterwegs'?'by':(snd.status==='Abgeschlossen'?'bg':'bb');return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;">'+snd.name+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px;">'+snd.dienst+' · '+(snd.karten||[]).length+' Karten · '+fmt(snd.gesamt)+' EUR</div></div><span class="bd '+sc+'">'+snd.status+'</span></div>'+(snd.karten||[]).map(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><span>'+(k?k.name:ki.id)+'</span>'+(ki.note?'<span class="bd by">'+snd.dienst+' '+ki.note+'</span>':'<span style="font-size:10px;color:var(--text3)">Ausstehend</span>')+'</div>';}).join('')+'</div>';}).join('');}
+function rGrading(){
+  var li=el('glist');if(!li)return;
+  var s=db.sendungen.filter(function(snd){return snd&&snd.status!=='Abgeschlossen';}).sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});
+  if(!s.length){li.innerHTML='<div class="rph"><div>Keine aktiven Sendungen</div></div>';return;}
+  li.innerHTML=s.map(function(snd){
+    var sc=snd.status==='Unterwegs'?'by':'bb';
+    var kartenHTML=(snd.karten||[]).map(function(ki){
+      var k=db.karten.find(function(x){return x.id===ki.id;});
+      var name=k?k.name:ki.id;
+      var noteOpts=['10','9.5','9','8.5','8','7','6','5','4','3','2','1'].map(function(n){
+        return '<option value="'+n+'"'+(ki.note===n?' selected':'')+'>'+n+'</option>';
+      }).join('');
+      return '<div style="border-bottom:1px solid var(--border);padding:10px 0;display:flex;align-items:center;gap:10px">'+
+        '<div style="flex:1;font-size:13px;font-weight:600;">'+esc(name)+(ki.note?'&nbsp;<span class="bd by">'+snd.dienst+' '+ki.note+'</span>':'')+'</div>'+
+        '<select data-sndid="'+snd.id+'" data-kid="'+ki.id+'" class="fi grd-note" style="width:160px;padding:6px 10px;font-size:12px;">'+
+          '<option value="">Note ('+snd.dienst+')</option>'+noteOpts+
+        '</select>'+
+        '<input data-sndid="'+snd.id+'" data-kid="'+ki.id+'" class="fi grd-mw" type="number" placeholder="Neuer MW €" style="width:120px;padding:6px 10px;font-size:12px;" value="'+(ki.marktwert||'')+'">'+
+        '<button data-sndid="'+snd.id+'" data-kid="'+ki.id+'" class="btn bgrn grd-save" style="width:auto;padding:6px 14px;font-size:12px;margin-top:0;white-space:nowrap;">✓ Sichern</button>'+
+      '</div>';
+    }).join('');
+    return '<div class="card">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+        '<div>'+
+          '<div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;">'+esc(snd.name)+'</div>'+
+          '<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+snd.dienst+' · '+(snd.karten||[]).length+' Karten · '+fmt(snd.gesamt)+' EUR · '+snd.datum+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;align-items:center;">'+
+          '<span class="bd '+sc+'">'+snd.status+'</span>'+
+          '<button data-sndid="'+snd.id+'" class="btn bgrn grd-done" style="width:auto;padding:6px 14px;font-size:12px;margin-top:0;">✓ Erledigt</button>'+
+        '</div>'+
+      '</div>'+
+      kartenHTML+
+    '</div>';
+  }).join('');
+
+  li.querySelectorAll('.grd-save').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sndId=this.dataset.sndid, kid=this.dataset.kid;
+      var noteEl=li.querySelector('.grd-note[data-sndid="'+sndId+'"][data-kid="'+kid+'"]');
+      var mwEl=li.querySelector('.grd-mw[data-sndid="'+sndId+'"][data-kid="'+kid+'"]');
+      var note=noteEl?noteEl.value:'';
+      var mw=parseFloat(mwEl?mwEl.value:0)||0;
+      if(!note){toast('Note wählen',false);return;}
+      var snd=db.sendungen.find(function(x){return x.id===sndId;});
+      if(!snd)return;
+      var ki=snd.karten.find(function(x){return x.id===kid;});
+      if(ki){ki.note=note;ki.marktwert=mw;}
+      var k=db.karten.find(function(x){return x.id===kid;});
+      if(k){k.kondition=snd.dienst;k.note=note;if(mw)k.marktwert=mw;k.status='Im Bestand';}
+      saveDB();rGrading();rKarten();rDash();toast('Karte zurück im Bestand!');
+    });
+  });
+
+  li.querySelectorAll('.grd-done').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sndId=this.dataset.sndid;
+      var snd=db.sendungen.find(function(x){return x.id===sndId;});
+      if(!snd)return;
+      (snd.karten||[]).forEach(function(ki){
+        var k=db.karten.find(function(x){return x.id===ki.id;});
+        if(k&&k.status==='Zum Grading')k.status='Im Bestand';
+      });
+      snd.status='Abgeschlossen';
+      saveDB();
+      if(el('grd-done-sndname'))el('grd-done-sndname').textContent=snd.name;
+      if(el('grd-done-sndid'))el('grd-done-sndid').value=sndId;
+      if(el('grd-done-betrag'))el('grd-done-betrag').value='';
+      if(el('grd-done-notiz'))el('grd-done-notiz').value='';
+      os('ovGrdDone');
+      rGrading();rKarten();rDash();
+    });
+  });
+}
+
+var GRD_KOSTEN_KEY='madwms_grading_kosten';
+function saveGrdKosten(){
+  var sndId=el('grd-done-sndid')?el('grd-done-sndid').value:'';
+  var betrag=parseFloat(el('grd-done-betrag')?el('grd-done-betrag').value:0)||0;
+  var notiz=el('grd-done-notiz')?el('grd-done-notiz').value.trim():'';
+  var snd=db.sendungen.find(function(x){return x.id===sndId;});
+  if(betrag>0){
+    try{
+      var items=JSON.parse(localStorage.getItem(GRD_KOSTEN_KEY)||'[]');
+      items.push({id:'GK'+Date.now(),sendung:snd?snd.name:'Grading',betrag:betrag,notiz:notiz,datum:new Date().toLocaleDateString('de-DE')});
+      localStorage.setItem(GRD_KOSTEN_KEY,JSON.stringify(items));
+    }catch(e){}
+  }
+  cs('ovGrdDone');toast('Sendung abgeschlossen!');
+}
 function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});if(el('sfka'))el('sfka').innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');rSKL();os('ovSDG');}
 function rSKL(){var li=el('sfkl');if(!li)return;if(!_sk.length){li.innerHTML='';return;}li.innerHTML=_sk.map(function(ki,i){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div class="li" style="padding:8px"><div class="lim"><div class="lit">'+(k?k.name:ki.id)+'</div></div><button data-rm="'+i+'" style="border:none;background:rgba(192,57,43,.1);color:#c0392b;border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px">X</button></div>';}).join('');li.querySelectorAll('[data-rm]').forEach(function(b){b.addEventListener('click',function(){_sk.splice(parseInt(this.dataset.rm),1);rSKL();});});}
 function saveSDG(){var n=el('sfn')?el('sfn').value.trim():'';if(!n){toast('Name erforderlich',false);return;}var v=parseFloat(el('sfv')?el('sfv').value:0)||0;var g=parseFloat(el('sfg')?el('sfg').value:0)||0;var s={id:'S'+Date.now(),name:n,dienst:el('sfd')?el('sfd').value:'PSA',datum:el('sfdat')?el('sfdat').value:today(),status:'Unterwegs',versand:v,gebuehr:g,gesamt:v+g,karten:_sk.slice(),notizen:''};_sk.forEach(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});if(k&&k.status==='Im Bestand')k.status='Zum Grading';});db.sendungen.push(s);cs('ovSDG');saveDB();rGrading();rDash();toast('Sendung gespeichert!');}
