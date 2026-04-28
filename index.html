@@ -132,20 +132,49 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       </div>
       <div id="adm-home-av" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:16px;font-weight:800;color:#1a1208;">A</div>
     </div>
-    <!-- BB Vorschau -->
     <div id="adm-home-bb" style="display:none;margin-bottom:12px;"></div>
-    <!-- KACHELN -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <!-- Zeile 1: WMS -->
       <div class="adm-tile" onclick="admGoView('dashboard')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Dashboard</div></div>
       <div class="adm-tile" onclick="admGoView('karten')"><div class="adm-tile-ico">🃏</div><div class="adm-tile-lbl">Karten</div><div id="adm-home-karten" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admGoView('grading')"><div class="adm-tile-ico">⭐</div><div class="adm-tile-lbl">Grading</div></div>
+      <!-- Zeile 2 -->
       <div class="adm-tile" onclick="admGoView('trans')"><div class="adm-tile-ico">💳</div><div class="adm-tile-lbl">Verkauf & Trade</div></div>
       <div class="adm-tile" onclick="admGoView('research')"><div class="adm-tile-ico">🔍</div><div class="adm-tile-lbl">KI-Research</div></div>
       <div class="adm-tile" onclick="admGoView('kalkulation')"><div class="adm-tile-ico">🧮</div><div class="adm-tile-lbl">Kalkulation</div></div>
-      <div class="adm-tile" onclick="admGoView('gadgets')"><div class="adm-tile-ico">⚙️</div><div class="adm-tile-lbl">Admin-Center</div></div>
+      <!-- Zeile 3: Admin -->
+      <div class="adm-tile" onclick="admOpenGadgetTile('viewer')"><div class="adm-tile-ico">👁</div><div class="adm-tile-lbl">Viewer-Modus</div></div>
+      <div class="adm-tile" onclick="admOpenGadgetTile('bb')"><div class="adm-tile-ico">📌</div><div class="adm-tile-lbl">Schwarzes Brett</div><div id="adm-bb-prev2" class="adm-tile-sub"></div></div>
+      <div class="adm-tile" onclick="admOpenGadgetTile('notizen')"><div class="adm-tile-ico">📝</div><div class="adm-tile-lbl">Notizen</div><div id="adm-nz-prev2" class="adm-tile-sub"></div></div>
+      <!-- Zeile 4: Admin -->
+      <div class="adm-tile" onclick="admOpenGadgetTile('kosten')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Kosten</div><div id="adm-ko-prev2" class="adm-tile-sub"></div></div>
+      <div class="adm-tile" onclick="admOpenGadgetTile('dellog')"><div class="adm-tile-ico">🗑</div><div class="adm-tile-lbl">Löschprotokoll</div></div>
+      <div class="adm-tile" onclick="admOpenGadgetTile('feedback')"><div class="adm-tile-ico">💬</div><div class="adm-tile-lbl">Nachrichten</div><div id="adm-fb-prev2" class="adm-tile-sub"></div></div>
+      <!-- Zeile 5 -->
+      <div class="adm-tile" onclick="admGoBenutzer()"><div class="adm-tile-ico">👥</div><div class="adm-tile-lbl">Benutzer</div><div id="adm-usr-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admGoView('profil')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Profil</div></div>
       <div class="adm-tile" onclick="doLogout()" style="border-color:rgba(192,57,43,.3)"><div class="adm-tile-ico">🚪</div><div class="adm-tile-lbl" style="color:var(--red)">Abmelden</div></div>
     </div>
+  </div>
+
+  <!-- GADGET OVERLAY (für Viewer, BB, Notizen, Kosten, Dellog, Feedback) -->
+  <div id="adm-gadget-overlay" style="display:none;padding:14px;">
+    <button class="adm-back-btn" onclick="admCloseGadgetOverlay()" style="margin-bottom:14px;">← Hauptmenü</button>
+    <div id="adm-gadget-content"></div>
+  </div>
+
+  <!-- BENUTZER MODUS -->
+  <div id="adm-benutzer-overlay" style="display:none;padding:14px;">
+    <button class="adm-back-btn" onclick="admCloseBenutzer()" style="margin-bottom:14px;">← Hauptmenü</button>
+    <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:14px;color:var(--dark);">👥 Benutzer</div>
+    <div id="adm-benutzer-sub" style="display:block;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div class="adm-tile" onclick="admOpenBenutzerTile('verwaltung')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Benutzer-verwaltung</div></div>
+        <div class="adm-tile" onclick="admOpenBenutzerTile('rollen')"><div class="adm-tile-ico">🎭</div><div class="adm-tile-lbl">Rollen-verwaltung</div></div>
+        <div class="adm-tile" onclick="admOpenBenutzerTile('test')" style="border-color:rgba(192,57,43,.3)"><div class="adm-tile-ico">🧪</div><div class="adm-tile-lbl" style="color:var(--red)">Test</div></div>
+      </div>
+    </div>
+    <div id="adm-benutzer-content" style="display:none;"></div>
   </div>
 
     <!-- DASHBOARD -->
@@ -540,25 +569,25 @@ button{transition:opacity .1s}button:active{opacity:0.75}
   <div class="fg"><label class="flbl">Name *</label><input class="fi" id="adm-u-name" placeholder="Vor- und Nachname"></div>
   <div class="fg"><label class="flbl">Benutzername *</label><input class="fi" id="adm-u-user" placeholder="z.B. ma_dustin"></div>
   <div class="fg"><label class="flbl">E-Mail</label><input class="fi" id="adm-u-email" type="email" placeholder="optional"></div>
-  <div class="fg"><label class="flbl">Rolle</label>
-    <select class="fi" id="adm-u-rolle">
-      <option value="2">Einkauf / Trade</option>
-      <option value="3">Buchhaltung</option>
-      <option value="4">Angestellter</option>
-      <option value="1">Admin</option>
-    </select>
-  </div>
-  <div id="adm-u-pw-wrap" class="fg">
-    <label class="flbl">Passwort *</label>
-    <input class="fi" id="adm-u-pw" type="password" placeholder="mind. 4 Zeichen">
-  </div>
-  <div id="adm-u-aktiv-wrap" class="fg" style="display:none">
-    <label class="flbl">Status</label>
-    <select class="fi" id="adm-u-aktiv"><option value="1">Aktiv</option><option value="0">Deaktiviert</option></select>
-  </div>
+  <div class="fg"><label class="flbl">Rolle</label><select class="fi" id="adm-u-rolle-sel"><option value="">-- Keine Rolle --</option></select></div>
+  <div id="adm-u-pw-wrap" class="fg"><label class="flbl">Passwort *</label><input class="fi" id="adm-u-pw" type="password" placeholder="mind. 4 Zeichen"></div>
+  <div id="adm-u-aktiv-wrap" class="fg" style="display:none"><label class="flbl">Status</label><select class="fi" id="adm-u-aktiv"><option value="1">Aktiv</option><option value="0">Deaktiviert</option></select></div>
   <div id="adm-u-err" style="display:none;background:#fef2f2;border:1px solid rgba(192,57,43,.3);border-radius:8px;padding:9px;font-size:12px;color:var(--red);margin-bottom:8px"></div>
   <button class="btn bgold" onclick="saveAdmUser()">Speichern</button>
   <button class="btn bout" style="margin-top:8px" onclick="cs('ovAdmUser')">Abbrechen</button>
+</div></div>
+
+<!-- EINMALPASSWORT SHEET -->
+<div class="sov" id="ovEinmalPw"><div class="sheet">
+  <div class="shandle"></div>
+  <div class="stit">🔑 Passwort ändern erforderlich</div>
+  <div style="background:rgba(184,134,11,.1);border:1px solid rgba(184,134,11,.3);border-radius:10px;padding:12px;margin-bottom:14px">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Dein Admin hat ein Einmalpasswort gesetzt. Bitte ändere es jetzt.</div>
+    <div id="einmal-pw-info" style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--gold)"></div>
+  </div>
+  <div class="fg"><label class="flbl">Neues Passwort *</label><input class="fi" id="einmal-new-pw" type="password" placeholder="mind. 4 Zeichen"></div>
+  <div class="fg"><label class="flbl">Wiederholen *</label><input class="fi" id="einmal-new-pw2" type="password"></div>
+  <button class="btn bgold" onclick="saveEinmalPwChange()">Passwort setzen &amp; weiter</button>
 </div></div>
 
 <!-- PW RESET SHEET -->
@@ -654,28 +683,88 @@ function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}
 function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};var bb=(r[5]||[]).find(function(x){return x.id==='schwarzesbrett';});db.schwarzesbrett=bb?bb.data:[];sync('ok');}).catch(function(){sync('err');});}
 function saveDB(){sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
 function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausf\u00fcllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
-  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.rolle===1){admGoHome();}else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();});},30000);}
+  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.einmalPw){checkEinmalPw();}else if(u.rolle===1){admGoHome();}else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();});},30000);}
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
 function doLogout(){cu=null;viewerMode=false;var ah=el('adm-home');if(ah)ah.style.display='none';var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
 // ── ADMIN HAUPTMENÜ ────────────────────────────────────────────────
 function admGoHome(){
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  ['adm-gadget-overlay','adm-benutzer-overlay'].forEach(function(id){var e=el(id);if(e)e.style.display='none';});
   var ah=el('adm-home');if(ah)ah.style.display='block';
   var nav=document.querySelector('.bnav');if(nav)nav.style.display='none';
   var sa=el('sarea');if(sa)sa.style.paddingBottom='14px';
   var bb=loadBBFromDB();var bbp=el('adm-home-bb');
   if(bbp){if(bb.length){bbp.style.display='block';bbp.innerHTML='<div style="background:'+bb[0].col+';border:1px solid '+bb[0].border+';border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:16px">'+bb[0].icon+'</span><div><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark)">'+esc(bb[0].titel)+'</div><div style="font-size:11px;color:var(--text2)">'+esc(bb[0].text)+'</div></div></div>';}else{bbp.style.display='none';}}
   var kc=el('adm-home-karten');if(kc)kc.textContent=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length+' im Bestand';
+  var bb2=el('adm-bb-prev2');var bbl=loadBBFromDB();if(bb2)bb2.textContent=bbl.length?bbl[0].titel:'Keine';
+  var nz=loadNotizen();var nc=el('adm-nz-prev2');if(nc)nc.textContent=nz.length+' Einträge';
+  var k=getKosten();var ko=el('adm-ko-prev2');var sumMo=k.monat.reduce(function(s,x){return s+(x.betrag||0);},0);if(ko)ko.textContent=fmtKo(sumMo)+'/Mo';
+  var fb=loadFeedback();var fc=el('adm-fb-prev2');if(fc)fc.textContent=fb.length?fb.length+' neu':'Keine';
+  var rollen=getRollen();var uc=el('adm-usr-prev2');if(uc)uc.textContent=db.benutzer.length+' · '+rollen.length+' Rollen';
   var av=el('adm-home-av');if(av&&cu)av.textContent=(cu.name||cu.username||'A')[0].toUpperCase();
   el('sarea').scrollTop=0;
 }
 function admGoView(v){
   var ah=el('adm-home');if(ah)ah.style.display='none';
+  ['adm-gadget-overlay','adm-benutzer-overlay'].forEach(function(id){var e=el(id);if(e)e.style.display='none';});
   document.querySelectorAll('[id^="adm-back-"]').forEach(function(b){b.style.display='none';});
   var back=el('adm-back-'+v);if(back)back.style.display='block';
   var nav=document.querySelector('.bnav');if(nav)nav.style.display='none';
   var sa=el('sarea');if(sa)sa.style.paddingBottom='14px';
   go(v);
+}
+function admOpenGadgetTile(tile){
+  var ah=el('adm-home');if(ah)ah.style.display='none';
+  var overlay=el('adm-gadget-overlay');if(overlay)overlay.style.display='block';
+  var cont=el('adm-gadget-content');if(!cont)return;
+  cont.innerHTML='';
+  if(tile==='viewer'){
+    cont.innerHTML='<div class="vtit">👁 Viewer-Modus</div><div class="card"><div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Im Viewer-Modus sehen Besucher nur den Bestand ohne Preise oder sensible Daten.</div><button class="btn bgold" onclick="openViewerConfirm()">👁 Viewer-Modus aktivieren</button></div>';
+  } else if(tile==='bb'){
+    cont.innerHTML='<div class="vtit">📌 Schwarzes Brett</div><div class="card"><div class="fg"><input id="bb-titel" class="fi" placeholder="Titel..."></div><div class="fg"><textarea id="bb-text" class="fi" placeholder="Nachricht für alle..." style="height:80px;resize:none;"></textarea></div><div class="fg"><label class="flbl">Kategorie</label><select id="bb-kat" class="fi"><option value="info">ℹ️ Information</option><option value="wartung">🔧 Wartung</option><option value="wichtig">🚨 Wichtig</option><option value="news">🎉 News</option></select></div><button class="btn bgold" onclick="postBB()">Veröffentlichen</button></div><div id="bb-list" style="margin-top:10px"></div>';
+    setTimeout(rBBAdmin,50);
+  } else if(tile==='notizen'){
+    cont.innerHTML='<div class="vtit">📝 Notizen</div><div class="card"><div class="fg"><input id="notiz-inp" class="fi" placeholder="Neue Notiz..."></div><div class="fg2"><select id="notiz-typ" class="fi"><option value="notiz">📝 Notiz</option><option value="todo">✅ To-Do</option><option value="idee">💡 Idee</option></select><button class="btn bgold" id="btn-notiz-add">+ Hinzufügen</button></div></div><div id="notiz-list"></div>';
+    setTimeout(function(){var b=el('btn-notiz-add');if(b)b.addEventListener('click',addNotiz);var i=el('notiz-inp');if(i)i.addEventListener('keydown',function(e){if(e.key==='Enter')addNotiz();});rNotizen();},50);
+  } else if(tile==='kosten'){
+    var kpis='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Monatlich</div><div class="kval" id="ko-sum-mo">-</div></div><div class="kpi" style="border-top-color:#1a5fa8"><div class="klbl">Jährl. ÷12</div><div class="kval" id="ko-sum-ja">-</div></div><div class="kpi" style="border-top-color:var(--red)"><div class="klbl">Gesamt/Mo</div><div class="kval" id="ko-sum-ges">-</div></div><div class="kpi" style="border-top-color:var(--purple)"><div class="klbl">Rücklagen/Mo</div><div class="kval" id="ko-sum-rl">-</div></div></div>';
+    var tabs='<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"><button class="kost-tab-btn" onclick="kostTab(\'monat\',this)" style="flex:1;padding:7px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;min-width:55px">Mo.</button><button class="kost-tab-btn" onclick="kostTab(\'jahr\',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:11px;cursor:pointer;min-width:55px">Jahr</button><button class="kost-tab-btn" onclick="kostTab(\'rl\',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:11px;cursor:pointer;min-width:55px">Rückl.</button><button class="kost-tab-btn" onclick="kostTab(\'einzel\',this)" style="flex:1;padding:7px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:11px;cursor:pointer;min-width:55px">Einzel</button></div>';
+    var lists='<div id="ko-tab-monat"><div class="vrow" style="margin-bottom:8px"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">Monatlich</span><button class="btn bgold bsm" onclick="openKoOv(\'mo\')">+ Neu</button></div><div id="ko-list-mo"></div></div><div id="ko-tab-jahr" style="display:none"><div class="vrow" style="margin-bottom:8px"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">Jährlich</span><button class="btn bgold bsm" onclick="openKoOv(\'ja\')">+ Neu</button></div><div id="ko-list-ja"></div></div><div id="ko-tab-rl" style="display:none"><div class="vrow" style="margin-bottom:8px"><span style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">Rücklagen</span><button class="btn bgold bsm" onclick="openKoOv(\'rl\')">+ Neu</button></div><div id="ko-list-rl"></div></div><div id="ko-tab-einzel" style="display:none"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;margin-bottom:10px">Grading-Aufwände</div><div id="ko-list-einzel"></div></div>';
+    cont.innerHTML='<div class="vtit">📊 Kostenplanung</div>'+kpis+tabs+lists;
+    setTimeout(rKosten,50);
+  } else if(tile==='dellog'){
+    cont.innerHTML='<div class="vtit">🗑 Löschprotokoll</div><div id="del-log-inline"></div>';
+    setTimeout(rDelLogInline,50);
+  } else if(tile==='feedback'){
+    cont.innerHTML='<div class="vtit">💬 Mitarbeiternachrichten</div><div id="adm-feedback-list"></div>';
+    setTimeout(rFeedbackAdmin,50);
+  }
+  el('sarea').scrollTop=0;
+}
+function admCloseGadgetOverlay(){var go2=el('adm-gadget-overlay');if(go2)go2.style.display='none';admGoHome();}
+
+// ── BENUTZER MODUS ─────────────────────────────────────────────────
+function admGoBenutzer(){
+  var ah=el('adm-home');if(ah)ah.style.display='none';
+  var bo=el('adm-benutzer-overlay');if(bo)bo.style.display='block';
+  var bs=el('adm-benutzer-sub');if(bs)bs.style.display='block';
+  var bc=el('adm-benutzer-content');if(bc){bc.style.display='none';bc.innerHTML='';}
+}
+function admCloseBenutzer(){
+  var bo=el('adm-benutzer-overlay');if(bo)bo.style.display='none';
+  admGoHome();
+}
+function admOpenBenutzerTile(tile){
+  var bs=el('adm-benutzer-sub');if(bs)bs.style.display='none';
+  var bc=el('adm-benutzer-content');if(!bc)return;
+  bc.style.display='block';bc.innerHTML='';
+  if(tile==='verwaltung') renderBV(bc);
+  else if(tile==='rollen') renderRV(bc);
+  else if(tile==='test') renderTest(bc);
+}
+function admBenutzerBack(){
+  var bc=el('adm-benutzer-content');if(bc){bc.style.display='none';bc.innerHTML='';}
+  var bs=el('adm-benutzer-sub');if(bs)bs.style.display='block';
 }
 function go(v){
   document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
@@ -823,86 +912,80 @@ function fbToNotiz(i){
 }
 
 // ── BENUTZERVERWALTUNG ────────────────────────────────────────────
-function rAdmUserList(){
-  var c=el('adm-user-list');if(!c)return;
-  var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};
-  if(!db.benutzer.length){c.innerHTML='<div class="rph"><div>Keine Benutzer</div></div>';return;}
-  c.innerHTML=db.benutzer.map(function(u){
-    return '<div class="card" style="margin-bottom:10px;padding:12px">'+
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+
-        '<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:16px;font-weight:800;color:#1a1208;flex-shrink:0">'+(u.name||u.username||'?')[0].toUpperCase()+'</div>'+
-        '<div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">'+esc(u.name||u.username)+'</div>'+
-        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)">'+esc(u.username)+' · '+(R[u.rolle]||'?')+'</div></div>'+
-        '<span class="bd '+(u.aktiv?'bg':'br')+'">'+( u.aktiv?'Aktiv':'Inaktiv')+'</span>'+
-      '</div>'+
-      '<div style="display:flex;gap:6px">'+
-        '<button onclick="openAdmUser(\''+u.id+'\')" style="flex:2;padding:8px;background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:8px;font-size:12px;cursor:pointer">✎ Bearbeiten</button>'+
-        '<button onclick="openPwReset(\''+u.id+'\')" style="flex:1;padding:8px;background:rgba(26,95,168,.1);color:#1a5fa8;border:1px solid rgba(26,95,168,.3);border-radius:8px;font-size:12px;cursor:pointer">🔑 PW</button>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+// ── ROLLEN SYSTEM (Supabase) ───────────────────────────────────────
+var ROLLE_FARBEN=['#c0392b','#e74c3c','#e67e22','#f39c12','#f1c40f','#2ecc71','#27ae60','#1abc9c','#3498db','#2980b9','#9b59b6','#8e44ad','#34495e','#7f8c8d','#ecf0f1','#1a1208'];
+var ROLLE_RECHTE=[{id:'r1',label:'Karten erfassen'},{id:'r2',label:'Karten bearbeiten / löschen'},{id:'r3',label:'Verkauf & Trade Reiter'},{id:'r4',label:'Grading Reiter'},{id:'r5',label:'Bestandswert eingeblendet'},{id:'r6',label:'Anzahl Karten eingeblendet'},{id:'r7',label:'Umsatz eingeblendet'},{id:'r8',label:'Gewinn & ROI eingeblendet'},{id:'r9',label:'EK / Marktwert / Profit (Karten)'},{id:'r10',label:'Alle Grading-Funktionen'},{id:'r11',label:'Verkäufe & Trades erfassen'},{id:'r12',label:'KI-Research Reiter'},{id:'r13',label:'Kalkulation Reiter'}];
+function getRollen(){return db.einstellungen._rollen||[];}
+function saveRollen(r){db.einstellungen._rollen=r;saveDB();}
+
+function renderBV(cont){
+  cont.innerHTML='<div class="vrow"><div class="vtit" style="font-size:16px">👤 Benutzerverwaltung</div><button class="adm-back-btn" onclick="admBenutzerBack()">← Zurück</button></div><div class="fg"><input id="bv-search" class="fi" placeholder="🔍 Nach Name suchen..." oninput="renderBVList()"></div><button class="btn bgold bsm" style="margin-bottom:12px" onclick="openBVUser(null)">+ Neuer Benutzer</button><div id="bv-list"></div>';
+  setTimeout(renderBVList,50);
 }
-function openAdmUser(id){
-  el('adm-user-id').value=id||'';
-  el('adm-u-name').value='';el('adm-u-user').value='';el('adm-u-email').value='';
-  el('adm-u-rolle').value='4';el('adm-u-pw').value='';
+function renderBVList(){
+  var c=el('bv-list');if(!c)return;
+  var q=(el('bv-search')?el('bv-search').value:'').toLowerCase();
+  var rollen=getRollen();
+  var users=db.benutzer.filter(function(u){return !q||(u.name||'').toLowerCase().includes(q)||(u.username||'').toLowerCase().includes(q);});
+  if(!users.length){c.innerHTML='<div class="rph"><div>Keine Benutzer gefunden</div></div>';return;}
+  c.innerHTML=users.map(function(u){
+    var rolle=rollen.find(function(r){return r.id===u.rolleId;})||null;
+    var rolleLabel=rolle?rolle.name:'Standard';var rolleColor=rolle?rolle.farbe:'#8c7a5a';
+    return '<div class="card" style="padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:15px;font-weight:800;color:#1a1208;flex-shrink:0">'+(u.name||u.username||'?')[0].toUpperCase()+'</div><div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">'+esc(u.name||u.username)+'</div><div style="display:flex;align-items:center;gap:5px;margin-top:2px"><span style="width:8px;height:8px;border-radius:50%;background:'+rolleColor+';display:inline-block;flex-shrink:0"></span><span style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)">'+esc(rolleLabel)+'</span></div></div><span class="bd '+(u.aktiv?'bg':'br')+'">'+(u.aktiv?'Aktiv':'Inaktiv')+'</span></div><div style="display:flex;gap:6px"><button onclick="openBVUser(\''+u.id+'\')" style="flex:2;padding:8px;background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:8px;font-size:12px;cursor:pointer">✎ Bearbeiten</button><button onclick="openBVPwReset(\''+u.id+'\')" style="flex:1;padding:8px;background:rgba(26,95,168,.1);color:#1a5fa8;border:1px solid rgba(26,95,168,.3);border-radius:8px;font-size:12px;cursor:pointer">🔑 PW</button>'+(cu&&u.id!==cu.id?'<button onclick="delBVUser(\''+u.id+'\')" style="padding:8px;background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:8px;font-size:12px;cursor:pointer">✕</button>':'')+
+    '</div></div>';}).join('');
+}
+function openBVUser(id){
+  var rollen=getRollen();var opts='<option value="">-- Keine Rolle --</option>'+rollen.map(function(r){return '<option value="'+r.id+'">'+esc(r.name)+'</option>';}).join('');
+  el('adm-user-id').value=id||'';el('adm-u-name').value='';el('adm-u-user').value='';el('adm-u-email').value='';el('adm-u-pw').value='';
   var errEl=el('adm-u-err');if(errEl)errEl.style.display='none';
-  if(id){
-    el('ovAdmUser-tit').textContent='Benutzer bearbeiten';
-    el('adm-u-pw-wrap').style.display='none';
-    el('adm-u-aktiv-wrap').style.display='block';
+  var rs=el('adm-u-rolle-sel');if(rs)rs.innerHTML=opts;
+  if(id){el('ovAdmUser-tit').textContent='Benutzer bearbeiten';el('adm-u-pw-wrap').style.display='none';el('adm-u-aktiv-wrap').style.display='block';
     var u=db.benutzer.find(function(x){return x.id===id;});
-    if(u){el('adm-u-name').value=u.name||'';el('adm-u-user').value=u.username||'';el('adm-u-email').value=u.email||'';el('adm-u-rolle').value=u.rolle||'4';el('adm-u-aktiv').value=u.aktiv?'1':'0';}
-  } else {
-    el('ovAdmUser-tit').textContent='Neuer Benutzer';
-    el('adm-u-pw-wrap').style.display='block';
-    el('adm-u-aktiv-wrap').style.display='none';
-  }
+    if(u){el('adm-u-name').value=u.name||'';el('adm-u-user').value=u.username||'';el('adm-u-email').value=u.email||'';if(rs)rs.value=u.rolleId||'';el('adm-u-aktiv').value=u.aktiv?'1':'0';}
+  }else{el('ovAdmUser-tit').textContent='Neuer Benutzer';el('adm-u-pw-wrap').style.display='block';el('adm-u-aktiv-wrap').style.display='none';}
   os('ovAdmUser');
 }
 function saveAdmUser(){
-  var id=el('adm-user-id').value;
-  var name=el('adm-u-name').value.trim();
-  var user=el('adm-u-user').value.trim().toLowerCase();
-  var email=el('adm-u-email').value.trim();
-  var rolle=parseInt(el('adm-u-rolle').value)||4;
-  var errEl=el('adm-u-err');
-  function se(m){if(errEl){errEl.textContent=m;errEl.style.display='block';}}
-  if(!name){se('Name fehlt');return;}
-  if(!user){se('Benutzername fehlt');return;}
-  if(id){
-    var u=db.benutzer.find(function(x){return x.id===id;});
-    if(!u)return;
-    u.name=name;u.username=user;u.email=email;u.rolle=rolle;
-    u.aktiv=el('adm-u-aktiv').value==='1';
-  } else {
-    var pw=el('adm-u-pw').value;
-    if(!pw||pw.length<4){se('Passwort mind. 4 Zeichen');return;}
-    if(db.benutzer.find(function(x){return x.username===user;})){se('Benutzername bereits vergeben');return;}
-    var salt=user+Date.now().toString(16);
-    db.benutzer.push({id:'U'+Date.now(),username:user,name:name,email:email,passHash:hashPass(pw,salt),salt:salt,rolle:rolle,aktiv:true});
-  }
-  saveDB();cs('ovAdmUser');rAdmUserList();toast(id?'Benutzer aktualisiert!':'Benutzer angelegt!');
+  var id=el('adm-user-id').value;var name=el('adm-u-name').value.trim();var user=el('adm-u-user').value.trim().toLowerCase();
+  var email=el('adm-u-email').value.trim();var rolleId=el('adm-u-rolle-sel')?el('adm-u-rolle-sel').value:'';
+  var errEl=el('adm-u-err');function se(m){if(errEl){errEl.textContent=m;errEl.style.display='block';}}
+  if(!name){se('Name fehlt');return;}if(!user){se('Benutzername fehlt');return;}
+  if(id){var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.name=name;u.username=user;u.email=email;u.rolleId=rolleId;u.aktiv=el('adm-u-aktiv').value==='1';}
+  else{var pw=el('adm-u-pw').value;if(!pw||pw.length<4){se('Passwort mind. 4 Zeichen');return;}if(db.benutzer.find(function(x){return x.username===user;})){se('Benutzername bereits vergeben');return;}var salt=user+Date.now().toString(16);db.benutzer.push({id:'U'+Date.now(),username:user,name:name,email:email,passHash:hashPass(pw,salt),salt:salt,rolle:2,rolleId:rolleId,aktiv:true});}
+  saveDB();cs('ovAdmUser');renderBVList();toast(id?'Benutzer aktualisiert!':'Benutzer angelegt!');
 }
-function openPwReset(id){
-  el('pw-reset-uid').value=id;
-  var u=db.benutzer.find(function(x){return x.id===id;});
-  if(el('pw-reset-user'))el('pw-reset-user').textContent=u?(u.name||u.username):'?';
-  if(el('pw-reset-val'))el('pw-reset-val').value='';
-  os('ovPwReset');
-}
-function doAdmPwReset(){
-  var id=el('pw-reset-uid').value;
-  var pw=el('pw-reset-val').value;
-  if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}
-  var u=db.benutzer.find(function(x){return x.id===id;});
-  if(!u)return;
-  var ns=u.username+Date.now().toString(16);
-  u.salt=ns;u.passHash=hashPass(pw,ns);
-  saveDB();cs('ovPwReset');toast('Passwort zurückgesetzt!');
-}
+function delBVUser(id){if(!confirm('Benutzer löschen?'))return;db.benutzer=db.benutzer.filter(function(x){return x.id!==id;});saveDB();renderBVList();toast('Gelöscht');}
+function openBVPwReset(id){el('pw-reset-uid').value=id;var u=db.benutzer.find(function(x){return x.id===id;});if(el('pw-reset-user'))el('pw-reset-user').textContent=u?(u.name||u.username):'?';if(el('pw-reset-val'))el('pw-reset-val').value='';os('ovPwReset');}
+function doAdmPwReset(){var id=el('pw-reset-uid').value;var pw=el('pw-reset-val').value;if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.einmalPw=pw;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(pw,ns);saveDB();cs('ovPwReset');toast('Einmalpasswort gesetzt!');renderBVList();}
+function openPwReset(id){openBVPwReset(id);}
 
-function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';var gh=el('admin-gadgets-hint');if(gh)gh.style.display=isAdmin?'block':'none';var fbw=el('feedback-btn-wrap');if(fbw)fbw.style.display=isAdmin?'none':'block';}
+function renderRV(cont){
+  cont.innerHTML='<div class="vrow"><div class="vtit" style="font-size:16px">🎭 Rollenverwaltung</div><button class="adm-back-btn" onclick="admBenutzerBack()">← Zurück</button></div><button class="btn bgold bsm" style="margin-bottom:12px" onclick="openRVForm(null)">+ Neue Rolle</button><div id="rv-list"></div><div id="rv-form-wrap" style="display:none"></div>';
+  setTimeout(renderRVList,50);
+}
+function renderRVList(){var c=el('rv-list');if(!c)return;var rollen=getRollen();if(!rollen.length){c.innerHTML='<div class="rph"><div>Noch keine Rollen angelegt</div></div>';return;}c.innerHTML=rollen.map(function(r){return '<div class="card" style="padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:34px;height:34px;border-radius:8px;background:'+r.farbe+';flex-shrink:0"></div><div style="flex:1"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800">'+esc(r.name)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)">'+(r.rechte||[]).length+' Rechte</div></div></div><div style="display:flex;gap:6px"><button onclick="openRVForm(\''+r.id+'\')" style="flex:2;padding:8px;background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:8px;font-size:12px;cursor:pointer">✎ Bearbeiten</button><button onclick="delRV(\''+r.id+'\')" style="padding:8px;background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:8px;font-size:12px;cursor:pointer">✕</button></div></div>';}).join('');}
+function openRVForm(id){var fw=el('rv-form-wrap');if(!fw)return;var rollen=getRollen();var rolle=id?rollen.find(function(r){return r.id===id;}):null;var rechteHTML=ROLLE_RECHTE.map(function(r){var checked=rolle&&(rolle.rechte||[]).indexOf(r.id)>=0;return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><input type="checkbox" id="rv-r-'+r.id+'" value="'+r.id+'"'+(checked?' checked':'')+' style="width:16px;height:16px;cursor:pointer;accent-color:var(--gold)"><label for="rv-r-'+r.id+'" style="font-size:12px;cursor:pointer">'+esc(r.label)+'</label></div>';}).join('');var farbenHTML=ROLLE_FARBEN.map(function(f){return '<div onclick="selectRVFarbe(this,\''+f+'\')" style="width:28px;height:28px;border-radius:6px;background:'+f+';cursor:pointer;border:3px solid '+(rolle&&rolle.farbe===f?'var(--dark)':'transparent')+'"></div>';}).join('');fw.style.display='block';fw.innerHTML='<div class="card" style="padding:14px;margin-top:12px"><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;margin-bottom:12px">'+(id?'Rolle bearbeiten':'Neue Rolle')+'</div><div class="fg"><label class="flbl">Name *</label><input class="fi" id="rv-name" value="'+esc(rolle?rolle.name:'')+'" placeholder="z.B. Sales"></div><div class="fg"><label class="flbl">Farbe</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+farbenHTML+'</div><input type="hidden" id="rv-farbe" value="'+(rolle?rolle.farbe:ROLLE_FARBEN[8])+'"></div><div class="fg"><label class="flbl">Rechte</label>'+rechteHTML+'</div><div style="display:flex;gap:8px"><button class="btn bgold" style="flex:2" onclick="saveRV(\''+(id||'')+'\')">Speichern</button><button class="btn bout" style="flex:1" onclick="closeRVForm()">Abbrechen</button></div></div>';}
+function selectRVFarbe(el2,farbe){document.querySelectorAll('#rv-form-wrap [onclick^="selectRVFarbe"]').forEach(function(d){d.style.border='3px solid transparent';});el2.style.border='3px solid var(--dark)';var fi=el('rv-farbe');if(fi)fi.value=farbe;}
+function saveRV(id){var name=el('rv-name')?el('rv-name').value.trim():'';var farbe=el('rv-farbe')?el('rv-farbe').value:ROLLE_FARBEN[0];if(!name){toast('Name fehlt',false);return;}var rechte=[];ROLLE_RECHTE.forEach(function(r){var cb=document.getElementById('rv-r-'+r.id);if(cb&&cb.checked)rechte.push(r.id);});var rollen=getRollen();if(id){var i=rollen.findIndex(function(r){return r.id===id;});if(i>=0)rollen[i]={id:id,name:name,farbe:farbe,rechte:rechte};}else rollen.push({id:'R'+Date.now(),name:name,farbe:farbe,rechte:rechte});saveRollen(rollen);closeRVForm();renderRVList();toast('Rolle gespeichert!');}
+function delRV(id){if(!confirm('Rolle löschen?'))return;var rollen=getRollen();saveRollen(rollen.filter(function(r){return r.id!==id;}));renderRVList();toast('Rolle gelöscht');}
+function closeRVForm(){var fw=el('rv-form-wrap');if(fw)fw.style.display='none';}
+
+var _testMode=false;
+function renderTest(cont){var rollen=getRollen();var opts=rollen.length?rollen.map(function(r){return '<option value="'+r.id+'">'+esc(r.name)+'</option>';}).join(''):'<option>Keine Rollen vorhanden</option>';cont.innerHTML='<div class="vrow"><div class="vtit" style="font-size:16px">🧪 Testmodus</div><button class="adm-back-btn" onclick="admBenutzerBack()">← Zurück</button></div><div class="card"><div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">Wähle eine Rolle zum Testen. Aktionen im Testmodus werden <b>nicht</b> gespeichert.</div><div class="fg"><label class="flbl">Rolle auswählen</label><select class="fi" id="test-rolle-sel">'+opts+'</select></div><button class="btn bgold" onclick="startTestMode()">🧪 Testmodus starten</button></div>';}
+function startTestMode(){var sel=el('test-rolle-sel');if(!sel||!sel.value){toast('Rolle wählen',false);return;}var rollen=getRollen();var rolle=rollen.find(function(r){return r.id===sel.value;});window._testDbBackup=JSON.parse(JSON.stringify(db));window._testCuBackup=JSON.parse(JSON.stringify(cu));_testMode=true;cu={id:'TEST',username:'testuser',name:'Test ('+( rolle?rolle.name:'?')+')',rolle:99,rolleId:sel.value,aktiv:true};admCloseBenutzer();var tl=el('tlogo');if(tl)tl.innerHTML='MAD<span style="color:var(--gold)">Collectables</span> <span style="background:#c0392b;color:#fff;padding:1px 7px;border-radius:10px;font-size:11px;margin-left:4px;">T</span>';var topbar=document.querySelector('.topbar');if(topbar&&!el('test-exit-btn')){var ex=document.createElement('button');ex.textContent='Testmodus verlassen';ex.style.cssText='padding:5px 10px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:11px;cursor:pointer;font-family:Syne,sans-serif;font-weight:700';ex.id='test-exit-btn';ex.onclick=exitTestMode;topbar.appendChild(ex);}var nav=document.querySelector('.bnav');if(nav)nav.style.display='none';var sa=el('sarea');if(sa)sa.style.paddingBottom='14px';go('dashboard');rDash();toast('Testmodus: '+(rolle?rolle.name:'?'));}
+function exitTestMode(){_testMode=false;if(window._testDbBackup)db=window._testDbBackup;if(window._testCuBackup)cu=window._testCuBackup;var tl=el('tlogo');if(tl)tl.innerHTML='MAD<span style="color:var(--gold)">Collectables</span>';var ex=el('test-exit-btn');if(ex)ex.remove();admGoHome();toast('Testmodus verlassen');}
+function checkEinmalPw(){if(cu&&cu.einmalPw){os('ovEinmalPw');var info=el('einmal-pw-info');if(info)info.textContent='Dein Einmalpasswort: '+cu.einmalPw;}}
+function saveEinmalPwChange(){var np=el('einmal-new-pw')?el('einmal-new-pw').value:'';var np2=el('einmal-new-pw2')?el('einmal-new-pw2').value:'';if(!np||np.length<4){toast('Mind. 4 Zeichen',false);return;}if(np!==np2){toast('Passwörter stimmen nicht überein',false);return;}var u=db.benutzer.find(function(x){return x.id===cu.id;});if(!u)return;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(np,ns);delete u.einmalPw;if(cu)cu.einmalPw=undefined;saveDB();cs('ovEinmalPw');toast('Neues Passwort gespeichert!');}
+function rAdmUserList(){}
+function openAdmUser(id){openBVUser(id);}
+
+function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';
+  // Rolle mit Farbe anzeigen
+  var rollen=getRollen();var eigeneRolle=rollen.find(function(r){return r.id===cu.rolleId;})||null;
+  var rolleText=eigeneRolle?eigeneRolle.name:(R[cu.rolle]||'Rolle '+cu.rolle);
+  var rolleColor=eigeneRolle?eigeneRolle.farbe:'#8c7a5a';
+  if(el('prd')){el('prd').innerHTML='<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:'+rolleColor+';display:inline-block"></span>'+esc(rolleText)+'</span>';}
+  if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';var gh=el('admin-gadgets-hint');if(gh)gh.style.display=isAdmin?'block':'none';var fbw=el('feedback-btn-wrap');if(fbw)fbw.style.display=isAdmin?'none':'block';}
 function getKosten(){return db.einstellungen._kosten||{monat:[],jahr:[],rl:[]};}
 function saveKosten(k){db.einstellungen._kosten=k;saveDB();}
 function fmtKo(n){return Number(n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
