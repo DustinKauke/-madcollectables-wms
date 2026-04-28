@@ -1029,28 +1029,9 @@ function rAdmUserList(){
     '</div>';
   }).join('')+'</div>';
 }
-function openAdmUser(id){
-  el('adm-user-id').value=id||'';el('adm-u-name').value='';el('adm-u-user').value='';el('adm-u-email').value='';el('adm-u-rolle').value='4';el('adm-u-pw').value='';
-  var errEl=el('adm-u-err');if(errEl)errEl.style.display='none';
-  if(id){
-    el('ovAdmUser-tit').textContent='Benutzer bearbeiten';
-    el('adm-u-pw-wrap').style.display='none';el('adm-u-aktiv-wrap').style.display='block';
-    var u=db.benutzer.find(function(x){return x.id===id;});
-    if(u){el('adm-u-name').value=u.name||'';el('adm-u-user').value=u.username||'';el('adm-u-email').value=u.email||'';el('adm-u-rolle').value=u.rolle||'4';el('adm-u-aktiv').value=u.aktiv?'1':'0';}
-  }else{el('ovAdmUser-tit').textContent='Neuer Benutzer';el('adm-u-pw-wrap').style.display='block';el('adm-u-aktiv-wrap').style.display='none';}
-  os('ovAdmUser');
-}
-function saveAdmUser(){
-  var id=el('adm-user-id').value;var name=el('adm-u-name').value.trim();var user=el('adm-u-user').value.trim().toLowerCase();
-  var email=el('adm-u-email').value.trim();var rolle=parseInt(el('adm-u-rolle').value)||4;
-  var errEl=el('adm-u-err');function se(m){if(errEl){errEl.textContent=m;errEl.style.display='block';}}
-  if(!name){se('Name fehlt');return;}if(!user){se('Benutzername fehlt');return;}
-  if(id){var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.name=name;u.username=user;u.email=email;u.rolle=rolle;u.aktiv=el('adm-u-aktiv').value==='1';}
-  else{var pw=el('adm-u-pw').value;if(!pw||pw.length<4){se('Passwort mind. 4 Zeichen');return;}if(db.benutzer.find(function(x){return x.username===user;})){se('Benutzername bereits vergeben');return;}var salt=user+Date.now().toString(16);db.benutzer.push({id:'U'+Date.now(),username:user,name:name,email:email,passHash:hashPass(pw,salt),salt:salt,rolle:rolle,aktiv:true});}
-  saveDB();cs('ovAdmUser');rAdmUserList();toast(id?'Benutzer aktualisiert!':'Benutzer angelegt!');
-}
-function openPwReset(id){el('pw-reset-uid').value=id;var u=db.benutzer.find(function(x){return x.id===id;});if(el('pw-reset-user'))el('pw-reset-user').textContent=u?(u.name||u.username):'?';if(el('pw-reset-val'))el('pw-reset-val').value='';os('ovPwReset');}
-function doAdmPwReset(){var id=el('pw-reset-uid').value;var pw=el('pw-reset-val').value;if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(pw,ns);saveDB();cs('ovPwReset');toast('Passwort zurückgesetzt!');}
+function openAdmUser(id){openBVUser(id);}
+function openPwReset(id){openBVPwReset(id);}
+function doAdmPwReset(){var id=el('pw-reset-uid').value;var pw=el('pw-reset-val').value;if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.einmalPw=pw;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(pw,ns);saveDB();cs('ovPwReset');toast('Einmalpasswort gesetzt!');renderBVList();}
 
 function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';if(el('prd'))el('prd').textContent='Rolle '+cu.rolle+' · '+(R[cu.rolle]||'');if(el('pname'))el('pname').value=cu.name||'';if(el('puser'))el('puser').value=cu.username||'';if(el('pemail'))el('pemail').value=cu.email||'';['ppold','ppnew','ppnew2'].forEach(function(f){if(el(f))el(f).value='';});if(el('pperr'))el('pperr').style.display='none';var isAdmin=cu.rolle===1;var ng=el('nav-gadgets');if(ng)ng.style.display=isAdmin?'flex':'none';var fbw=el('feedback-btn-wrap');if(fbw)fbw.style.display=isAdmin?'none':'block';}
 function getKosten(){return db.einstellungen._kosten||{monat:[],jahr:[],rl:[]};}
