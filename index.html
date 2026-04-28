@@ -90,6 +90,9 @@ body{background:var(--bg);color:var(--text);font-family:Outfit,sans-serif;displa
 .adm-tile-lbl{font-family:Syne,sans-serif;font-size:11px;font-weight:800;color:var(--dark);}
 .adm-tile-sub{font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .adm-sub-content{display:none;}
+.adm-back-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:var(--dark);margin-bottom:14px;width:auto;}
+#adm-home{display:none;}
+.sarea-nopb{padding-bottom:14px !important;}
 button{transition:opacity .1s}button:active{opacity:0.75}
 </style>
 </head>
@@ -120,8 +123,34 @@ button{transition:opacity .1s}button:active{opacity:0.75}
   </div>
   <div class="sarea" id="sarea">
 
+  <!-- ADMIN HOME (nur für Rolle 1) -->
+  <div id="adm-home" style="padding:14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:var(--dark);">MAD<span style="color:var(--gold)">Collectables</span></div>
+        <div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);letter-spacing:1px;">ADMIN · HAUPTMENÜ</div>
+      </div>
+      <div id="adm-home-av" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:16px;font-weight:800;color:#1a1208;">A</div>
+    </div>
+    <!-- BB Vorschau -->
+    <div id="adm-home-bb" style="display:none;margin-bottom:12px;"></div>
+    <!-- KACHELN -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="adm-tile" onclick="admGoView('dashboard')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Dashboard</div></div>
+      <div class="adm-tile" onclick="admGoView('karten')"><div class="adm-tile-ico">🃏</div><div class="adm-tile-lbl">Karten</div><div id="adm-home-karten" class="adm-tile-sub"></div></div>
+      <div class="adm-tile" onclick="admGoView('grading')"><div class="adm-tile-ico">⭐</div><div class="adm-tile-lbl">Grading</div></div>
+      <div class="adm-tile" onclick="admGoView('trans')"><div class="adm-tile-ico">💳</div><div class="adm-tile-lbl">Verkauf & Trade</div></div>
+      <div class="adm-tile" onclick="admGoView('research')"><div class="adm-tile-ico">🔍</div><div class="adm-tile-lbl">KI-Research</div></div>
+      <div class="adm-tile" onclick="admGoView('kalkulation')"><div class="adm-tile-ico">🧮</div><div class="adm-tile-lbl">Kalkulation</div></div>
+      <div class="adm-tile" onclick="admGoView('gadgets')"><div class="adm-tile-ico">⚙️</div><div class="adm-tile-lbl">Admin-Center</div></div>
+      <div class="adm-tile" onclick="admGoView('profil')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Profil</div></div>
+      <div class="adm-tile" onclick="doLogout()" style="border-color:rgba(192,57,43,.3)"><div class="adm-tile-ico">🚪</div><div class="adm-tile-lbl" style="color:var(--red)">Abmelden</div></div>
+    </div>
+  </div>
+
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
+      <div id="adm-back-dashboard" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <!-- SCHWARZES BRETT (alle außer Viewer) -->
       <div id="bb-dashboard" style="display:none"></div>
       <div style="margin-bottom:12px"><button id="btn-viewer-mode" style="width:100%;padding:11px;background:rgba(184,134,11,0.1);color:#b8860b;border:1.5px solid rgba(184,134,11,0.4);border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;cursor:pointer">&#128065; Viewer-Modus aktivieren</button></div>
@@ -146,6 +175,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <div class="view" id="view-gadgets">
       <!-- MAINPAGE -->
       <div id="adm-main">
+        <div style="margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
         <div class="vtit">&#9881; Admin-Center</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
           <!-- 1: Viewer-Modus -->
@@ -284,6 +314,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 
     <!-- KARTEN -->
     <div class="view" id="view-karten">
+      <div id="adm-back-karten" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vrow"><div class="vtit">Karten</div><button class="btn bgold bsm" id="btn-nk">+ Karte</button></div>
       <div class="srow"><input id="ks" class="fi" placeholder="Suche..."><input id="kl" class="fi" placeholder="Lager..." style="max-width:100px"></div>
       <div id="klist"></div>
@@ -291,6 +322,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 
     <!-- TRANS -->
     <div class="view" id="view-trans">
+      <div id="adm-back-trans" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vtit">Verkauf &amp; Trade</div>
       <div class="brow"><button class="btn bgrn" id="btn-nvk">+ Verkauf</button><button class="btn bpur" id="btn-ntr">+ Trade</button></div>
       <div id="tlist"></div>
@@ -298,12 +330,14 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 
     <!-- GRADING -->
     <div class="view" id="view-grading">
+      <div id="adm-back-grading" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vrow"><div class="vtit">Grading</div><button class="btn bgold bsm" id="btn-nsdg">+ Sendung</button></div>
       <div id="glist"></div>
     </div>
 
     <!-- RESEARCH -->
     <div class="view" id="view-research">
+      <div id="adm-back-research" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vtit">KI-Research</div>
       <div class="card">
         <div class="ctit">Karte suchen</div>
@@ -317,6 +351,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 
     <!-- KALKULATION -->
     <div class="view" id="view-kalkulation">
+      <div id="adm-back-kalkulation" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vtit">Kalkulation</div>
       <div class="card">
         <div class="ctit">VK-Preis berechnen</div>
@@ -340,6 +375,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 
     <!-- PROFIL -->
     <div class="view" id="view-profil">
+      <div id="adm-back-profil" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vtit">Mein Profil</div>
       <div id="admin-gadgets-hint" style="display:none;margin-bottom:12px">
         <button class="btn bgold" onclick="go('gadgets')" style="font-size:13px;">&#9881; Admin-Center öffnen</button>
@@ -618,17 +654,45 @@ function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}
 function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};var bb=(r[5]||[]).find(function(x){return x.id==='schwarzesbrett';});db.schwarzesbrett=bb?bb.data:[];sync('ok');}).catch(function(){sync('err');});}
 function saveDB(){sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
 function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausf\u00fcllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
-  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();renderAll();setInterval(function(){loadDB().then(renderAll);},30000);}
+  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.rolle===1){admGoHome();}else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();});},30000);}
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
-function doLogout(){cu=null;viewerMode=false;el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
-function go(v){document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});var vv=el('view-'+v);if(vv)vv.classList.add('active');document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});el('sarea').scrollTop=0;if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();if(v==='profil')rProfil();if(v==='gadgets')rGadgets();}
+function doLogout(){cu=null;viewerMode=false;var ah=el('adm-home');if(ah)ah.style.display='none';var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
+// ── ADMIN HAUPTMENÜ ────────────────────────────────────────────────
+function admGoHome(){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  var ah=el('adm-home');if(ah)ah.style.display='block';
+  var nav=document.querySelector('.bnav');if(nav)nav.style.display='none';
+  var sa=el('sarea');if(sa)sa.style.paddingBottom='14px';
+  var bb=loadBBFromDB();var bbp=el('adm-home-bb');
+  if(bbp){if(bb.length){bbp.style.display='block';bbp.innerHTML='<div style="background:'+bb[0].col+';border:1px solid '+bb[0].border+';border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:16px">'+bb[0].icon+'</span><div><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark)">'+esc(bb[0].titel)+'</div><div style="font-size:11px;color:var(--text2)">'+esc(bb[0].text)+'</div></div></div>';}else{bbp.style.display='none';}}
+  var kc=el('adm-home-karten');if(kc)kc.textContent=db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).length+' im Bestand';
+  var av=el('adm-home-av');if(av&&cu)av.textContent=(cu.name||cu.username||'A')[0].toUpperCase();
+  el('sarea').scrollTop=0;
+}
+function admGoView(v){
+  var ah=el('adm-home');if(ah)ah.style.display='none';
+  document.querySelectorAll('[id^="adm-back-"]').forEach(function(b){b.style.display='none';});
+  var back=el('adm-back-'+v);if(back)back.style.display='block';
+  var nav=document.querySelector('.bnav');if(nav)nav.style.display='none';
+  var sa=el('sarea');if(sa)sa.style.paddingBottom='14px';
+  go(v);
+}
+function go(v){
+  document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
+  document.querySelectorAll('.nbtn').forEach(function(x){x.classList.remove('active');});
+  var vv=el('view-'+v);if(vv)vv.classList.add('active');
+  document.querySelectorAll('[data-v="'+v+'"]').forEach(function(x){x.classList.add('active');});
+  el('sarea').scrollTop=0;
+  if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();
+  if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();
+  if(v==='profil')rProfil();if(v==='gadgets')rGadgets();
+}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
 
-// ── NOTIZEN ──────────────────────────────────────────────────────────
-var NOTIZ_KEY='madwms_notizen';
-function loadNotizen(){try{return JSON.parse(localStorage.getItem(NOTIZ_KEY)||'[]');}catch(e){return[];}}
-function saveNotizen(n){try{localStorage.setItem(NOTIZ_KEY,JSON.stringify(n));}catch(e){}}
-function addNotiz(){var inp=el('notiz-inp');var typ=el('notiz-typ');var text=inp?inp.value.trim():'';if(!text){toast('Text eingeben',false);return;}var notizen=loadNotizen();var icons={notiz:'📝',todo:'✅',idee:'💡'};notizen.unshift({id:'N'+Date.now(),text:text,typ:typ?typ.value:'notiz',icon:icons[typ?typ.value:'notiz']||'📝',erledigt:false,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});saveNotizen(notizen);if(inp)inp.value='';rNotizen();toast('Notiz gespeichert!');}
+// ── NOTIZEN (Supabase) ────────────────────────────────────────────
+function loadNotizen(){return db.einstellungen._notizen||[];}
+function saveNotizen(nz){db.einstellungen._notizen=nz;saveDB();}
+function addNotiz(){var inp=el('notiz-inp');var typ=el('notiz-typ');var text=inp?inp.value.trim():'';if(!text){toast('Text eingeben',false);return;}var icons={notiz:'📝',todo:'✅',idee:'💡'};var nz=loadNotizen();nz.unshift({id:'N'+Date.now(),text:text,typ:typ?typ.value:'notiz',icon:icons[typ?typ.value:'notiz']||'📝',erledigt:false,datum:new Date().toLocaleDateString('de-DE'),autor:cu?(cu.name||cu.username):'Admin'});saveNotizen(nz);if(inp)inp.value='';rNotizen();toast('Notiz gespeichert!');}
 function rNotizen(){var li=el('notiz-list');if(!li)return;var notizen=loadNotizen();if(!notizen.length){li.innerHTML='<div class="rph"><div>Noch keine Notizen</div></div>';return;}li.innerHTML=notizen.map(function(n,i){return '<div style="background:'+(n.erledigt?'var(--surface2)':'var(--surface)')+';border:1px solid var(--border);border-radius:12px;padding:11px;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px">'+
 '<span style="font-size:16px;flex-shrink:0">'+n.icon+'</span>'+
 '<div style="flex:1;min-width:0">'+
