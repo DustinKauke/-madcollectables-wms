@@ -787,10 +787,12 @@ function sbU(t,id,d){return sbF('POST',t,null,{id:id,data:d,updated_at:new Date(
 function sbDelete(t,id){return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){});}
 function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}ping();setInterval(ping,3*24*60*60*1000);}
 function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};var bb=(r[5]||[]).find(function(x){return x.id==='schwarzesbrett';});db.schwarzesbrett=bb?bb.data:[];sync('ok');}).catch(function(){sync('err');});}
-function saveDB(){sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
+function saveDB(){
+  if(_testMode){return;} // Testmodus: NICHTS speichern!
+  sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
 
 function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausfüllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
-  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' · '+(R[u.rolle]||'');if(el('sav'))el('sav').textContent=(u.name||u.username||'?')[0].toUpperCase();if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.einmalPw){checkEinmalPw();}else if(u.rolle===1){var si=document.querySelector('.sidebar');if(si)si.style.display='none';admGoHome();}else{var si2=document.querySelector('.sidebar');if(si2)si2.style.display='flex';applyNavRights();go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();});},30000);}
+  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' · '+(R[u.rolle]||'');if(el('sav'))el('sav').textContent=(u.name||u.username||'?')[0].toUpperCase();if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.einmalPw){checkEinmalPw();}else if(u.rolle===1){var si=document.querySelector('.sidebar');if(si)si.style.display='none';admGoHome();}else{var si2=document.querySelector('.sidebar');if(si2)si2.style.display='flex';applyNavRights();go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();checkFeedbackNotification();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();});},30000);}
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
 
 function doLogout(){cu=null;viewerMode=false;_testMode=false;var ah=el('adm-home');if(ah)ah.style.display='none';['adm-gadget-overlay','adm-benutzer-overlay'].forEach(function(id){var e=el(id);if(e)e.style.display='none';});var si=document.querySelector('.sidebar');if(si)si.style.display='flex';el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
@@ -879,7 +881,28 @@ function openBVPwReset(id){el('pw-reset-uid').value=id;var u=db.benutzer.find(fu
 function doAdmPwReset(){var id=el('pw-reset-uid').value;var pw=el('pw-reset-val').value;if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.einmalPw=pw;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(pw,ns);saveDB();cs('ovPwReset');toast('Einmalpasswort gesetzt!');renderBVList();}
 function openPwReset(id){openBVPwReset(id);}
 function openAdmUser(id){openBVUser(id);}
-function rAdmUserList(){}
+// ── ADMIN FEEDBACK POPUP NOTIFICATION ─────────────────────────────
+var _lastFbCount=-1;
+function checkFeedbackNotification(){
+  if(!cu||cu.rolle!==1||_testMode)return;
+  var fb=loadFeedback();
+  if(_lastFbCount===-1){_lastFbCount=fb.length;return;}
+  if(fb.length>_lastFbCount){
+    var diff=fb.length-_lastFbCount;
+    showAdminNotification('📬 '+diff+' neue Nachricht'+(diff>1?'en':''));
+    _lastFbCount=fb.length;
+  } else {_lastFbCount=fb.length;}
+}
+function showAdminNotification(msg){
+  var existing=el('adm-notify-popup');if(existing)existing.remove();
+  var popup=document.createElement('div');
+  popup.id='adm-notify-popup';
+  popup.style.cssText='position:fixed;top:16px;right:16px;background:#1a1208;color:#f0c040;font-family:JetBrains Mono,monospace;font-size:12px;padding:12px 16px;border-radius:12px;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.5);border:1px solid rgba(184,134,11,.5);cursor:pointer;';
+  popup.innerHTML=msg+'<span style="font-size:16px;margin-left:4px;">✕</span>';
+  popup.onclick=function(){popup.remove();};
+  document.body.appendChild(popup);
+  setTimeout(function(){if(popup.parentNode)popup.remove();},6000);
+}
 function renderRV(cont){cont.innerHTML='<div class="vrow"><div class="vtit" style="font-size:18px">🎭 Rollenverwaltung</div><button class="adm-back-btn" onclick="admBenutzerBack()">← Zurück</button></div><button class="btn bgold bsm" style="margin-bottom:14px" onclick="openRVForm(null)">+ Neue Rolle</button><div id="rv-list"></div><div id="rv-form-wrap" style="display:none"></div>';setTimeout(renderRVList,50);}
 function renderRVList(){var c=el('rv-list');if(!c)return;var rollen=getRollen();if(!rollen.length){c.innerHTML='<div class="rph"><div>Noch keine Rollen angelegt</div></div>';return;}c.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">'+rollen.map(function(r){return '<div class="card" style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:36px;height:36px;border-radius:8px;background:'+r.farbe+';flex-shrink:0"></div><div style="flex:1"><div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800">'+esc(r.name)+'</div><div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3)">'+(r.rechte||[]).length+' Rechte</div></div></div><div style="display:flex;gap:6px"><button onclick="openRVForm(\''+r.id+'\')" style="flex:2;padding:8px;background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:8px;font-size:12px;cursor:pointer">✎ Bearbeiten</button><button onclick="delRV(\''+r.id+'\')" style="padding:8px;background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:8px;font-size:12px;cursor:pointer">✕</button></div></div>';}).join('')+'</div>';}
 function openRVForm(id){var fw=el('rv-form-wrap');if(!fw)return;var rollen=getRollen();var rolle=id?rollen.find(function(r){return r.id===id;}):null;var rechteHTML=ROLLE_RECHTE.map(function(r){var checked=rolle&&(rolle.rechte||[]).indexOf(r.id)>=0;return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><input type="checkbox" id="rv-r-'+r.id+'" value="'+r.id+'"'+(checked?' checked':'')+' style="width:16px;height:16px;cursor:pointer;accent-color:var(--gold)"><label for="rv-r-'+r.id+'" style="font-size:13px;cursor:pointer">'+esc(r.label)+'</label></div>';}).join('');var farbenHTML=ROLLE_FARBEN.map(function(f){return '<div onclick="selectRVFarbe(this,\''+f+'\')" style="width:30px;height:30px;border-radius:6px;background:'+f+';cursor:pointer;border:3px solid '+(rolle&&rolle.farbe===f?'var(--dark)':'transparent')+'"></div>';}).join('');fw.style.display='block';fw.innerHTML='<div class="card" style="padding:16px;margin-top:14px"><div style="font-family:Syne,sans-serif;font-size:15px;font-weight:800;margin-bottom:14px">'+(id?'Rolle bearbeiten':'Neue Rolle')+'</div><div class="fg2"><div class="fg"><label class="flbl">Name *</label><input class="fi" id="rv-name" value="'+esc(rolle?rolle.name:'')+'" placeholder="z.B. Sales"></div><div class="fg"><label class="flbl">Farbe</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">'+farbenHTML+'</div><input type="hidden" id="rv-farbe" value="'+(rolle?rolle.farbe:ROLLE_FARBEN[8])+'"></div></div><div class="fg"><label class="flbl">Rechte</label>'+rechteHTML+'</div><div style="display:flex;gap:10px"><button class="btn bgold" style="flex:2" onclick="saveRV(\''+(id||'')+'\')">Speichern</button><button class="btn bout" style="flex:1" onclick="closeRVForm()">Abbrechen</button></div></div>';}
@@ -905,10 +928,13 @@ var PAGE_TITLES={dashboard:'Dashboard',karten:'Karten',trans:'Verkauf & Trade',g
 function hatRecht(id){
   if(!cu)return false;
   if(cu.rolle===1)return true;
-  var rollen=getRollen();
-  var rolle=rollen.find(function(r){return r.id===cu.rolleId;});
-  if(!rolle)return false;
-  return (rolle.rechte||[]).indexOf(id)>=0;
+  if(cu.rolleId){
+    var rollen=getRollen();
+    var rolle=rollen.find(function(r){return r.id===cu.rolleId;});
+    if(!rolle)return true; // Fallback: alle Rechte wenn Rolle nicht gefunden
+    return (rolle.rechte||[]).indexOf(id)>=0;
+  }
+  return true; // Fallback für alte Benutzer ohne rolleId
 }
 function applyNavRights(){
   if(!cu||cu.rolle===1)return;
