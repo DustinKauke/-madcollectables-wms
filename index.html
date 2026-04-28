@@ -562,7 +562,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 </div></div>
 
 <!-- BENUTZER SHEET -->
-<div class="sov" id="ovAdmUser" onclick="if(event.target===this)cs('ovAdmUser')"><div class="sheet">
+<div class="sov" id="ovAdmUser"><div class="sheet" onclick="event.stopPropagation()">
   <div class="shandle"></div>
   <div class="stit" id="ovAdmUser-tit">Benutzer anlegen</div>
   <input type="hidden" id="adm-user-id">
@@ -578,7 +578,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
 </div></div>
 
 <!-- EINMALPASSWORT SHEET -->
-<div class="sov" id="ovEinmalPw"><div class="sheet">
+<div class="sov" id="ovEinmalPw"><div class="sheet" onclick="event.stopPropagation()">
   <div class="shandle"></div>
   <div class="stit">🔑 Passwort ändern erforderlich</div>
   <div style="background:rgba(184,134,11,.1);border:1px solid rgba(184,134,11,.3);border-radius:10px;padding:12px;margin-bottom:14px">
