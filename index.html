@@ -681,9 +681,11 @@ function sbU(t,id,d){return sbF('POST',t,null,{id:id,data:d,updated_at:new Date(
 function sbDelete(t,id){return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){});}
 function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}ping();setInterval(ping,3*24*60*60*1000);}
 function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};var bb=(r[5]||[]).find(function(x){return x.id==='schwarzesbrett';});db.schwarzesbrett=bb?bb.data:[];sync('ok');}).catch(function(){sync('err');});}
-function saveDB(){sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
+function saveDB(){
+  if(_testMode){return;} // Testmodus: NICHTS speichern!
+  sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
 function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausf\u00fcllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
-  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.einmalPw){checkEinmalPw();}else if(u.rolle===1){admGoHome();}else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';applyNavRights();go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();});},30000);}
+  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.einmalPw){checkEinmalPw();}else if(u.rolle===1){admGoHome();}else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';applyNavRights();go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();checkFeedbackNotification();});},30000);}
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
 function doLogout(){cu=null;viewerMode=false;var ah=el('adm-home');if(ah)ah.style.display='none';var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
 // ── ADMIN HAUPTMENÜ ────────────────────────────────────────────────
@@ -768,11 +770,16 @@ function admBenutzerBack(){
 }
 function hatRecht(id){
   if(!cu)return false;
-  if(cu.rolle===1)return true; // Admin hat alle Rechte
-  var rollen=getRollen();
-  var rolle=rollen.find(function(r){return r.id===cu.rolleId;});
-  if(!rolle)return false;
-  return (rolle.rechte||[]).indexOf(id)>=0;
+  if(cu.rolle===1)return true; // Admin immer alle Rechte
+  // Neues System: rolleId → Rolle aus _rollen
+  if(cu.rolleId){
+    var rollen=getRollen();
+    var rolle=rollen.find(function(r){return r.id===cu.rolleId;});
+    if(!rolle)return true; // Rolle nicht gefunden → alle Rechte (Fallback)
+    return (rolle.rechte||[]).indexOf(id)>=0;
+  }
+  // Altes System ohne rolleId → alle Rechte (Fallback für bestehende Benutzer)
+  return true;
 }
 
 function applyNavRights(){
@@ -832,12 +839,46 @@ function rBBAdmin(){var li=el('bb-list');if(!li)return;var bb=loadBBFromDB();if(
 '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div>'+
 '<button data-bi="'+i+'" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;flex-shrink:0">✕</button>'+
 '</div>';}).join('');li.querySelectorAll('button[data-bi]').forEach(function(b){b.addEventListener('click',function(){if(!db.schwarzesbrett)return;db.schwarzesbrett.splice(parseInt(this.dataset.bi),1);saveDB();rBBAdmin();rBBDash();toast('Eintrag gelöscht');});});}
-function rBBDash(){var cont=el('bb-dashboard');if(!cont)return;var bb=loadBBFromDB();if(!bb.length){cont.style.display='none';return;}cont.style.display='block';cont.innerHTML=bb.slice(0,3).map(function(b){return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:13px;padding:12px 13px;margin-bottom:10px;display:flex;align-items:flex-start;gap:9px">'+
-'<span style="font-size:18px;flex-shrink:0">'+b.icon+'</span>'+
-'<div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div>'+
-'<div style="font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5">'+esc(b.text)+'</div>'+
-'<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div>'+
-'</div>';}).join('');}
+function rBBDash(){
+  var cont=el('bb-dashboard');if(!cont)return;
+  if(viewerMode){cont.style.display='none';return;}
+  var bb=loadBBFromDB();
+  if(!bb.length){cont.style.display='none';return;}
+  cont.style.display='block';
+  cont.innerHTML=bb.slice(0,3).map(function(b){
+    return '<div style="background:'+b.col+';border:1px solid '+b.border+';border-radius:13px;padding:12px 13px;margin-bottom:10px;display:flex;align-items:flex-start;gap:9px">'+
+    '<span style="font-size:18px;flex-shrink:0">'+b.icon+'</span>'+
+    '<div style="flex:1;min-width:0"><div style="font-family:Syne,sans-serif;font-size:13px;font-weight:800;color:var(--dark)">'+esc(b.titel)+'</div>'+
+    '<div style="font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5">'+esc(b.text)+'</div>'+
+    '<div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-top:4px">'+b.datum+' · '+esc(b.autor)+'</div></div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── ADMIN FEEDBACK POPUP NOTIFICATION ─────────────────────────────
+var _lastFbCount=-1;
+function checkFeedbackNotification(){
+  if(!cu||cu.rolle!==1||_testMode)return;
+  var fb=loadFeedback();
+  if(_lastFbCount===-1){_lastFbCount=fb.length;return;} // Erster Aufruf – kein Popup
+  if(fb.length>_lastFbCount){
+    var diff=fb.length-_lastFbCount;
+    showAdminNotification('📬 '+diff+' neue Nachricht'+(diff>1?'en':''));
+    _lastFbCount=fb.length;
+  } else {
+    _lastFbCount=fb.length;
+  }
+}
+function showAdminNotification(msg){
+  var existing=el('adm-notify-popup');if(existing)existing.remove();
+  var popup=document.createElement('div');
+  popup.id='adm-notify-popup';
+  popup.style.cssText='position:fixed;top:60px;right:12px;background:#1a1208;color:#f0c040;font-family:JetBrains Mono,monospace;font-size:11px;padding:10px 14px;border-radius:12px;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);border:1px solid rgba(184,134,11,.4);animation:slideIn .3s ease;max-width:200px';
+  popup.innerHTML='<span style="font-size:16px">💬</span><span>'+esc(msg)</span>+
+    '<button onclick="this.parentElement.remove()" style="background:none;border:none;color:#f0c040;cursor:pointer;font-size:14px;padding:0;margin-left:4px;flex-shrink:0">✕</button>';
+  document.body.appendChild(popup);
+  setTimeout(function(){if(popup.parentElement)popup.remove();},6000);
+}
 
 function rGadgets(){
   // Mainpage anzeigen
@@ -909,6 +950,8 @@ function sendFeedback(){
   if(el('fb-text'))el('fb-text').value='';
   cs('ovFeedback');
   toast('Nachricht gesendet!');
+  // Admin auf gleichem Gerät sofort benachrichtigen
+  if(cu&&cu.rolle===1)showAdminNotification('📬 Neue Nachricht von dir selbst?');
 }
 function rFeedbackAdmin(){
   var c=el('adm-feedback-list');if(!c)return;
