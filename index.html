@@ -695,10 +695,40 @@ function sbGA(t){return sbF('GET',t,'select=id,data').catch(function(){return[];
 function sbU(t,id,d){return sbF('POST',t,null,{id:id,data:d,updated_at:new Date().toISOString()}).catch(function(){});}
 function sbDelete(t,id){return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){});}
 function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}ping();setInterval(ping,3*24*60*60*1000);}
-function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);var ei=(r[5]||[]).find(function(x){return x.id==='global';});db.einstellungen=ei?ei.data:{};var bb=(r[5]||[]).find(function(x){return x.id==='schwarzesbrett';});db.schwarzesbrett=bb?bb.data:[];sync('ok');}).catch(function(){sync('err');});}
+function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){
+  db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);
+  db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);
+  db.sendungen=(r[2]||[]).map(function(x){return x.data;}).filter(Boolean);
+  db.ausgaben=(r[3]||[]).map(function(x){return x.data;}).filter(Boolean);
+  db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);
+  var allEi=r[5]||[];
+  var ei=allEi.find(function(x){return x.id==='global';});
+  // Wenn global noch nicht existiert → leeres Objekt anlegen
+  if(!ei){
+    db.einstellungen={};
+    sbU('einstellungen','global',{});
+  } else {
+    db.einstellungen=ei.data||{};
+  }
+  var bb=allEi.find(function(x){return x.id==='schwarzesbrett';});
+  db.schwarzesbrett=bb?bb.data:[];
+  sync('ok');
+}).catch(function(e){sync('err');console.error('loadDB error',e);});}
+
 function saveDB(){
-  if(_testMode){return;} // Testmodus: NICHTS speichern!
-  sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
+  if(_testMode){return;}
+  sync('load');
+  var ops=[];
+  // Karten einzeln speichern
+  db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});
+  db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});
+  db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});
+  db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});
+  // Einstellungen als ein Objekt speichern
+  ops.push(sbU('einstellungen','global',db.einstellungen));
+  ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
+  Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB error',e);});
+}
 function doLogin(){
   var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');
   if(!un||!pw){if(err){err.textContent='Benutzername und Passwort eingeben';err.style.display='block';}return;}
