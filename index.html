@@ -406,9 +406,7 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <div class="view" id="view-profil">
       <div id="adm-back-profil" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vtit">Mein Profil</div>
-      <div id="admin-gadgets-hint" style="display:none;margin-bottom:12px">
-        <button class="btn bgold" onclick="go('gadgets')" style="font-size:13px;">&#9881; Admin-Center öffnen</button>
-      </div>
+      <div id="admin-gadgets-hint" style="display:none"></div>
       <div class="card" style="display:flex;align-items:center;gap:12px">
         <div id="pav" style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:20px;font-weight:800;color:#1a1208;flex-shrink:0">?</div>
         <div style="min-width:0"><div id="pnd" style="font-family:Syne,sans-serif;font-size:15px;font-weight:700">-</div><div id="prd" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);margin-top:2px">-</div></div>
@@ -631,6 +629,23 @@ button{transition:opacity .1s}button:active{opacity:0.75}
   </div>
 </div></div>
 
+<!-- GRADING EDITIEREN SHEET -->
+<div class="sov" id="ovGrdEdit" onclick="if(event.target===this)cs('ovGrdEdit')"><div class="sheet">
+  <div class="shandle"></div>
+  <div class="stit">✎ Sendung bearbeiten</div>
+  <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px" id="grd-edit-sndname">-</div>
+  <input type="hidden" id="grd-edit-sndid">
+  <div class="fg"><label class="flbl">Karte hinzufügen</label>
+    <input id="sfka-search" class="fi" placeholder="Suche nach Name oder Set..." type="text" style="margin-bottom:6px" oninput="filterGrdEditKasel()">
+    <div class="srow">
+      <select id="grd-edit-kasel" class="fi"></select>
+      <button class="btn bgold bsm" onclick="addKarteToSendung()">+</button>
+    </div>
+  </div>
+  <div class="fg"><label class="flbl">Enthaltene Karten</label><div id="grd-edit-klist"></div></div>
+  <button class="btn bout" style="margin-top:8px" onclick="cs('ovGrdEdit');rGrading()">Schließen</button>
+</div></div>
+
 <!-- GRADING ABSCHLIESSEN SHEET -->
 <div class="sov" id="ovGrdDone" style="display:none"><div class="sheet">
   <div class="shandle"></div>
@@ -672,8 +687,8 @@ function toast(m,ok){var t=document.createElement('div');t.textContent=m;t.style
 function os(id){var e=el(id);if(e){e.classList.add('open');e.style.display='flex';}}
 function cs(id){var e=el(id);if(e){e.classList.remove('open');e.style.display='none';}}
 function sync(s){var d=el('sdot'),t=el('stxt');if(s==='ok'){if(d)d.style.background='#1a7a3c';if(t)t.textContent='Synchronisiert';}if(s==='load'){if(d)d.style.background='#b8860b';if(t)t.textContent='Laden...';}if(s==='err'){if(d)d.style.background='#c0392b';if(t)t.textContent='Fehler';}}
-function getDelLog(){try{return JSON.parse(localStorage.getItem(DEL_LOG_KEY)||'[]');}catch(e){return[];}}
-function saveDelLog(log){try{localStorage.setItem(DEL_LOG_KEY,JSON.stringify(log));}catch(e){}}
+function getDelLog(){return db.einstellungen._dellog||[];}
+function saveDelLog(log){db.einstellungen._dellog=log;saveDB();}
 function logDeletion(k,grund){var log=getDelLog();log.push({datum:new Date().toLocaleString('de-DE'),karte:k.name,serie:k.serie,kondition:k.kondition+(k.note?' '+k.note:''),ek:k.ek,geloeschtVon:cu?(cu.name||cu.username):'unbekannt',grund:grund});saveDelLog(log);}
 function sbF(m,tb,q,b){return fetch(SB_URL+'/rest/v1/'+tb+(q?'?'+q:''),{method:m,headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates'},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json();});}
 function sbGA(t){return sbF('GET',t,'select=id,data').catch(function(){return[];});}
@@ -961,9 +976,9 @@ function rDelLogInline(){
 }
 
 // ── FEEDBACK SYSTEM ──────────────────────────────────────────────
-var FB_KEY='madwms_feedback';
-function loadFeedback(){try{return JSON.parse(localStorage.getItem(FB_KEY)||'[]');}catch(e){return[];}}
-function saveFeedback(f){try{localStorage.setItem(FB_KEY,JSON.stringify(f));}catch(e){}}
+// ── FEEDBACK SYSTEM (Supabase) ────────────────────────────────────
+function loadFeedback(){return db.einstellungen._feedback||[];}
+function saveFeedback(f){db.einstellungen._feedback=f;saveDB();}
 function sendFeedback(){
   var typ=el('fb-typ')?el('fb-typ').value:'sonstiges';
   var text=el('fb-text')?el('fb-text').value.trim():'';
@@ -975,8 +990,6 @@ function sendFeedback(){
   if(el('fb-text'))el('fb-text').value='';
   cs('ovFeedback');
   toast('Nachricht gesendet!');
-  // Admin auf gleichem Gerät sofort benachrichtigen
-  if(cu&&cu.rolle===1)showAdminNotification('📬 Neue Nachricht von dir selbst?');
 }
 function rFeedbackAdmin(){
   var c=el('adm-feedback-list');if(!c)return;
@@ -1201,7 +1214,7 @@ function rKosten(){
   // Einzelkosten (Grading)
   var lei=el('ko-list-einzel');
   if(lei){
-    var ekItems=[];try{ekItems=JSON.parse(localStorage.getItem('madwms_grading_kosten')||'[]');}catch(e){}
+    var ekItems=db.einstellungen._gradingkosten||[];
     if(!ekItems.length){lei.innerHTML='<div class="rph"><div>Noch keine Grading-Aufwände</div></div>';}
     else{lei.innerHTML=ekItems.slice().reverse().map(function(item){
       return '<div class="li"><div class="lim"><div class="lit">'+esc(item.sendung)+'</div><div class="lis">'+item.datum+(item.notiz?' · '+esc(item.notiz):'')+'</div></div>'+
@@ -1369,6 +1382,7 @@ function rGrading(){
         '</div>'+
         '<div style="display:flex;gap:6px;align-items:center">'+
           '<span class="bd '+sc+'">'+snd.status+'</span>'+
+          '<button data-sndid="'+snd.id+'" class="btn bgold grd-edit" style="width:auto;padding:5px 10px;font-size:11px;margin-top:0;">✎ Edit</button>'+
           '<button data-sndid="'+snd.id+'" class="btn bgrn grd-done" style="width:auto;padding:5px 10px;font-size:11px;margin-top:0;">✓ Erledigt</button>'+
         '</div>'+
       '</div>'+
@@ -1422,23 +1436,64 @@ function rGrading(){
       rGrading();rKarten();rDash();
     });
   });
+
+  // Event listener für Sendung editieren
+  li.querySelectorAll('.grd-edit').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sndId=this.dataset.sndid;
+      openGrdEdit(sndId);
+    });
+  });
 }
 
-var GRD_KOSTEN_KEY='madwms_grading_kosten';
+function openGrdEdit(sndId){
+  var snd=db.sendungen.find(function(x){return x.id===sndId;});
+  if(!snd)return;
+  if(el('grd-edit-sndname'))el('grd-edit-sndname').textContent=snd.name;
+  if(el('grd-edit-sndid'))el('grd-edit-sndid').value=sndId;
+  // Suchfeld leeren
+  if(el('sfka-search'))el('sfka-search').value='';
+  // Karten die noch nicht in dieser Sendung sind
+  var bereitsIds=(snd.karten||[]).map(function(k){return k.id;});
+  var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading')&&bereitsIds.indexOf(k.id)===-1;});
+  var sel=el('grd-edit-kasel');
+  if(sel)sel.innerHTML='<option value="">-- Karte wählen --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');
+  // Bereits enthaltene Karten anzeigen
+  var kl=el('grd-edit-klist');
+  if(kl)kl.innerHTML=(snd.karten||[]).map(function(ki){var k=db.karten.find(function(x){return x.id===ki.id;});return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px">'+esc(k?k.name:ki.id)+'</span><button data-kid="'+ki.id+'" class="grd-edit-rm" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer">✕</button></div>';}).join('');
+  if(kl)kl.querySelectorAll('.grd-edit-rm').forEach(function(b){b.addEventListener('click',function(){var kid=this.dataset.kid;snd.karten=snd.karten.filter(function(k){return k.id!==kid;});var k2=db.karten.find(function(x){return x.id===kid;});if(k2&&k2.status==='Zum Grading')k2.status='Im Bestand';saveDB();openGrdEdit(sndId);});});
+  os('ovGrdEdit');
+}
+function addKarteToSendung(){
+  var sndId=el('grd-edit-sndid')?el('grd-edit-sndid').value:'';
+  var kid=el('grd-edit-kasel')?el('grd-edit-kasel').value:'';
+  if(!kid){toast('Karte wählen',false);return;}
+  var snd=db.sendungen.find(function(x){return x.id===sndId;});
+  var k=db.karten.find(function(x){return x.id===kid;});
+  if(!snd||!k)return;
+  snd.karten.push({id:kid,note:'',marktwert:0});
+  k.status='Zum Grading';
+  saveDB();openGrdEdit(sndId);rGrading();toast('Karte hinzugefügt!');
+}
+function filterGrdEditKasel(){
+  var sndId=el('grd-edit-sndid')?el('grd-edit-sndid').value:'';
+  var snd=db.sendungen.find(function(x){return x.id===sndId;});
+  var bereitsIds=snd?(snd.karten||[]).map(function(k){return k.id;}):[]; 
+  var q=(el('sfka-search')?el('sfka-search').value:'').toLowerCase();
+  var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading')&&bereitsIds.indexOf(k.id)===-1&&(!q||(k.name||'').toLowerCase().includes(q)||(k.set||'').toLowerCase().includes(q));});
+  var sel=el('grd-edit-kasel');
+  if(sel)sel.innerHTML='<option value="">-- Karte wählen --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');
+}
 function saveGrdKosten(){
   var sndId=el('grd-done-sndid')?el('grd-done-sndid').value:'';
   var betrag=parseFloat(el('grd-done-betrag')?el('grd-done-betrag').value:0)||0;
   var notiz=el('grd-done-notiz')?el('grd-done-notiz').value.trim():'';
   var snd=db.sendungen.find(function(x){return x.id===sndId;});
   if(betrag>0){
-    try{
-      var items=JSON.parse(localStorage.getItem(GRD_KOSTEN_KEY)||'[]');
-      items.push({id:'GK'+Date.now(),sendung:snd?snd.name:'Grading',betrag:betrag,notiz:notiz,datum:new Date().toLocaleDateString('de-DE')});
-      localStorage.setItem(GRD_KOSTEN_KEY,JSON.stringify(items));
-    }catch(e){}
+    if(!db.einstellungen._gradingkosten)db.einstellungen._gradingkosten=[];
+    db.einstellungen._gradingkosten.push({id:'GK'+Date.now(),sendung:snd?snd.name:'Grading',betrag:betrag,notiz:notiz,datum:new Date().toLocaleDateString('de-DE')});
   }
-  cs('ovGrdDone');
-  toast('Sendung abgeschlossen!');
+  saveDB();cs('ovGrdDone');toast('Sendung abgeschlossen!');
 }
 var _sfkaAll=[];
 function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();if(el('sfka-search'))el('sfka-search').value='';var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});_sfkaAll=av;fillSfka(av);rSKL();os('ovSDG');}
