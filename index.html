@@ -684,9 +684,34 @@ function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transakt
 function saveDB(){
   if(_testMode){return;} // Testmodus: NICHTS speichern!
   sync('load');var ops=[];db.karten.forEach(function(k){if(k&&k.id)ops.push(sbU('karten',k.id,k));});db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});ops.push(sbU('einstellungen','global',db.einstellungen));ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});}
-function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausf\u00fcllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
-  function tryLogin(){var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});if(!u){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}if(hashPass(pw,u.salt)!==u.passHash){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');saveDB();el('loginScreen').style.display='none';el('app').style.display='flex';var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' \u00b7 '+(R[u.rolle]||'');if(btn){btn.textContent='Anmelden';btn.disabled=false;}keepAlive();rProfil();renderAll();if(u.einmalPw){checkEinmalPw();}else if(u.rolle===1){admGoHome();}else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';applyNavRights();go('dashboard');}setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();checkFeedbackNotification();});},30000);}
-  if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
+function doLogin(){
+  var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');
+  if(!un||!pw){if(err){err.textContent='Benutzername und Passwort eingeben';err.style.display='block';}return;}
+  var btn=el('loginBtn');
+  if(btn){btn.textContent='Laden...';btn.disabled=true;}
+  if(err)err.style.display='none';
+  // Sicherheits-Timeout: Button nach 8 Sek immer wieder freigeben
+  var btnTimer=setTimeout(function(){if(btn){btn.textContent='Anmelden';btn.disabled=false;}},8000);
+  function tryLogin(){
+    clearTimeout(btnTimer);
+    var u=db.benutzer.find(function(x){return x&&x.username===un&&x.aktiv;});
+    if(!u){if(err){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';}if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}
+    if(hashPass(pw,u.salt)!==u.passHash){if(err){err.textContent='Benutzername oder Passwort falsch';err.style.display='block';}if(btn){btn.textContent='Anmelden';btn.disabled=false;}return;}
+    cu=u;u.letzterLogin=new Date().toLocaleDateString('de-DE');
+    el('loginScreen').style.display='none';el('app').style.display='flex';
+    var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};
+    if(el('tusr'))el('tusr').textContent=(u.name||u.username)+' · '+(R[u.rolle]||'');
+    if(btn){btn.textContent='Anmelden';btn.disabled=false;}
+    keepAlive();rProfil();renderAll();
+    if(u.einmalPw){checkEinmalPw();}
+    else if(u.rolle===1){admGoHome();}
+    else{var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';applyNavRights();go('dashboard');}
+    saveDB();
+    setInterval(function(){loadDB().then(function(){renderAll();if(cu&&cu.rolle===1&&el('adm-home')&&el('adm-home').style.display!=='none')admGoHome();checkFeedbackNotification();});},30000);
+  }
+  if(db.benutzer.length>0){tryLogin();}
+  else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){clearTimeout(btnTimer);if(btn){btn.textContent='Anmelden';btn.disabled=false;}if(err){err.textContent='Verbindungsfehler – bitte nochmal versuchen';err.style.display='block';}});}
+}
 function doLogout(){cu=null;viewerMode=false;var ah=el('adm-home');if(ah)ah.style.display='none';var nav=document.querySelector('.bnav');if(nav)nav.style.display='flex';var sa=el('sarea');if(sa)sa.style.paddingBottom='72px';el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
 // ── ADMIN HAUPTMENÜ ────────────────────────────────────────────────
 function admGoHome(){
@@ -874,7 +899,7 @@ function showAdminNotification(msg){
   var popup=document.createElement('div');
   popup.id='adm-notify-popup';
   popup.style.cssText='position:fixed;top:60px;right:12px;background:#1a1208;color:#f0c040;font-family:JetBrains Mono,monospace;font-size:11px;padding:10px 14px;border-radius:12px;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);border:1px solid rgba(184,134,11,.4);animation:slideIn .3s ease;max-width:200px';
-  popup.innerHTML='<span style="font-size:16px">💬</span><span>'+esc(msg)</span>+
+  popup.innerHTML='📬 '+msg+' ✕';
     '<button onclick="this.parentElement.remove()" style="background:none;border:none;color:#f0c040;cursor:pointer;font-size:14px;padding:0;margin-left:4px;flex-shrink:0">✕</button>';
   document.body.appendChild(popup);
   setTimeout(function(){if(popup.parentElement)popup.remove();},6000);
