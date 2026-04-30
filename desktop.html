@@ -823,9 +823,20 @@ function saveDB(){
   db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});
   db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});
   db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});
-  ops.push(sbU('einstellungen','global',db.einstellungen));
-  ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
-  Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB error',e);});
+  // Einstellungen: erst aktuellen Stand aus Supabase laden, dann mergen
+  sbGA('einstellungen').then(function(allEi){
+    var ei=(allEi||[]).find(function(x){return x.id==='global';});
+    var remote=ei?ei.data:{};
+    var merged=Object.assign({},remote,db.einstellungen);
+    db.einstellungen=merged;
+    ops.push(sbU('einstellungen','global',merged));
+    ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
+    Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB error',e);});
+  }).catch(function(){
+    ops.push(sbU('einstellungen','global',db.einstellungen));
+    ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
+    Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});
+  });
 }
 
 function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-pass').value,err=el('lerr');if(!un||!pw){err.textContent='Felder ausfüllen';err.style.display='block';return;}var btn=el('loginBtn');if(btn){btn.textContent='Laden...';btn.disabled=true;}if(err)err.style.display='none';
