@@ -133,27 +133,22 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       <div id="adm-home-av" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a017);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-size:16px;font-weight:800;color:#1a1208;">A</div>
     </div>
     <div id="adm-home-bb" style="display:none;margin-bottom:12px;"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-      <!-- Zeile 1: WMS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="adm-tile" onclick="admGoView('dashboard')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Dashboard</div></div>
       <div class="adm-tile" onclick="admGoView('karten')"><div class="adm-tile-ico">🃏</div><div class="adm-tile-lbl">Karten</div><div id="adm-home-karten" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admGoView('grading')"><div class="adm-tile-ico">⭐</div><div class="adm-tile-lbl">Grading</div></div>
-      <!-- Zeile 2 -->
-      <div class="adm-tile" onclick="admGoView('trans')"><div class="adm-tile-ico">💳</div><div class="adm-tile-lbl">Verkauf & Trade</div></div>
+      <div class="adm-tile" onclick="admGoView('trans')"><div class="adm-tile-ico">💳</div><div class="adm-tile-lbl">Verkauf &amp; Trade</div></div>
       <div class="adm-tile" onclick="admGoView('research')"><div class="adm-tile-ico">🔍</div><div class="adm-tile-lbl">KI-Research</div></div>
       <div class="adm-tile" onclick="admGoView('kalkulation')"><div class="adm-tile-ico">🧮</div><div class="adm-tile-lbl">Kalkulation</div></div>
-      <!-- Zeile 3: Admin -->
       <div class="adm-tile" onclick="admOpenGadgetTile('viewer')"><div class="adm-tile-ico">👁</div><div class="adm-tile-lbl">Viewer-Modus</div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('bb')"><div class="adm-tile-ico">📌</div><div class="adm-tile-lbl">Schwarzes Brett</div><div id="adm-bb-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('notizen')"><div class="adm-tile-ico">📝</div><div class="adm-tile-lbl">Notizen</div><div id="adm-nz-prev2" class="adm-tile-sub"></div></div>
-      <!-- Zeile 4: Admin -->
       <div class="adm-tile" onclick="admOpenGadgetTile('kosten')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Kosten</div><div id="adm-ko-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('dellog')"><div class="adm-tile-ico">🗑</div><div class="adm-tile-lbl">Löschprotokoll</div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('feedback')"><div class="adm-tile-ico">💬</div><div class="adm-tile-lbl">Nachrichten</div><div id="adm-fb-prev2" class="adm-tile-sub"></div></div>
-      <!-- Zeile 5 -->
       <div class="adm-tile" onclick="admGoBenutzer()"><div class="adm-tile-ico">👥</div><div class="adm-tile-lbl">Benutzer</div><div id="adm-usr-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admGoView('profil')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Profil</div></div>
-      <div class="adm-tile" onclick="doLogout()" style="border-color:rgba(192,57,43,.3)"><div class="adm-tile-ico">🚪</div><div class="adm-tile-lbl" style="color:var(--red)">Abmelden</div></div>
+      <div class="adm-tile" onclick="doLogout()" style="border-color:rgba(192,57,43,.3);grid-column:span 2"><div class="adm-tile-ico">🚪</div><div class="adm-tile-lbl" style="color:var(--red)">Abmelden</div></div>
     </div>
   </div>
 
@@ -168,10 +163,9 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <button class="adm-back-btn" onclick="admCloseBenutzer()" style="margin-bottom:14px;">← Hauptmenü</button>
     <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:14px;color:var(--dark);">👥 Benutzer</div>
     <div id="adm-benutzer-sub" style="display:block;">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div class="adm-tile" onclick="admOpenBenutzerTile('verwaltung')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Benutzer-verwaltung</div></div>
         <div class="adm-tile" onclick="admOpenBenutzerTile('rollen')"><div class="adm-tile-ico">🎭</div><div class="adm-tile-lbl">Rollen-verwaltung</div></div>
-        <div class="adm-tile" onclick="admOpenBenutzerTile('test')" style="border-color:rgba(192,57,43,.3)"><div class="adm-tile-ico">🧪</div><div class="adm-tile-lbl" style="color:var(--red)">Test</div></div>
       </div>
     </div>
     <div id="adm-benutzer-content" style="display:none;"></div>
@@ -459,12 +453,17 @@ button{transition:opacity .1s}button:active{opacity:0.75}
   <div class="fg"><label class="flbl">Einkaufsart</label><select id="kfei" class="fi"><option value="privat">Privat (&sect;25a)</option><option value="gewerbe">Gewerbe (19%)</option></select></div>
   <div class="fg2">
     <div class="fg"><label class="flbl">EK (EUR) *</label><input id="kfek" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
-    <div class="fg"><label class="flbl">Marktwert</label><input id="kfmw" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+    <div class="fg"><label class="flbl">Menge</label><input id="kfmenge" class="fi" type="number" value="1" min="1" inputmode="numeric"></div>
   </div>
   <div class="fg2">
-    <div class="fg"><label class="flbl">Menge</label><input id="kfmenge" class="fi" type="number" value="1" min="1" inputmode="numeric"></div>
-    <div class="fg"><label class="flbl">Quelle</label><input id="kfq" class="fi" placeholder="Cardmarket, eBay..."></div>
+    <div class="fg"><label class="flbl">Marktwert bei Kauf (€)</label><input id="kfmwkauf" class="fi" type="number" placeholder="0.00" inputmode="decimal" oninput="calcWertVeraend()"></div>
+    <div class="fg"><label class="flbl">Marktwert aktuell (€)</label><input id="kfmw" class="fi" type="number" placeholder="0.00" inputmode="decimal" oninput="calcWertVeraend()"></div>
   </div>
+  <div class="fg">
+    <label class="flbl">Wertveränderung seit Kauf</label>
+    <div id="kf-wertv" style="font-family:JetBrains Mono,monospace;font-size:14px;font-weight:800;padding:10px;background:var(--surface2);border-radius:8px;text-align:center;color:var(--text3)">– €</div>
+  </div>
+  <div class="fg"><label class="flbl">Quelle</label><input id="kfq" class="fi" placeholder="Cardmarket, eBay..."></div>
   <button class="btn bgold" id="btn-sk">Speichern</button>
   <button class="btn bout" id="btn-ak" style="margin-top:8px">Abbrechen</button>
 </div></div>
@@ -652,20 +651,22 @@ button{transition:opacity .1s}button:active{opacity:0.75}
   <div class="stit">&#10003; Sendung abgeschlossen</div>
   <div style="background:rgba(26,122,60,.08);border:1px solid rgba(26,122,60,.25);border-radius:10px;padding:11px;margin-bottom:14px">
     <div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700;color:var(--dark)" id="grd-done-sndname">-</div>
-    <div style="font-size:11px;color:var(--text3);margin-top:2px">Alle Karten wurden in den Bestand zurückgeführt.</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:2px">Karten kommen mit aktualisiertem Marktwert zurück in den Bestand.</div>
   </div>
   <input type="hidden" id="grd-done-sndid">
+  <!-- Pro Karte: Note + neuer Marktwert -->
+  <div id="grd-done-karten" style="margin-bottom:14px"></div>
   <div class="fg">
-    <label class="flbl">Entstandener Aufwand (€)</label>
-    <input class="fi" id="grd-done-betrag" type="number" step="0.01" min="0" placeholder="0,00 – optional">
+    <label class="flbl">Grading-Aufwand (€) – optional</label>
+    <input class="fi" id="grd-done-betrag" type="number" step="0.01" min="0" placeholder="0,00">
   </div>
   <div class="fg">
     <label class="flbl">Notiz (optional)</label>
     <input class="fi" id="grd-done-notiz" placeholder="z.B. PSA Express, Versicherung...">
   </div>
-  <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-bottom:12px">Kosten werden automatisch in der Kostenplanung unter „Einzelkosten" erfasst.</div>
+  <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-bottom:12px">Aufwand wird in Kostenplanung → Einzelkosten erfasst.</div>
   <button class="btn bgold" onclick="saveGrdKosten()">Speichern &amp; Abschlie&szlig;en</button>
-  <button class="btn bout" style="margin-top:8px" onclick="cs('ovGrdDone')">Ohne Kosten abschlie&szlig;en</button>
+  <button class="btn bout" style="margin-top:8px" onclick="cs('ovGrdDone')">Abbrechen</button>
 </div></div>
 
 <script>
@@ -1350,9 +1351,10 @@ function rKarten(){
     h+='<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+k.name+'</div>';
     h+='<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap"><span class="bd by">'+k.serie+'</span>'+(k.kondition!=='Raw'?'<span class="bd by">'+k.kondition+' '+k.note+'</span>':'')+(k.lager&&!viewerMode?'<span class="bd bb">'+k.lager+'</span>':'')+'</div></div>';
     if(zeigePreise&&!viewerMode){
+      var wvDiff=mw>0&&k.mwKauf>0?mw-k.mwKauf:null;
       h+='<div style="text-align:right;flex-shrink:0"><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:14px;color:var(--gold)">MW: '+fmt(pv)+' \u20ac</div>';
       h+='<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3)">EK: '+fmt(ek)+' \u20ac</div>';
-      if(mw>0&&di!==0)h+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+(di>=0?'#1a7a3c':'#c0392b')+'">'+(di>=0?'+':'')+fmt(di)+'</div>';
+      if(wvDiff!==null)h+='<div style="font-family:JetBrains Mono,monospace;font-size:9px;font-weight:700;color:'+(wvDiff>=0?'#1a7a3c':'#c0392b')+'">'+(wvDiff>=0?'▲':'▼')+fmt(Math.abs(wvDiff))+' \u20ac</div>';
       h+='</div>';
     }
     h+='</div>';
@@ -1363,17 +1365,27 @@ function rKarten(){
   if(zeigeEdit&&!viewerMode){rows.forEach(function(r){var eb=document.getElementById('edit-'+r.id);if(eb)eb.onclick=function(){openKM(''+r.id);};var db2=document.getElementById('del-'+r.id);if(db2)db2.onclick=function(){openDelKarte(''+r.id);};});}
 }
 
+function calcWertVeraend(){var kauf=parseFloat(el('kfmwkauf')?el('kfmwkauf').value:0)||0;var akt=parseFloat(el('kfmw')?el('kfmw').value:0)||0;var wv=el('kf-wertv');if(!wv)return;if(!kauf&&!akt){wv.textContent='– €';wv.style.color='var(--text3)';return;}var diff=akt-(kauf||akt);wv.textContent=(diff>=0?'+':'')+fmt(diff)+' €';wv.style.color=diff>0?'#1a7a3c':diff<0?'#c0392b':'var(--text3)';}
 function openKM(id){_keid=id||null;if(el('stK'))el('stK').textContent=id?'Karte bearbeiten':'Karte erfassen';
-  if(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('kfn'))el('kfn').value=k.name||'';if(el('kfs'))el('kfs').value=k.serie||'Pokemon';if(el('kfset'))el('kfset').value=k.set||'';if(el('kflag'))el('kflag').value=k.lager||'';if(el('kfek'))el('kfek').value=k.ek||'';if(el('kfmw'))el('kfmw').value=k.marktwert||'';if(el('kfq'))el('kfq').value=k.quelle||'';if(el('kfei'))el('kfei').value=k.einkauf||'privat';if(el('kfmenge'))el('kfmenge').value=1;setK(k.kondition||'Raw');if(k.note&&el('kfnote'))el('kfnote').value=k.note;}
-  else{['kfn','kfset','kflag','kfek','kfmw','kfq'].forEach(function(f){if(el(f))el(f).value='';});if(el('kfs'))el('kfs').value='Pokemon';if(el('kfei'))el('kfei').value='privat';if(el('kfmenge'))el('kfmenge').value=1;setK('Raw');}os('ovK');}
+  if(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('kfn'))el('kfn').value=k.name||'';if(el('kfs'))el('kfs').value=k.serie||'Pokemon';if(el('kfset'))el('kfset').value=k.set||'';if(el('kflag'))el('kflag').value=k.lager||'';if(el('kfek'))el('kfek').value=k.ek||'';if(el('kfmwkauf'))el('kfmwkauf').value=k.mwKauf||'';if(el('kfmw'))el('kfmw').value=k.marktwert||'';if(el('kfq'))el('kfq').value=k.quelle||'';if(el('kfei'))el('kfei').value=k.einkauf||'privat';if(el('kfmenge'))el('kfmenge').value=1;setK(k.kondition||'Raw');if(k.note&&el('kfnote'))el('kfnote').value=k.note;}
+  else{['kfn','kfset','kflag','kfek','kfmwkauf','kfmw','kfq'].forEach(function(f){if(el(f))el(f).value='';});if(el('kfs'))el('kfs').value='Pokemon';if(el('kfei'))el('kfei').value='privat';if(el('kfmenge'))el('kfmenge').value=1;setK('Raw');}
+  calcWertVeraend();os('ovK');}
 function setK(v){document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.classList.toggle('on',b.dataset.val===v);});if(el('kfnb'))el('kfnb').style.display=v==='Raw'?'none':'block';}
 function saveK(){
   var n=el('kfn')?el('kfn').value.trim():'';var ek=el('kfek')?el('kfek').value:'';var menge=parseInt(el('kfmenge')?el('kfmenge').value:1)||1;
   if(!n){toast('Name erforderlich',false);return;}if(!ek){toast('EK erforderlich',false);return;}
   var kv='Raw';document.querySelectorAll('#kfkg .rbtn.on').forEach(function(b){kv=b.dataset.val;});
-  var base={name:n,serie:el('kfs')?el('kfs').value:'Pokemon',set:el('kfset')?el('kfset').value:'',lager:el('kflag')?el('kflag').value:'',kondition:kv,note:(kv!=='Raw'&&el('kfnote'))?el('kfnote').value:'',einkauf:el('kfei')?el('kfei').value:'privat',ek:parseFloat(ek)||0,marktwert:parseFloat(el('kfmw')?el('kfmw').value:0)||0,quelle:el('kfq')?el('kfq').value:'',status:'Im Bestand',kaufdatum:today()};
-  if(_keid){var k=Object.assign({},base,{id:_keid});var idx=db.karten.findIndex(function(x){return x.id===_keid;});if(idx>=0)db.karten[idx]=k;toast('Aktualisiert!');}
-  else{for(var i=0;i<menge;i++){db.karten.push(Object.assign({},base,{id:'K'+Date.now()+i}));}toast(menge>1?menge+'x '+n+' hinzugef\u00fcgt!':'Gespeichert!');}
+  var mwkauf=parseFloat(el('kfmwkauf')?el('kfmwkauf').value:0)||0;
+  var mwakt=parseFloat(el('kfmw')?el('kfmw').value:0)||0;
+  var base={name:n,serie:el('kfs')?el('kfs').value:'Pokemon',set:el('kfset')?el('kfset').value:'',lager:el('kflag')?el('kflag').value:'',kondition:kv,note:(kv!=='Raw'&&el('kfnote'))?el('kfnote').value:'',einkauf:el('kfei')?el('kfei').value:'privat',ek:parseFloat(ek)||0,mwKauf:mwkauf||mwakt,marktwert:mwakt||mwkauf,quelle:el('kfq')?el('kfq').value:'',status:'Im Bestand',kaufdatum:today()};
+  if(_keid){
+    var k=db.karten.find(function(x){return x.id===_keid;});
+    if(k){var oldMwKauf=k.mwKauf;Object.assign(k,base);if(oldMwKauf&&!mwkauf)k.mwKauf=oldMwKauf;}
+    toast('Aktualisiert!');
+  } else {
+    for(var i=0;i<menge;i++){db.karten.push(Object.assign({},base,{id:'K'+Date.now()+i}));}
+    toast(menge>1?menge+'x '+n+' hinzugef\u00fcgt!':'Gespeichert!');
+  }
   cs('ovK');saveDB();rKarten();rDash();_keid=null;
 }
 function openDelKarte(id){var k=db.karten.find(function(x){return String(x.id)===String(id);});if(!k)return;if(el('del-karte-name'))el('del-karte-name').textContent=k.name;if(el('del-karte-id-hidden'))el('del-karte-id-hidden').value=id;if(el('del-grund'))el('del-grund').value='';if(el('del-err'))el('del-err').style.display='none';os('ovDelKarte');}
@@ -1468,11 +1480,29 @@ function rGrading(){
       });
       snd.status='Abgeschlossen';
       saveDB();
-      // Kosten-Dialog öffnen
+      // Kosten-Dialog öffnen mit Karten-Details
       if(el('grd-done-sndname'))el('grd-done-sndname').textContent=snd.name;
       if(el('grd-done-sndid'))el('grd-done-sndid').value=sndId;
       if(el('grd-done-betrag'))el('grd-done-betrag').value='';
       if(el('grd-done-notiz'))el('grd-done-notiz').value='';
+      // Karten-Felder pro Karte
+      var kdc=el('grd-done-karten');
+      if(kdc){
+        var noteOpts=['10','9.5','9','8.5','8','7','6','5','4','3','2','1'].map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+        kdc.innerHTML=(snd.karten||[]).map(function(ki){
+          var k=db.karten.find(function(x){return x.id===ki.id;});
+          var name=k?k.name:ki.id;
+          return '<div style="background:var(--surface2);border-radius:10px;padding:10px;margin-bottom:8px">'+
+            '<div style="font-weight:600;font-size:12px;margin-bottom:6px">'+esc(name)+'</div>'+
+            '<div style="display:flex;gap:6px">'+
+              '<div style="flex:1"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">'+snd.dienst+' NOTE</div>'+
+              '<select data-kid="'+ki.id+'" class="fi grd-done-note" style="padding:6px;font-size:12px"><option value="">Note wählen</option>'+noteOpts+'</select></div>'+
+              '<div style="flex:1"><div style="font-family:JetBrains Mono,monospace;font-size:8px;color:var(--text3);margin-bottom:2px">NEUER MW (€)</div>'+
+              '<input data-kid="'+ki.id+'" class="fi grd-done-mw" type="number" placeholder="0.00" style="padding:6px;font-size:12px" value="'+(k?k.marktwert||'':'')+'"></div>'+
+            '</div>'+
+          '</div>';
+        }).join('');
+      }
       os('ovGrdDone');
       rGrading();rKarten();rDash();
     });
@@ -1530,11 +1560,32 @@ function saveGrdKosten(){
   var betrag=parseFloat(el('grd-done-betrag')?el('grd-done-betrag').value:0)||0;
   var notiz=el('grd-done-notiz')?el('grd-done-notiz').value.trim():'';
   var snd=db.sendungen.find(function(x){return x.id===sndId;});
+  // Karten-Noten und neuen Marktwert übernehmen
+  var noteEls=document.querySelectorAll('.grd-done-note');
+  var mwEls=document.querySelectorAll('.grd-done-mw');
+  noteEls.forEach(function(sel){
+    var kid=sel.dataset.kid;
+    var note=sel.value;
+    var mwEl=document.querySelector('.grd-done-mw[data-kid="'+kid+'"]');
+    var mw=mwEl?parseFloat(mwEl.value)||0:0;
+    var k=db.karten.find(function(x){return x.id===kid;});
+    if(k){
+      if(note){k.note=note;}
+      if(mw){
+        // Wenn noch kein mwKauf → ersten MW als mwKauf speichern
+        if(!k.mwKauf)k.mwKauf=k.marktwert||mw;
+        k.marktwert=mw;
+      }
+      k.status='Im Bestand';
+    }
+    if(snd){var ki=snd.karten.find(function(x){return x.id===kid;});if(ki){if(note)ki.note=note;if(mw)ki.marktwert=mw;}}
+  });
+  // Grading-Kosten in Einzelkosten speichern (Supabase)
   if(betrag>0){
     if(!db.einstellungen._gradingkosten)db.einstellungen._gradingkosten=[];
     db.einstellungen._gradingkosten.push({id:'GK'+Date.now(),sendung:snd?snd.name:'Grading',betrag:betrag,notiz:notiz,datum:new Date().toLocaleDateString('de-DE')});
   }
-  saveDB();cs('ovGrdDone');toast('Sendung abgeschlossen!');
+  saveDB();cs('ovGrdDone');rGrading();rKarten();rDash();toast('Sendung abgeschlossen!');
 }
 var _sfkaAll=[];
 function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();if(el('sfka-search'))el('sfka-search').value='';var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});_sfkaAll=av;fillSfka(av);rSKL();os('ovSDG');}
