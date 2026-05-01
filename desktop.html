@@ -279,10 +279,9 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
         <button class="adm-back-btn" onclick="admCloseBenutzer()" style="margin-bottom:16px;">← Hauptmenü</button>
         <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;margin-bottom:18px;color:var(--dark);">👥 Benutzer</div>
         <div id="adm-benutzer-sub" style="display:block;">
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;max-width:600px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:400px;">
             <div class="adm-tile" onclick="admOpenBenutzerTile('verwaltung')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Benutzerverwaltung</div></div>
             <div class="adm-tile" onclick="admOpenBenutzerTile('rollen')"><div class="adm-tile-ico">🎭</div><div class="adm-tile-lbl">Rollenverwaltung</div></div>
-            <div class="adm-tile" onclick="admOpenBenutzerTile('test')" style="border-color:rgba(192,57,43,.3);"><div class="adm-tile-ico">🧪</div><div class="adm-tile-lbl" style="color:var(--red);">Test</div></div>
           </div>
         </div>
         <div id="adm-benutzer-content" style="display:none;"></div>
@@ -599,7 +598,15 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
   </div>
   <div class="fg2">
     <div class="fg"><label class="flbl">EK (EUR) *</label><input id="kfek" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
-    <div class="fg"><label class="flbl">Marktwert</label><input id="kfmw" class="fi" type="number" placeholder="0.00" inputmode="decimal"></div>
+    <div class="fg"><label class="flbl">Menge</label><input id="kfmenge" class="fi" type="number" value="1" min="1"></div>
+  </div>
+  <div class="fg2">
+    <div class="fg"><label class="flbl">Marktwert bei Kauf (€)</label><input id="kfmwkauf" class="fi" type="number" placeholder="0.00" inputmode="decimal" oninput="calcWertVeraend()"></div>
+    <div class="fg"><label class="flbl">Marktwert aktuell (€)</label><input id="kfmw" class="fi" type="number" placeholder="0.00" inputmode="decimal" oninput="calcWertVeraend()"></div>
+  </div>
+  <div class="fg">
+    <label class="flbl">Wertveränderung seit Kauf</label>
+    <div id="kf-wertv" style="font-family:JetBrains Mono,monospace;font-size:15px;font-weight:800;padding:10px;background:var(--surface2);border-radius:8px;text-align:center;color:var(--text3);">– €</div>
   </div>
   <div style="display:flex;gap:10px;margin-top:4px;">
     <button class="btn bgold" id="btn-sk" style="flex:2;">Speichern</button>
@@ -720,27 +727,28 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
 </div></div>
 
 <!-- GRADING ABSCHLIESSEN -->
-<div class="sov" id="ovGrdDone" style="display:none;"><div class="sheet">
+<div class="sov" id="ovGrdDone" style="display:none;"><div class="sheet" onclick="event.stopPropagation()">
   <div class="stit">✓ Sendung abgeschlossen</div>
   <div style="background:rgba(26,122,60,.08);border:1px solid rgba(26,122,60,.25);border-radius:10px;padding:13px;margin-bottom:16px;">
     <div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:var(--dark);" id="grd-done-sndname">-</div>
-    <div style="font-size:12px;color:var(--text3);margin-top:3px;">Alle Karten wurden in den Bestand zurückgeführt.</div>
+    <div style="font-size:12px;color:var(--text3);margin-top:3px;">Karten kommen mit aktualisiertem Marktwert zurück in den Bestand.</div>
   </div>
   <input type="hidden" id="grd-done-sndid">
+  <div id="grd-done-karten" style="margin-bottom:14px;"></div>
   <div class="fg2">
     <div class="fg">
-      <label class="flbl">Entstandener Aufwand (€)</label>
-      <input class="fi" id="grd-done-betrag" type="number" step="0.01" min="0" placeholder="0,00 – optional">
+      <label class="flbl">Grading-Aufwand (€) – optional</label>
+      <input class="fi" id="grd-done-betrag" type="number" step="0.01" min="0" placeholder="0,00">
     </div>
     <div class="fg">
       <label class="flbl">Notiz (optional)</label>
       <input class="fi" id="grd-done-notiz" placeholder="z.B. PSA Express...">
     </div>
   </div>
-  <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-bottom:12px;">Kosten werden automatisch unter „Einzelkosten" in der Kostenplanung erfasst.</div>
+  <div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--text3);margin-bottom:12px;">Aufwand wird in Kostenplanung → Einzelkosten erfasst.</div>
   <div style="display:flex;gap:10px;">
     <button class="btn bgold" onclick="saveGrdKosten()" style="flex:2;">Speichern &amp; Abschließen</button>
-    <button class="btn bout" onclick="cs('ovGrdDone')" style="flex:1;">Ohne Kosten</button>
+    <button class="btn bout" onclick="cs('ovGrdDone')" style="flex:1;">Abbrechen</button>
   </div>
 </div></div>
 
@@ -1282,16 +1290,17 @@ function rKarten(){var li=el('klist');if(!li)return;
   if(!filtered.length){li.innerHTML='<div class="rph"><div class="rphi">📦</div><div>Keine Karten gefunden</div></div>';return;}
   li.innerHTML=filtered.map(function(k){var sc=k.status==='Im Bestand'?'bg':(k.status==='Zum Grading'?'by':'br');
     return '<div class="li"><div class="lim"><div class="lit">'+(k.kondition!=='Raw'?'<span class="bd bp" style="margin-right:4px;">'+k.kondition+(k.note?' '+k.note:'')+'</span>':'')+k.name+'</div><div class="lis">'+(k.serie||'-')+(k.set?' · '+k.set:'')+(k.lager?' · 📍'+k.lager:'')+'</div></div><span class="bd '+sc+'" style="margin-right:6px;">'+k.status+'</span>'+
-    (zeigePreise?'<div style="text-align:right;flex-shrink:0"><div class="liamt">EK: '+fmt(k.ek)+' €</div><div style="font-size:9px;color:var(--text3);">MW: '+fmt(k.marktwert||k.ek)+'</div></div>':'')+
+    (zeigePreise?'<div style="text-align:right;flex-shrink:0"><div class="liamt">EK: '+fmt(k.ek)+' €</div><div style="font-size:9px;color:var(--text3);">MW: '+fmt(k.marktwert||k.ek)+'</div>'+(k.mwKauf&&k.marktwert?'<div style="font-family:JetBrains Mono,monospace;font-size:9px;font-weight:700;color:'+(k.marktwert-k.mwKauf>=0?'#1a7a3c':'#c0392b')+'">'+(k.marktwert-k.mwKauf>=0?'▲':'▼')+fmt(Math.abs(k.marktwert-k.mwKauf))+' €</div>':'')+'</div>':'')+
     (zeigeEdit?'<button data-id="'+k.id+'" data-act="edit" style="background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.25);border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px;margin-left:6px;flex-shrink:0;">✎</button><button data-id="'+k.id+'" data-act="del" style="background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:6px;padding:4px 9px;cursor:pointer;font-size:11px;margin-left:4px;flex-shrink:0;">✕</button>':'')+
     '</div>';}).join('');
   if(zeigeEdit){li.querySelectorAll('[data-act="edit"]').forEach(function(b){b.addEventListener('click',function(){openKM(this.dataset.id);});});li.querySelectorAll('[data-act="del"]').forEach(function(b){b.addEventListener('click',function(){var k=db.karten.find(function(x){return x.id===b.dataset.id;});if(k){if(el('del-karte-name'))el('del-karte-name').textContent=k.name;if(el('del-karte-id-hidden'))el('del-karte-id-hidden').value=k.id;if(el('del-grund'))el('del-grund').value='';if(el('del-err'))el('del-err').style.display='none';os('ovDelKarte');}});});}
 }
 function confirmDelKarte(){var id=el('del-karte-id-hidden')?el('del-karte-id-hidden').value:'';var grund=el('del-grund')?el('del-grund').value.trim():'';var err=el('del-err');if(!grund){if(err){err.textContent='Bitte Löschgrund eingeben';err.style.display='block';}return;}var k=db.karten.find(function(x){return x.id===id;});if(!k)return;logDeletion(k,grund);sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==id;});cs('ovDelKarte');saveDB();rKarten();rDash();toast('"'+k.name+'" gelöscht');}
 function showDeleteLog(){var log=getDelLog();var c=el('del-log-content');if(!c)return;if(!log.length){c.innerHTML='<div class="rph"><div>Keine Einträge</div></div>';}else{c.innerHTML=log.slice().reverse().map(function(e){return '<div class="li" style="flex-direction:column;align-items:flex-start;gap:4px"><div style="font-weight:600;">'+e.karte+'</div><div style="font-size:10px;color:var(--text3);">'+e.datum+' · '+e.geloeschtVon+' · EK: '+fmt(e.ek)+' €</div><div style="font-size:11px;color:var(--text2);">Grund: '+e.grund+'</div></div>';}).join('');}os('ovDelLog');}
-function openKM(id){_keid=id;var k=id?db.karten.find(function(x){return x.id===id;}):null;if(el('stK'))el('stK').textContent=k?'Karte bearbeiten':'Karte erfassen';['kfn','kfset','kflag','kfq'].forEach(function(f){if(el(f))el(f).value=k&&k[{kfn:'name',kfset:'set',kflag:'lager',kfq:'quelle'}[f]]||'';});if(el('kfs'))el('kfs').value=k?k.serie||'Pokemon':'Pokemon';if(el('kfei'))el('kfei').value=k?k.einkauf||'privat':'privat';if(el('kfek'))el('kfek').value=k?k.ek||'':'';if(el('kfmw'))el('kfmw').value=k?k.marktwert||'':'';if(el('kfmenge'))el('kfmenge').value=k?1:1;setK(k?k.kondition||'Raw':'Raw');os('ovK');}
+function calcWertVeraend(){var kauf=parseFloat(el('kfmwkauf')?el('kfmwkauf').value:0)||0;var akt=parseFloat(el('kfmw')?el('kfmw').value:0)||0;var wv=el('kf-wertv');if(!wv)return;if(!kauf&&!akt){wv.textContent='– €';wv.style.color='var(--text3)';return;}var diff=akt-(kauf||akt);wv.textContent=(diff>=0?'+':'')+fmt(diff)+' €';wv.style.color=diff>0?'#1a7a3c':diff<0?'#c0392b':'var(--text3)';}
+function openKM(id){_keid=id;var k=id?db.karten.find(function(x){return x.id===id;}):null;if(el('stK'))el('stK').textContent=k?'Karte bearbeiten':'Karte erfassen';['kfn','kfset','kflag','kfq'].forEach(function(f){if(el(f))el(f).value=k&&k[{kfn:'name',kfset:'set',kflag:'lager',kfq:'quelle'}[f]]||'';});if(el('kfs'))el('kfs').value=k?k.serie||'Pokemon':'Pokemon';if(el('kfei'))el('kfei').value=k?k.einkauf||'privat':'privat';if(el('kfek'))el('kfek').value=k?k.ek||'':'';if(el('kfmwkauf'))el('kfmwkauf').value=k?k.mwKauf||'':'';if(el('kfmw'))el('kfmw').value=k?k.marktwert||'':'';if(el('kfmenge'))el('kfmenge').value=1;setK(k?k.kondition||'Raw':'Raw');calcWertVeraend();os('ovK');}
 function setK(v){document.querySelectorAll('#kfkg .rbtn').forEach(function(b){b.classList.toggle('on',b.dataset.val===v);});var nb=el('kfnb');if(nb)nb.style.display=(v==='PSA'||v==='BGS')?'block':'none';if(el('kfnote')&&v!=='Raw')el('kfnote').value=el('kfnote').value||'9';}
-function saveK(){var n=el('kfn')?el('kfn').value.trim():'';if(!n){toast('Name erforderlich',false);return;}var ek=parseFloat(el('kfek')?el('kfek').value:0)||0;var kond=document.querySelector('#kfkg .rbtn.on');var kondVal=kond?kond.dataset.val:'Raw';var menge=parseInt(el('kfmenge')?el('kfmenge').value:1)||1;if(_keid){var k=db.karten.find(function(x){return x.id===_keid;});if(k){k.name=n;k.serie=el('kfs')?el('kfs').value:'Pokemon';k.set=el('kfset')?el('kfset').value:'';k.lager=el('kflag')?el('kflag').value:'';k.kondition=kondVal;k.note=kondVal!=='Raw'?(el('kfnote')?el('kfnote').value:''):'';k.einkauf=el('kfei')?el('kfei').value:'privat';k.ek=ek;k.marktwert=parseFloat(el('kfmw')?el('kfmw').value:0)||0;k.quelle=el('kfq')?el('kfq').value:'';}cs('ovK');saveDB();rKarten();toast('Karte aktualisiert!');return;}for(var i=0;i<menge;i++){db.karten.push({id:'K'+Date.now()+i,name:n,serie:el('kfs')?el('kfs').value:'Pokemon',set:el('kfset')?el('kfset').value:'',lager:el('kflag')?el('kflag').value:'',kondition:kondVal,note:kondVal!=='Raw'?(el('kfnote')?el('kfnote').value:''):'',einkauf:el('kfei')?el('kfei').value:'privat',ek:ek,marktwert:parseFloat(el('kfmw')?el('kfmw').value:0)||0,quelle:el('kfq')?el('kfq').value:'',notizen:'',status:'Im Bestand',kaufdatum:today()});}cs('ovK');saveDB();rKarten();rDash();toast(menge>1?menge+' Karten erfasst!':'Karte erfasst!');}
+function saveK(){var n=el('kfn')?el('kfn').value.trim():'';if(!n){toast('Name erforderlich',false);return;}var ek=parseFloat(el('kfek')?el('kfek').value:0)||0;var kond=document.querySelector('#kfkg .rbtn.on');var kondVal=kond?kond.dataset.val:'Raw';var menge=parseInt(el('kfmenge')?el('kfmenge').value:1)||1;var mwkauf=parseFloat(el('kfmwkauf')?el('kfmwkauf').value:0)||0;var mwakt=parseFloat(el('kfmw')?el('kfmw').value:0)||0;if(_keid){var k=db.karten.find(function(x){return x.id===_keid;});if(k){var oldMwKauf=k.mwKauf;k.name=n;k.serie=el('kfs')?el('kfs').value:'Pokemon';k.set=el('kfset')?el('kfset').value:'';k.lager=el('kflag')?el('kflag').value:'';k.kondition=kondVal;k.note=kondVal!=='Raw'?(el('kfnote')?el('kfnote').value:''):'';k.einkauf=el('kfei')?el('kfei').value:'privat';k.ek=ek;k.mwKauf=mwkauf||(oldMwKauf||mwakt);k.marktwert=mwakt||mwkauf;k.quelle=el('kfq')?el('kfq').value:'';}cs('ovK');saveDB();rKarten();rDash();toast('Karte aktualisiert!');return;}for(var i=0;i<menge;i++){db.karten.push({id:'K'+Date.now()+i,name:n,serie:el('kfs')?el('kfs').value:'Pokemon',set:el('kfset')?el('kfset').value:'',lager:el('kflag')?el('kflag').value:'',kondition:kondVal,note:kondVal!=='Raw'?(el('kfnote')?el('kfnote').value:''):'',einkauf:el('kfei')?el('kfei').value:'privat',ek:ek,mwKauf:mwkauf||mwakt,marktwert:mwakt||mwkauf,quelle:el('kfq')?el('kfq').value:'',notizen:'',status:'Im Bestand',kaufdatum:today()});}cs('ovK');saveDB();rKarten();rDash();toast(menge>1?menge+' Karten erfasst!':'Karte erfasst!');}
 function rTrans(){
   // Recht r11: Verkäufe erfassen
   var nvkBtn=el('btn-nvk');if(nvkBtn)nvkBtn.style.display=hatRecht('r11')?'':'none';
@@ -1373,6 +1382,20 @@ function rGrading(){
       if(el('grd-done-sndid'))el('grd-done-sndid').value=sndId;
       if(el('grd-done-betrag'))el('grd-done-betrag').value='';
       if(el('grd-done-notiz'))el('grd-done-notiz').value='';
+      var kdc=el('grd-done-karten');
+      if(kdc){
+        var noteOpts=['10','9.5','9','8.5','8','7','6','5','4','3','2','1'].map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+        kdc.innerHTML=(snd.karten||[]).map(function(ki){
+          var k=db.karten.find(function(x){return x.id===ki.id;});
+          return '<div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;">'+
+            '<div style="font-weight:600;font-size:13px;margin-bottom:8px;">'+esc(k?k.name:ki.id)+'</div>'+
+            '<div class="fg2"><div class="fg"><label class="flbl">'+snd.dienst+' Note</label>'+
+            '<select data-kid="'+ki.id+'" class="fi grd-done-note"><option value="">Note wählen</option>'+noteOpts+'</select></div>'+
+            '<div class="fg"><label class="flbl">Neuer Marktwert (€)</label>'+
+            '<input data-kid="'+ki.id+'" class="fi grd-done-mw" type="number" placeholder="0.00" value="'+(k?k.marktwert||'':'')+'"></div></div>'+
+          '</div>';
+        }).join('');
+      }
       os('ovGrdDone');
       rGrading();rKarten();rDash();
     });
@@ -1426,11 +1449,24 @@ function saveGrdKosten(){
   var betrag=parseFloat(el('grd-done-betrag')?el('grd-done-betrag').value:0)||0;
   var notiz=el('grd-done-notiz')?el('grd-done-notiz').value.trim():'';
   var snd=db.sendungen.find(function(x){return x.id===sndId;});
+  // Karten-Noten und neuen Marktwert übernehmen
+  document.querySelectorAll('.grd-done-note').forEach(function(sel){
+    var kid=sel.dataset.kid;var note=sel.value;
+    var mwEl=document.querySelector('.grd-done-mw[data-kid="'+kid+'"]');
+    var mw=mwEl?parseFloat(mwEl.value)||0:0;
+    var k=db.karten.find(function(x){return x.id===kid;});
+    if(k){
+      if(note)k.note=note;
+      if(mw){if(!k.mwKauf)k.mwKauf=k.marktwert||mw;k.marktwert=mw;}
+      k.status='Im Bestand';
+    }
+    if(snd){var ki=snd.karten.find(function(x){return x.id===kid;});if(ki){if(note)ki.note=note;if(mw)ki.marktwert=mw;}}
+  });
   if(betrag>0){
     if(!db.einstellungen._gradingkosten)db.einstellungen._gradingkosten=[];
     db.einstellungen._gradingkosten.push({id:'GK'+Date.now(),sendung:snd?snd.name:'Grading',betrag:betrag,notiz:notiz,datum:new Date().toLocaleDateString('de-DE')});
   }
-  saveDB();cs('ovGrdDone');toast('Sendung abgeschlossen!');
+  saveDB();cs('ovGrdDone');rGrading();rKarten();rDash();toast('Sendung abgeschlossen!');
 }
 var _sfkaAll=[];
 function openSDG(){_sk=[];['sfn','sfv','sfg'].forEach(function(f){if(el(f))el(f).value='';});if(el('sfdat'))el('sfdat').value=today();if(el('sfka-search'))el('sfka-search').value='';var av=db.karten.filter(function(k){return k&&(k.status==='Im Bestand'||k.status==='Zum Grading');});_sfkaAll=av;fillSfka(av);rSKL();os('ovSDG');}
