@@ -809,6 +809,19 @@ function sbGA(t){return sbF('GET',t,'select=id,data').catch(function(){return[];
 function sbU(t,id,d){return sbF('POST',t,null,{id:id,data:d,updated_at:new Date().toISOString()}).catch(function(){});}
 function sbDelete(t,id){return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).catch(function(){});}
 function keepAlive(){function ping(){sbGA('einstellungen').catch(function(){});}ping();setInterval(ping,3*24*60*60*1000);}
+function deepMerge(remote,local){
+  var result={};
+  var keys=Object.keys(remote||{}).concat(Object.keys(local||{}));
+  keys.forEach(function(k){
+    if(k in result)return;
+    var rv=(remote||{})[k];var lv=(local||{})[k];
+    if(lv===undefined){result[k]=rv;}
+    else if(rv===undefined){result[k]=lv;}
+    else if(Array.isArray(lv)&&Array.isArray(rv)){result[k]=lv.length>=rv.length?lv:rv;}
+    else{result[k]=lv;}
+  });
+  return result;
+}
 function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transaktionen'),sbGA('sendungen'),sbGA('ausgaben'),sbGA('benutzer'),sbGA('einstellungen')]).then(function(r){
   db.karten=(r[0]||[]).map(function(x){return x.data;}).filter(Boolean);
   db.transaktionen=(r[1]||[]).map(function(x){return x.data;}).filter(Boolean);
@@ -817,8 +830,8 @@ function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transakt
   db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);
   var allEi=r[5]||[];
   var ei=allEi.find(function(x){return x.id==='global';});
-  if(!ei){db.einstellungen={};sbU('einstellungen','global',{});}
-  else{db.einstellungen=ei.data||{};}
+  if(!ei){sbU('einstellungen','global',db.einstellungen||{});}
+  else{db.einstellungen=deepMerge(ei.data||{},db.einstellungen||{});}
   var bb=allEi.find(function(x){return x.id==='schwarzesbrett';});
   db.schwarzesbrett=bb?bb.data:[];
   sync('ok');
@@ -831,15 +844,14 @@ function saveDB(){
   db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});
   db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});
   db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});
-  // Einstellungen: erst aktuellen Stand aus Supabase laden, dann mergen
   sbGA('einstellungen').then(function(allEi){
     var ei=(allEi||[]).find(function(x){return x.id==='global';});
     var remote=ei?ei.data:{};
-    var merged=Object.assign({},remote,db.einstellungen);
+    var merged=deepMerge(remote,db.einstellungen);
     db.einstellungen=merged;
     ops.push(sbU('einstellungen','global',merged));
     ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
-    Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB error',e);});
+    Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB',e);});
   }).catch(function(){
     ops.push(sbU('einstellungen','global',db.einstellungen));
     ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
