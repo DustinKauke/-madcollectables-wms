@@ -704,17 +704,37 @@ function loadDB(){sync('load');return Promise.all([sbGA('karten'),sbGA('transakt
   db.benutzer=(r[4]||[]).map(function(x){return x.data;}).filter(Boolean);
   var allEi=r[5]||[];
   var ei=allEi.find(function(x){return x.id==='global';});
-  // Wenn global noch nicht existiert → leeres Objekt anlegen
   if(!ei){
-    db.einstellungen={};
-    sbU('einstellungen','global',{});
+    // Kein Eintrag in Supabase → lokalen Stand hochladen
+    sbU('einstellungen','global',db.einstellungen||{});
   } else {
-    db.einstellungen=ei.data||{};
+    var remoteData=ei.data||{};
+    // Beim ersten Login: direkt übernehmen
+    // Beim Auto-Sync: mergen damit nichts verloren geht
+    db.einstellungen=deepMerge(remoteData, db.einstellungen||{});
   }
   var bb=allEi.find(function(x){return x.id==='schwarzesbrett';});
   db.schwarzesbrett=bb?bb.data:[];
   sync('ok');
 }).catch(function(e){sync('err');console.error('loadDB error',e);});}
+
+function deepMerge(remote,local){
+  var result={};
+  // Alle Keys aus beiden Objekten sammeln
+  var keys=Object.keys(remote||{}).concat(Object.keys(local||{}));
+  keys.forEach(function(k){
+    if(!(k in result)){
+      var rv=remote?remote[k]:undefined;
+      var lv=local?local[k]:undefined;
+      if(lv===undefined){result[k]=rv;}
+      else if(rv===undefined){result[k]=lv;}
+      // Arrays: das längere gewinnt (mehr Daten = besser)
+      else if(Array.isArray(lv)&&Array.isArray(rv)){result[k]=lv.length>=rv.length?lv:rv;}
+      else{result[k]=lv;} // lokaler Wert gewinnt
+    }
+  });
+  return result;
+}
 
 function saveDB(){
   if(_testMode){return;}
@@ -724,18 +744,16 @@ function saveDB(){
   db.transaktionen.forEach(function(t){if(t&&t.id)ops.push(sbU('transaktionen',t.id,t));});
   db.sendungen.forEach(function(s){if(s&&s.id)ops.push(sbU('sendungen',s.id,s));});
   db.benutzer.forEach(function(u){if(u&&u.id)ops.push(sbU('benutzer',u.id,u));});
-  // Einstellungen: erst aktuellen Stand aus Supabase laden, dann mergen
+  // Einstellungen: Deep Merge mit aktuellem Supabase-Stand
   sbGA('einstellungen').then(function(allEi){
     var ei=(allEi||[]).find(function(x){return x.id==='global';});
     var remote=ei?ei.data:{};
-    // Merge: lokale Änderungen gewinnen
-    var merged=Object.assign({},remote,db.einstellungen);
+    var merged=deepMerge(remote,db.einstellungen);
     db.einstellungen=merged;
     ops.push(sbU('einstellungen','global',merged));
     ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
-    Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB error',e);});
+    Promise.all(ops).then(function(){sync('ok');}).catch(function(e){sync('err');console.error('saveDB',e);});
   }).catch(function(){
-    // Fallback: direkt speichern ohne merge
     ops.push(sbU('einstellungen','global',db.einstellungen));
     ops.push(sbU('einstellungen','schwarzesbrett',db.schwarzesbrett||[]));
     Promise.all(ops).then(function(){sync('ok');}).catch(function(){sync('err');});
