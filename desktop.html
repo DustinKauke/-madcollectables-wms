@@ -617,7 +617,10 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
 <!-- VERKAUF -->
 <div class="sov" id="ovVK" style="display:none;"><div class="sheet">
   <div class="stit">Verkauf eintragen</div>
-  <div class="fg"><label class="flbl">Karte *</label><select id="vfk" class="fi"></select></div>
+  <div class="fg"><label class="flbl">Karte *</label>
+    <input id="vfk-search" class="fi" placeholder="🔍 Kartenname suchen..." style="margin-bottom:6px" oninput="filterVfk()">
+    <select id="vfk" class="fi"></select>
+  </div>
   <div class="fg"><label class="flbl">Plattform</label><select id="vfp" class="fi"><option>Cardmarket</option><option>eBay</option><option>Vinted</option><option>Instagram</option><option>Privat</option><option>Sonstiges</option></select></div>
   <div class="fg2">
     <div class="fg"><label class="flbl">EK (EUR)</label><input id="vfek" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
@@ -634,7 +637,10 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
 <!-- TRADE -->
 <div class="sov" id="ovTR" style="display:none;"><div class="sheet">
   <div class="stit">Trade dokumentieren</div>
-  <div class="fg"><label class="flbl">Karte abgeben *</label><select id="tfk" class="fi"></select></div>
+  <div class="fg"><label class="flbl">Karte abgeben *</label>
+    <input id="tfk-search" class="fi" placeholder="🔍 Kartenname suchen..." style="margin-bottom:6px" oninput="filterTfk()">
+    <select id="tfk" class="fi"></select>
+  </div>
   <div class="fg2">
     <div class="fg"><label class="flbl">Wert raus (EUR)</label><input id="tfr" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
     <div class="fg"><label class="flbl">Wert rein (EUR)</label><input id="tfe" class="fi" type="number" inputmode="decimal" placeholder="0.00"></div>
@@ -1318,9 +1324,16 @@ function rTrans(){
   var nvkBtn=el('btn-nvk');if(nvkBtn)nvkBtn.style.display=hatRecht('r11')?'':'none';
   var ntrBtn=el('btn-ntr');if(ntrBtn)ntrBtn.style.display=hatRecht('r11')?'':'none';
   var li=el('tlist');if(!li)return;var ts=db.transaktionen.slice().sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});if(!ts.length){li.innerHTML='<div class="rph"><div class="rphi">💳</div><div>Keine Transaktionen</div></div>';return;}li.innerHTML=ts.map(function(t){var isV=t.typ==='verkauf';var c=isV?'bg':'bp';return '<div class="li"><span class="bd '+c+'">'+(isV?'VK':'Trade')+'</span><div class="lim"><div class="lit">'+(t.kartenName||'-')+'</div><div class="lis">'+(isV?t.plattform:t.karteRein||'-')+' · '+(t.datum||'-')+'</div></div><div style="text-align:right;flex-shrink:0"><div class="liamt" style="color:'+(isV?'#1a7a3c':'#6c3483')+';">'+(isV?'+'+fmt(t.gewinn):fmt(t.diff))+' €</div><div style="font-size:9px;color:var(--text3);">'+(isV?'VK: '+fmt(t.vk)+' €':'')+'</div></div></div>';}).join('');}
-function openVK(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('vfk'))el('vfk').innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(el('vfek')&&av.length)el('vfek').value=av[0].ek||'';if(el('vfvk'))el('vfvk').value='';if(el('vfd'))el('vfd').value=today();if(el('vfgd')){el('vfgd').textContent='VK eingeben';el('vfgd').style.color='var(--text3)';}os('ovVK');}
+var _vfkAll=[];
+function fillVfk(av){if(el('vfk'))el('vfk').innerHTML='<option value="">-- Karte wählen --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.set?' · '+k.set:'')+'</option>';}).join('');}
+function filterVfk(){var q=(el('vfk-search')?el('vfk-search').value:'').toLowerCase();fillVfk(_vfkAll.filter(function(k){return !q||(k.name||'').toLowerCase().includes(q)||(k.set||'').toLowerCase().includes(q);}));}
+function openVK(){_vfkAll=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('vfk-search'))el('vfk-search').value='';fillVfk(_vfkAll);if(el('vfek'))el('vfek').value='';if(el('vfvk'))el('vfvk').value='';if(el('vfd'))el('vfd').value=today();if(el('vfgd')){el('vfgd').textContent='VK eingeben';el('vfgd').style.color='var(--text3)';}os('ovVK');}
 function saveVK(){var kid=el('vfk')?el('vfk').value:'';if(!kid){toast('Karte auswählen',false);return;}var vkp=parseFloat(el('vfvk')?el('vfvk').value:0)||0;if(!vkp){toast('VK eingeben',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var ekp=parseFloat(el('vfek')?el('vfek').value:0)||0;var gw=vkp-ekp;var tx={id:'T'+Date.now(),typ:'verkauf',kartenId:kid,kartenName:k?k.name:kid,plattform:el('vfp')?el('vfp').value:'',ek:ekp,vk:vkp,gewinn:gw,datum:el('vfd')?el('vfd').value:today()};if(k){logDeletion(k,'Verkauft über '+(el('vfp')?el('vfp').value:''));sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}db.transaktionen.push(tx);cs('ovVK');saveDB();rTrans();rDash();rKarten();toast('"'+(k?k.name:kid)+'" für '+fmt(vkp)+' € verkauft!');}
-function openTradeSheet(){var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('tfk'))el('tfk').innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');['tfr','tfe','tr-nk-name','tr-nk-ek','tr-nk-mw'].forEach(function(f){if(el(f))el(f).value='';});if(el('tfd'))el('tfd').value=today();if(el('tfdd')){el('tfdd').textContent='-';el('tfdd').style.color='var(--text3)';}os('ovTR');}
+
+var _tfkAll=[];
+function fillTfk(av){if(el('tfk'))el('tfk').innerHTML='<option value="">-- Karte wählen --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.set?' · '+k.set:'')+'</option>';}).join('');}
+function filterTfk(){var q=(el('tfk-search')?el('tfk-search').value:'').toLowerCase();fillTfk(_tfkAll.filter(function(k){return !q||(k.name||'').toLowerCase().includes(q)||(k.set||'').toLowerCase().includes(q);}));}
+function openTradeSheet(){_tfkAll=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(el('tfk-search'))el('tfk-search').value='';fillTfk(_tfkAll);['tfr','tfe','tr-nk-name','tr-nk-ek','tr-nk-mw'].forEach(function(f){if(el(f))el(f).value='';});if(el('tfd'))el('tfd').value=today();if(el('tfdd')){el('tfdd').textContent='-';el('tfdd').style.color='var(--text3)';}os('ovTR');}
 function saveTR(){var kid=el('tfk')?el('tfk').value:'';if(!kid){toast('Karte auswählen',false);return;}var nkName=el('tr-nk-name')?el('tr-nk-name').value.trim():'';if(!nkName){toast('Neue Karte erfassen',false);return;}var k=db.karten.find(function(x){return x.id===kid;});var wr=parseFloat(el('tfr')?el('tfr').value:0)||0;var we=parseFloat(el('tfe')?el('tfe').value:0)||0;var tx={id:'T'+Date.now(),typ:'trade',kartenId:kid,kartenName:k?k.name:kid,ek:k?parseFloat(k.ek||0):0,wertRaus:wr,karteRein:nkName,wertRein:we,diff:we-wr,datum:el('tfd')?el('tfd').value:today()};if(k){logDeletion(k,'Getauscht gegen: '+nkName);sbDelete('karten',k.id);db.karten=db.karten.filter(function(x){return x.id!==kid;});}var newK={id:'K'+Date.now(),name:nkName,serie:el('tr-nk-serie')?el('tr-nk-serie').value:'Pokemon',set:'',lager:'',kondition:'Raw',note:'',einkauf:el('tr-nk-ei')?el('tr-nk-ei').value:'privat',ek:parseFloat(el('tr-nk-ek')?el('tr-nk-ek').value:0)||we||0,marktwert:parseFloat(el('tr-nk-mw')?el('tr-nk-mw').value:0)||0,quelle:'Trade',notizen:'',status:'Im Bestand',kaufdatum:today()};db.karten.push(newK);db.transaktionen.push(tx);cs('ovTR');saveDB();rTrans();rDash();rKarten();toast('Tausch gespeichert! "'+nkName+'" im Bestand.');}
 function rGrading(){
   // Recht r10: Grading-Funktionen
