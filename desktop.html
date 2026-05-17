@@ -412,8 +412,13 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
         <div class="srow">
           <input id="ks" class="fi" placeholder="Suche nach Name, Serie, Lager..." oninput="rKarten()">
           <input id="kl" class="fi" placeholder="Lager..." style="max-width:160px;" oninput="rKarten()">
-          <select id="k-filter-serie" class="fi" style="max-width:130px;" onchange="rKarten()"><option value="">Alle Serien</option><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option><option>Sonstige</option></select>
           <select id="k-filter-kond" class="fi" style="max-width:120px;" onchange="rKarten()"><option value="">Alle Konditionen</option><option>Raw</option><option>PSA</option><option>BGS</option></select>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <button id="kf-alle" onclick="setSerieFilter('')" style="padding:6px 14px;background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Alle</button>
+          <button id="kf-poke" onclick="setSerieFilter('Pokemon')" style="padding:6px 14px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Pokémon</button>
+          <button id="kf-op" onclick="setSerieFilter('One Piece')" style="padding:6px 14px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">One Piece</button>
+          <button id="kf-yugi" onclick="setSerieFilter('Yu-Gi-Oh')" style="padding:6px 14px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">Yu-Gi-Oh</button>
         </div>
         <div id="klist"></div>
       </div>
@@ -960,6 +965,14 @@ function doLogin(){var un=el('inp-user').value.trim().toLowerCase(),pw=el('inp-p
   if(db.benutzer.length>0){tryLogin();}else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){tryLogin();});}}
 
 function doLogout(){cu=null;viewerMode=false;_testMode=false;var ah=el('adm-home');if(ah)ah.style.display='none';['adm-gadget-overlay','adm-benutzer-overlay'].forEach(function(id){var e=el(id);if(e)e.style.display='none';});var si=document.querySelector('.sidebar');if(si)si.style.display='flex';el('app').style.display='none';el('loginScreen').style.display='flex';el('inp-user').value='';el('inp-pass').value='';el('lerr').style.display='none';}
+var _serieFilter='';
+function setSerieFilter(s){
+  _serieFilter=s;
+  ['alle','poke','op','yugi'].forEach(function(id){var b=el('kf-'+id);if(b){b.style.background='var(--surface2)';b.style.color='var(--text2)';b.style.border='1px solid var(--border)';}});
+  var map={'':'kf-alle','Pokemon':'kf-poke','One Piece':'kf-op','Yu-Gi-Oh':'kf-yugi'};
+  var active=el(map[s]);if(active){active.style.background='linear-gradient(135deg,#b8860b,#d4a017)';active.style.color='#1a1208';active.style.border='none';}
+  rKarten();
+}
 function renderAll(){rDash();rKarten();rTrans();rGrading();}
 
 // ── ADMIN HAUPTMENÜ (Desktop) ────────────────────────────────────────
@@ -1123,6 +1136,9 @@ function go(v){
   if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();
   if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();
   if(v==='profil')rProfil();if(v==='gadgets')rGadgets();
+  if(v==='statistik')rStatistik();
+  if(v==='wertveraend'){rWertveraend();filterWert('alle');}
+  if(v==='export'){var lk=db.einstellungen&&db.einstellungen._lexKey;if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';}
 }
 
 // ── NOTIZEN (Supabase) ────────────────────────────────────────────
@@ -1394,14 +1410,13 @@ function rKarten(){var li=el('klist');if(!li)return;
   var nkBtn=el('btn-nk');if(nkBtn)nkBtn.style.display=hatRecht('r1')?'':'none';
   var zeigePreise=hatRecht('r9');var zeigeEdit=hatRecht('r2');
   var q=(el('ks')?el('ks').value:'').toLowerCase();var lq=(el('kl')?el('kl').value:'').toLowerCase();
-  var fSerie=el('k-filter-serie')?el('k-filter-serie').value:'';
   var fKond=el('k-filter-kond')?el('k-filter-kond').value:'';
   var sel=el('rsel');var kk=el('kk-karte');var vfk=el('vfk');var tfk=el('tfk');var sfka=el('sfka');var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(sel)sel.innerHTML='<option value="">-- auswählen --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.nr?' ('+k.nr+')':'')+'</option>';}).join('');if(kk)kk.innerHTML='<option value="">-- Manuell --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(vfk)vfk.innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(tfk)tfk.innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(sfka)sfka.innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');
   var filtered=db.karten.filter(function(k){
     if(!k)return false;
     if(q&&!(k.name||'').toLowerCase().includes(q)&&!(k.serie||'').toLowerCase().includes(q)&&!(k.set||'').toLowerCase().includes(q))return false;
     if(lq&&!(k.lager||'').toLowerCase().includes(lq))return false;
-    if(fSerie&&k.serie!==fSerie)return false;
+    if(_serieFilter&&k.serie!==_serieFilter)return false;
     if(fKond&&k.kondition!==fKond)return false;
     return true;
   }).sort(function(a,b){return pSort(b.kaufdatum)-pSort(a.kaufdatum);});
@@ -1878,16 +1893,7 @@ function parseGermanDate(s){if(!s)return null;var p=s.split('.');return p.length
 function isoDate(s){var d=parseGermanDate(s);return d?d.toISOString().substring(0,10):new Date().toISOString().substring(0,10);}
 
 // Statistik und Wertveränderung in go() einbinden
-var _origGo=go;
-function go(v){
-  _origGo(v);
-  if(v==='statistik')rStatistik();
-  if(v==='wertveraend'){rWertveraend();filterWert('alle');}
-  if(v==='export'){
-    var lk=db.einstellungen&&db.einstellungen._lexKey;
-    if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';
-  }
-}
+
 </script>
 <script>
 if('serviceWorker' in navigator){
