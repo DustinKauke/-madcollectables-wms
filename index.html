@@ -140,10 +140,13 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       <div class="adm-tile" onclick="admGoView('trans')"><div class="adm-tile-ico">💳</div><div class="adm-tile-lbl">Verkauf &amp; Trade</div></div>
       <div class="adm-tile" onclick="admGoView('research')"><div class="adm-tile-ico">🔍</div><div class="adm-tile-lbl">KI-Research</div></div>
       <div class="adm-tile" onclick="admGoView('kalkulation')"><div class="adm-tile-ico">🧮</div><div class="adm-tile-lbl">Kalkulation</div></div>
+      <div class="adm-tile" onclick="admGoView('statistik')"><div class="adm-tile-ico">📈</div><div class="adm-tile-lbl">Statistik</div></div>
+      <div class="adm-tile" onclick="admGoView('wertveraend')"><div class="adm-tile-ico">💹</div><div class="adm-tile-lbl">Wertveränderung</div></div>
+      <div class="adm-tile" onclick="admGoView('export')" style="grid-column:span 2"><div class="adm-tile-ico">📤</div><div class="adm-tile-lbl">Export / Buchhaltung</div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('viewer')"><div class="adm-tile-ico">👁</div><div class="adm-tile-lbl">Viewer-Modus</div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('bb')"><div class="adm-tile-ico">📌</div><div class="adm-tile-lbl">Schwarzes Brett</div><div id="adm-bb-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('notizen')"><div class="adm-tile-ico">📝</div><div class="adm-tile-lbl">Notizen</div><div id="adm-nz-prev2" class="adm-tile-sub"></div></div>
-      <div class="adm-tile" onclick="admOpenGadgetTile('kosten')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Kosten</div><div id="adm-ko-prev2" class="adm-tile-sub"></div></div>
+      <div class="adm-tile" onclick="admOpenGadgetTile('kosten')"><div class="adm-tile-ico">💰</div><div class="adm-tile-lbl">Kosten</div><div id="adm-ko-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('dellog')"><div class="adm-tile-ico">🗑</div><div class="adm-tile-lbl">Löschprotokoll</div></div>
       <div class="adm-tile" onclick="admOpenGadgetTile('feedback')"><div class="adm-tile-ico">💬</div><div class="adm-tile-lbl">Nachrichten</div><div id="adm-fb-prev2" class="adm-tile-sub"></div></div>
       <div class="adm-tile" onclick="admGoBenutzer()"><div class="adm-tile-ico">👥</div><div class="adm-tile-lbl">Benutzer</div><div id="adm-usr-prev2" class="adm-tile-sub"></div></div>
@@ -339,7 +342,11 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     <div class="view" id="view-karten">
       <div id="adm-back-karten" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
       <div class="vrow"><div class="vtit">Karten</div><button class="btn bgold bsm" id="btn-nk">+ Karte</button></div>
-      <div class="srow"><input id="ks" class="fi" placeholder="Suche..."><input id="kl" class="fi" placeholder="Lager..." style="max-width:100px"></div>
+      <div class="srow"><input id="ks" class="fi" placeholder="Suche..." oninput="rKarten()"><input id="kl" class="fi" placeholder="Lager..." style="max-width:100px" oninput="rKarten()"></div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+        <select id="k-filter-serie" class="fi" style="flex:1;font-size:12px;padding:7px;" onchange="rKarten()"><option value="">Alle Serien</option><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option><option>Sonstige</option></select>
+        <select id="k-filter-kond" class="fi" style="flex:1;font-size:12px;padding:7px;" onchange="rKarten()"><option value="">Alle Konditionen</option><option>Raw</option><option>PSA</option><option>BGS</option></select>
+      </div>
       <div id="klist"></div>
     </div>
 
@@ -395,6 +402,69 @@ button{transition:opacity .1s}button:active{opacity:0.75}
     </div>
 
 
+
+    <!-- STATISTIK -->
+    <div class="view" id="view-statistik">
+      <div id="adm-back-statistik" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
+      <div class="vtit">📈 Statistik</div>
+      <div id="stat-content"></div>
+    </div>
+
+    <!-- WERTVERÄNDERUNG -->
+    <div class="view" id="view-wertveraend">
+      <div id="adm-back-wertveraend" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
+      <div class="vtit">💹 Wertveränderung</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="btn bgold bsm" onclick="filterWert('alle')" id="wf-alle">Alle</button>
+        <button class="btn bout bsm" onclick="filterWert('positiv')" id="wf-pos">▲ Positiv</button>
+        <button class="btn bout bsm" onclick="filterWert('negativ')" id="wf-neg">▼ Negativ</button>
+      </div>
+      <div id="wert-list"></div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="view" id="view-export">
+      <div id="adm-back-export" style="display:none;margin-bottom:4px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
+      <div class="vtit">📤 Export &amp; Buchhaltung</div>
+      <div class="card">
+        <div class="ctit">📋 CSV-Export (MobiOffice)</div>
+        <div class="fg"><label class="flbl">Was exportieren?</label>
+          <select class="fi" id="exp-typ">
+            <option value="bestand">Aktueller Bestand</option>
+            <option value="verkaufe">Alle Verkäufe</option>
+            <option value="trades">Alle Trades</option>
+            <option value="transaktionen">Alle Transaktionen</option>
+            <option value="grading">Grading-Sendungen</option>
+          </select>
+        </div>
+        <button class="btn bgold" onclick="exportCSV()">📥 CSV herunterladen</button>
+      </div>
+      <div class="card">
+        <div class="ctit">🧾 Steuer-Export (§25a)</div>
+        <div class="fg"><label class="flbl">Jahr</label>
+          <select class="fi" id="exp-jahr">
+            <option value="2025">2025</option><option value="2024">2024</option><option value="alle">Alle</option>
+          </select>
+        </div>
+        <button class="btn bgrn" onclick="exportSteuer()">📥 Steuer-CSV herunterladen</button>
+      </div>
+      <div class="card">
+        <div class="ctit">🔗 Lexoffice-Anbindung</div>
+        <div class="fg"><label class="flbl">API-Key</label><input class="fi" id="lex-key" type="password" placeholder="Dein Lexoffice API-Key..."></div>
+        <div id="lex-key-status" style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);padding:8px;background:var(--surface2);border-radius:6px;margin-bottom:8px;">Kein Key gespeichert</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="btn bgold" style="flex:2;" onclick="saveLexKey()">Speichern</button>
+          <button class="btn bout" style="flex:1;" onclick="clearLexKey()">Löschen</button>
+        </div>
+        <div class="fg"><label class="flbl">Zeitraum</label>
+          <select class="fi" id="lex-zeitraum">
+            <option value="heute">Heute</option><option value="woche">Diese Woche</option><option value="monat">Dieser Monat</option><option value="alle">Alle</option>
+          </select>
+        </div>
+        <button class="btn bgrn" onclick="exportToLexoffice()">🔗 Zu Lexoffice senden</button>
+        <div id="lex-result" style="margin-top:10px;font-size:12px;"></div>
+      </div>
+    </div>
 
     <!-- PROFIL -->
     <div class="view" id="view-profil">
@@ -1155,6 +1225,137 @@ function saveEinmalPwChange(){var np=el('einmal-new-pw')?el('einmal-new-pw').val
 function rAdmUserList(){}
 function openAdmUser(id){openBVUser(id);}
 
+// ── STATISTIK ─────────────────────────────────────────────────────
+function rStatistik(){
+  var c=el('stat-content');if(!c)return;
+  var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});
+  var totalUm=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);
+  var totalGw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);
+  var totalEk=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);
+  var roi=totalEk>0?(totalGw/totalEk*100).toFixed(1):0;
+  var bestand=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
+  var totalMW=bestand.reduce(function(s,k){return s+parseFloat(k.marktwert||k.ek||0);},0);
+  var top5=vk.slice().sort(function(a,b){return parseFloat(b.gewinn||0)-parseFloat(a.gewinn||0);}).slice(0,5);
+  var byMonth={};vk.forEach(function(t){var m=(t.datum||'').substring(0,7);if(!byMonth[m])byMonth[m]=0;byMonth[m]+=parseFloat(t.gewinn||0);});
+  var months=Object.keys(byMonth).sort();
+  var gradedKarten=db.karten.filter(function(k){return k&&k.note&&(k.kondition==='PSA'||k.kondition==='BGS');});
+  var noteCount={};gradedKarten.forEach(function(k){var n=k.note||'?';noteCount[n]=(noteCount[n]||0)+1;});
+  var sendungen=db.sendungen.filter(function(s){return s&&s.status==='Abgeschlossen';});
+  var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'+
+    '<div class="kpi" style="border-top-color:var(--gold)"><div class="klbl">Umsatz</div><div class="kval" style="font-size:14px">'+fmt(totalUm)+' €</div></div>'+
+    '<div class="kpi" style="border-top-color:#1a7a3c"><div class="klbl">Gewinn</div><div class="kval" style="font-size:14px">'+fmt(totalGw)+' €</div></div>'+
+    '<div class="kpi" style="border-top-color:#1a5276"><div class="klbl">ROI</div><div class="kval" style="font-size:14px">'+roi+'%</div></div>'+
+    '<div class="kpi" style="border-top-color:var(--purple)"><div class="klbl">Bestandswert</div><div class="kval" style="font-size:14px">'+fmt(totalMW)+' €</div></div>'+
+  '</div>';
+  if(months.length){
+    var maxVal=Math.max.apply(null,months.map(function(m){return Math.abs(byMonth[m]);}));
+    var bw=Math.max(20,Math.min(40,300/months.length));
+    var svgW=months.length*(bw+3)+20;
+    html+='<div class="card" style="margin-bottom:12px;padding:12px"><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;margin-bottom:8px">📈 Gewinn/Monat</div><div style="overflow-x:auto"><svg width="'+svgW+'" height="120"><rect width="'+svgW+'" height="120" fill="transparent"/>';
+    months.forEach(function(m,i){
+      var val=byMonth[m];var h=maxVal>0?Math.abs(val/maxVal*80):2;
+      var x=i*(bw+3)+5;var col=val>=0?'#1a7a3c':'#c0392b';
+      html+='<rect x="'+x+'" y="'+(90-h)+'" width="'+bw+'" height="'+h+'" fill="'+col+'" rx="2"/>';
+      html+='<text x="'+(x+bw/2)+'" y="108" text-anchor="middle" font-size="7" fill="#8c7a5a">'+m.substring(5)+'</text>';
+    });
+    html+='</svg></div></div>';
+  }
+  if(top5.length){
+    html+='<div class="card" style="margin-bottom:12px;padding:12px"><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;margin-bottom:8px">🏆 Top Verkäufe</div>';
+    top5.forEach(function(t,i){html+='<div class="li"><span style="font-family:Syne,sans-serif;font-weight:800;color:var(--gold);margin-right:8px;font-size:11px">#'+(i+1)+'</span><div class="lim"><div class="lit">'+esc(t.kartenName||'-')+'</div><div class="lis">'+t.datum+'</div></div><div class="liamt" style="color:#1a7a3c;font-size:12px">+'+fmt(t.gewinn)+' €</div></div>';});
+    html+='</div>';
+  }
+  if(gradedKarten.length){
+    html+='<div class="card" style="margin-bottom:12px;padding:12px"><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;margin-bottom:8px">⭐ Grading-Noten</div>';
+    Object.keys(noteCount).sort(function(a,b){return parseFloat(b)-parseFloat(a);}).forEach(function(n){
+      var pct=Math.round(noteCount[n]/gradedKarten.length*100);
+      html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:11px;width:30px;color:var(--gold)">'+n+'</div><div style="flex:1;background:var(--surface2);border-radius:20px;height:8px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#b8860b,#d4a017);border-radius:20px"></div></div><div style="font-size:10px;color:var(--text3);width:40px;text-align:right">'+noteCount[n]+'x</div></div>';
+    });
+    html+='</div>';
+  }
+  if(sendungen.length){
+    html+='<div class="card" style="padding:12px"><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;margin-bottom:8px">💰 Rendite Grading</div>';
+    sendungen.forEach(function(snd){
+      var k=(db.einstellungen._gradingkosten||[]).filter(function(x){return x.sendung===snd.name;}).reduce(function(s,x){return s+(x.betrag||0);},0);
+      var mwV=(snd.karten||[]).reduce(function(s,ki){var karte=db.karten.find(function(x){return x.id===ki.id;});return s+(karte?parseFloat(karte.mwKauf||karte.ek||0):0);},0);
+      var mwN=(snd.karten||[]).reduce(function(s,ki){return s+parseFloat(ki.marktwert||0);},0);
+      var rendite=mwN-mwV-k;
+      html+='<div class="li"><div class="lim"><div class="lit">'+esc(snd.name)+'</div><div class="lis">Kosten: '+fmt(k)+' €</div></div><div style="text-align:right;flex-shrink:0"><div class="liamt" style="color:'+(rendite>=0?'#1a7a3c':'#c0392b');html+='">'+(rendite>=0?'+':'')+fmt(rendite)+' €</div></div></div>';
+    });
+    html+='</div>';
+  }
+  if(!vk.length&&!gradedKarten.length)html='<div class="rph"><div>Noch keine Daten</div></div>';
+  c.innerHTML=html;
+}
+
+// ── WERTVERÄNDERUNG ───────────────────────────────────────────────
+var _wertFilter='alle';
+function rWertveraend(){
+  var li=el('wert-list');if(!li)return;
+  var karten=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.mwKauf&&k.marktwert;});
+  karten.sort(function(a,b){return Math.abs(b.marktwert-b.mwKauf)-Math.abs(a.marktwert-a.mwKauf);});
+  if(_wertFilter==='positiv')karten=karten.filter(function(k){return k.marktwert>=k.mwKauf;});
+  if(_wertFilter==='negativ')karten=karten.filter(function(k){return k.marktwert<k.mwKauf;});
+  if(!karten.length){li.innerHTML='<div class="rph"><div>Kein Marktwert bei Kauf eingetragen</div></div>';return;}
+  li.innerHTML=karten.map(function(k){
+    var diff=k.marktwert-k.mwKauf;
+    var pct=k.mwKauf>0?((diff/k.mwKauf)*100).toFixed(1):0;
+    var col=diff>=0?'#1a7a3c':'#c0392b';
+    return '<div class="li"><div class="lim"><div class="lit">'+esc(k.name)+'</div><div class="lis">'+esc(k.serie||'')+(k.set?' · '+esc(k.set):'')+'</div></div><div style="text-align:right;flex-shrink:0"><div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:'+col+'">'+(diff>=0?'▲':'▼')+' '+fmt(Math.abs(diff))+' €</div><div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+col+'">'+pct+'%</div><div style="font-size:9px;color:var(--text3)">'+fmt(k.mwKauf)+' → '+fmt(k.marktwert)+'</div></div></div>';
+  }).join('');
+}
+function filterWert(f){_wertFilter=f;['alle','pos','neg'].forEach(function(id){var b=el('wf-'+id);if(b)b.className='btn bout bsm';});var map={alle:'wf-alle',positiv:'wf-pos',negativ:'wf-neg'};var active=el(map[f]);if(active)active.className='btn bgold bsm';rWertveraend();}
+
+// ── CSV EXPORT ────────────────────────────────────────────────────
+function csvEscape(v){v=String(v||'').replace(/"/g,'""');return '"'+v+'"';}
+function downloadCSV(rows,filename){var csv=rows.map(function(r){return r.map(csvEscape).join(';');}).join('\r\n');var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
+function exportCSV(){
+  var typ=el('exp-typ')?el('exp-typ').value:'bestand';var td=new Date().toLocaleDateString('de-DE');
+  if(typ==='bestand'){var r=[['Name','Serie','Set','Kondition','Note','EK (€)','MW bei Kauf (€)','MW aktuell (€)','Wertveränd. (€)','Lager','Status','Kaufdatum']];db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).forEach(function(k){r.push([k.name,k.serie,k.set,k.kondition,k.note,k.ek,k.mwKauf||'',k.marktwert||'',(k.marktwert&&k.mwKauf?k.marktwert-k.mwKauf:''),k.lager,k.status,k.kaufdatum]);});downloadCSV(r,'Bestand_'+td+'.csv');}
+  else if(typ==='verkaufe'){var r2=[['Datum','Kartenname','EK (€)','VK (€)','Gewinn (€)','Plattform']];db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';}).forEach(function(t){r2.push([t.datum,t.kartenName,t.ek,t.vk,t.gewinn,t.plattform]);});downloadCSV(r2,'Verkäufe_'+td+'.csv');}
+  else if(typ==='trades'){var r3=[['Datum','Abgegeben','Wert raus (€)','Erhalten','Wert rein (€)','Differenz (€)']];db.transaktionen.filter(function(t){return t&&t.typ==='trade';}).forEach(function(t){r3.push([t.datum,t.kartenName,t.wertRaus,t.karteRein,t.wertRein,t.diff]);});downloadCSV(r3,'Trades_'+td+'.csv');}
+  else if(typ==='transaktionen'){var r4=[['Datum','Typ','Name','EK','VK/WertRaus','Gewinn/Diff','Plattform/WertRein']];db.transaktionen.forEach(function(t){r4.push([t.datum,t.typ,t.kartenName,t.ek,t.typ==='verkauf'?t.vk:t.wertRaus,t.typ==='verkauf'?t.gewinn:t.diff,t.typ==='verkauf'?t.plattform:t.karteRein]);});downloadCSV(r4,'Transaktionen_'+td+'.csv');}
+  else if(typ==='grading'){var r5=[['Name','Dienst','Datum','Karten','Kosten (€)','Status']];db.sendungen.forEach(function(s){var k=(db.einstellungen._gradingkosten||[]).filter(function(x){return x.sendung===s.name;}).reduce(function(a,x){return a+(x.betrag||0);},0);r5.push([s.name,s.dienst,s.datum,(s.karten||[]).length,k,s.status]);});downloadCSV(r5,'Grading_'+td+'.csv');}
+  toast('CSV heruntergeladen!');
+}
+function exportSteuer(){
+  var jahr=el('exp-jahr')?el('exp-jahr').value:'alle';var td=new Date().toLocaleDateString('de-DE');
+  var r=[['Datum','Kartenname','Einkaufsart','EK (€)','VK (€)','Gewinn (€)','USt-Regelung','Plattform']];
+  db.transaktionen.filter(function(t){return t&&t.typ==='verkauf'&&(jahr==='alle'||(t.datum||'').includes(jahr));}).forEach(function(t){
+    var karte=db.karten.find(function(x){return x.id===t.kartenId;})||{};
+    r.push([t.datum,t.kartenName,karte.einkauf||'privat',t.ek,t.vk,t.gewinn,karte.einkauf==='gewerbe'?'§19 UStG':'§25a UStG',t.plattform]);
+  });
+  downloadCSV(r,'Steuer_'+jahr+'_'+td+'.csv');toast('Steuer-CSV heruntergeladen!');
+}
+function saveLexKey(){var k=el('lex-key')?el('lex-key').value.trim():'';if(!k){toast('API-Key eingeben',false);return;}db.einstellungen._lexKey=k;saveDB();if(el('lex-key-status'))el('lex-key-status').textContent='Key gespeichert ('+k.substring(0,8)+'...)';if(el('lex-key'))el('lex-key').value='';toast('Gespeichert!');}
+function clearLexKey(){delete db.einstellungen._lexKey;saveDB();if(el('lex-key-status'))el('lex-key-status').textContent='Kein Key gespeichert';toast('Gelöscht');}
+function parseGermanDate(s){if(!s)return null;var p=s.split('.');return p.length===3?new Date(p[2],p[1]-1,p[0]):null;}
+function isoDate(s){var d=parseGermanDate(s);return d?d.toISOString().substring(0,10):new Date().toISOString().substring(0,10);}
+function exportToLexoffice(){
+  var key=db.einstellungen&&db.einstellungen._lexKey;if(!key){toast('Bitte zuerst API-Key speichern',false);return;}
+  var zeitraum=el('lex-zeitraum')?el('lex-zeitraum').value:'monat';var now=new Date();var filterFn=function(){return true;};
+  if(zeitraum==='heute'){var td2=now.toLocaleDateString('de-DE');filterFn=function(t){return (t.datum||'')===td2;};}
+  else if(zeitraum==='woche'){var wa=new Date(now-7*86400000);filterFn=function(t){var d=parseGermanDate(t.datum);return d&&d>=wa;};}
+  else if(zeitraum==='monat'){var ma=new Date(now-30*86400000);filterFn=function(t){var d=parseGermanDate(t.datum);return d&&d>=ma;};}
+  var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf'&&filterFn(t);});
+  if(!vk.length){toast('Keine Verkäufe im Zeitraum',false);return;}
+  var res=el('lex-result');if(res)res.innerHTML='<span style="color:var(--text3)">Übertrage '+vk.length+' Belege...</span>';
+  var done=0;var errs=0;
+  vk.forEach(function(t){
+    var body={type:'salesinvoice',voucherDate:isoDate(t.datum),introduction:'Kartenverkauf: '+(t.kartenName||'Karte'),remark:'Plattform: '+(t.plattform||''),lineItems:[{type:'custom',name:t.kartenName||'Handelskarte',quantity:1,unitName:'Stück',unitPrice:{currency:'EUR',netAmount:t.ek||0,taxRatePercentage:0},discountPercentage:0}],totalPrice:{currency:'EUR'},taxConditions:{taxType:'constructedReduced'},shippingConditions:{shippingDate:isoDate(t.datum),shippingType:'none'}};
+    fetch('https://api.lexoffice.io/v1/vouchers',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)}).then(function(r){done++;if(!r.ok)errs++;if(done===vk.length&&res)res.innerHTML='<span style="color:'+(errs?'#c0392b':'#1a7a3c')+'">'+( done-errs)+' übertragen'+(errs?' · '+errs+' Fehler':'')+'</span>';}).catch(function(){errs++;done++;if(done===vk.length&&res)res.innerHTML='<span style="color:#c0392b">Fehler – API nicht erreichbar</span>';});
+  });
+}
+
+// go() erweitern für neue Views
+var _goOrig=go;
+function go(v){
+  _goOrig(v);
+  if(v==='statistik')rStatistik();
+  if(v==='wertveraend'){rWertveraend();filterWert('alle');}
+  if(v==='export'){var lk=db.einstellungen&&db.einstellungen._lexKey;if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';}
+}
+
 function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';
   // Rolle mit Farbe anzeigen
   var rollen=getRollen();var eigeneRolle=rollen.find(function(r){return r.id===cu.rolleId;})||null;
@@ -1363,7 +1564,16 @@ function rKarten(){
   // Recht r1: Karten erfassen Button
   var nkBtn=el('btn-nk');if(nkBtn)nkBtn.style.display=hatRecht('r1')?'':'none';
   var sv=(el('ks')?el('ks').value:'').toLowerCase(),lv=(el('kl')?el('kl').value:'').toLowerCase(),li=el('klist');if(!li)return;
-  var f=db.karten.filter(function(k){if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;return true;});
+  var fSerie=el('k-filter-serie')?el('k-filter-serie').value:'';
+  var fKond=el('k-filter-kond')?el('k-filter-kond').value:'';
+  var f=db.karten.filter(function(k){
+    if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;
+    if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;
+    if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;
+    if(fSerie&&k.serie!==fSerie)return false;
+    if(fKond&&k.kondition!==fKond)return false;
+    return true;
+  });
   if(!f.length){li.innerHTML='<div class="rph"><div>'+(!db.karten.length?'Noch keine Karten':'Keine Treffer')+'</div></div>';return;}
   var zeigePreise=hatRecht('r9');
   var zeigeEdit=hatRecht('r2');
