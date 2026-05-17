@@ -256,15 +256,20 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
           <div class="adm-tile" onclick="admGoView('trans')"><div class="adm-tile-ico">💳</div><div class="adm-tile-lbl">Verkauf &amp; Trade</div></div>
           <div class="adm-tile" onclick="admGoView('research')"><div class="adm-tile-ico">🔍</div><div class="adm-tile-lbl">KI-Research</div></div>
           <div class="adm-tile" onclick="admGoView('kalkulation')"><div class="adm-tile-ico">🧮</div><div class="adm-tile-lbl">Kalkulation</div></div>
+          <div class="adm-tile" onclick="admGoView('statistik')"><div class="adm-tile-ico">📈</div><div class="adm-tile-lbl">Statistik</div></div>
+          <div class="adm-tile" onclick="admGoView('wertveraend')"><div class="adm-tile-ico">💹</div><div class="adm-tile-lbl">Wertveränderung</div></div>
+          <div class="adm-tile" onclick="admGoView('export')"><div class="adm-tile-ico">📤</div><div class="adm-tile-lbl">Export / Lexoffice</div></div>
           <div class="adm-tile" onclick="admOpenGadgetTile('viewer')"><div class="adm-tile-ico">👁</div><div class="adm-tile-lbl">Viewer-Modus</div></div>
           <div class="adm-tile" onclick="admOpenGadgetTile('bb')"><div class="adm-tile-ico">📌</div><div class="adm-tile-lbl">Schwarzes Brett</div><div id="adm-bb-prev2" class="adm-tile-sub"></div></div>
           <div class="adm-tile" onclick="admOpenGadgetTile('notizen')"><div class="adm-tile-ico">📝</div><div class="adm-tile-lbl">Notizen</div><div id="adm-nz-prev2" class="adm-tile-sub"></div></div>
-          <div class="adm-tile" onclick="admOpenGadgetTile('kosten')"><div class="adm-tile-ico">📊</div><div class="adm-tile-lbl">Kosten</div><div id="adm-ko-prev2" class="adm-tile-sub"></div></div>
+          <div class="adm-tile" onclick="admOpenGadgetTile('kosten')"><div class="adm-tile-ico">💰</div><div class="adm-tile-lbl">Kosten</div><div id="adm-ko-prev2" class="adm-tile-sub"></div></div>
           <div class="adm-tile" onclick="admOpenGadgetTile('dellog')"><div class="adm-tile-ico">🗑</div><div class="adm-tile-lbl">Löschprotokoll</div></div>
           <div class="adm-tile" onclick="admOpenGadgetTile('feedback')"><div class="adm-tile-ico">💬</div><div class="adm-tile-lbl">Nachrichten</div><div id="adm-fb-prev2" class="adm-tile-sub"></div></div>
           <div class="adm-tile" onclick="admGoBenutzer()"><div class="adm-tile-ico">👥</div><div class="adm-tile-lbl">Benutzer</div><div id="adm-usr-prev2" class="adm-tile-sub"></div></div>
           <div class="adm-tile" onclick="admGoView('profil')"><div class="adm-tile-ico">👤</div><div class="adm-tile-lbl">Profil</div></div>
           <div class="adm-tile" onclick="doLogout()" style="border-color:rgba(192,57,43,.3);"><div class="adm-tile-ico">🚪</div><div class="adm-tile-lbl" style="color:var(--red);">Abmelden</div></div>
+          <div class="adm-tile" style="opacity:0;cursor:default;"></div>
+          <div class="adm-tile" style="opacity:0;cursor:default;"></div>
         </div>
       </div>
 
@@ -405,8 +410,10 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
           <button class="btn bgold bsm" id="btn-nk">+ Karte erfassen</button>
         </div>
         <div class="srow">
-          <input id="ks" class="fi" placeholder="Suche nach Name, Serie, Lager...">
-          <input id="kl" class="fi" placeholder="Lager..." style="max-width:160px;">
+          <input id="ks" class="fi" placeholder="Suche nach Name, Serie, Lager..." oninput="rKarten()">
+          <input id="kl" class="fi" placeholder="Lager..." style="max-width:160px;" oninput="rKarten()">
+          <select id="k-filter-serie" class="fi" style="max-width:130px;" onchange="rKarten()"><option value="">Alle Serien</option><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option><option>Sonstige</option></select>
+          <select id="k-filter-kond" class="fi" style="max-width:120px;" onchange="rKarten()"><option value="">Alle Konditionen</option><option>Raw</option><option>PSA</option><option>BGS</option></select>
         </div>
         <div id="klist"></div>
       </div>
@@ -475,6 +482,89 @@ button{transition:opacity .1s;}button:active{opacity:.75;}
             <button class="btn bgold" id="btn-kk">Berechnen</button>
           </div>
           <div id="kk-res-card" style="display:none;" class="card"><div class="ctit">Ergebnis</div><div id="kk-res"></div></div>
+        </div>
+      </div>
+
+      <!-- STATISTIK -->
+      <div class="view" id="view-statistik">
+        <div id="adm-back-statistik" style="display:none;margin-bottom:8px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
+        <div class="vtit">📈 Statistik-Dashboard</div>
+        <div id="stat-content"></div>
+      </div>
+
+      <!-- WERTVERÄNDERUNG -->
+      <div class="view" id="view-wertveraend">
+        <div id="adm-back-wertveraend" style="display:none;margin-bottom:8px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
+        <div class="vtit">💹 Wertveränderung pro Tag</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button class="btn bgold bsm" onclick="filterWert('alle')" id="wf-alle">Alle</button>
+          <button class="btn bout bsm" onclick="filterWert('positiv')" id="wf-pos">▲ Positiv</button>
+          <button class="btn bout bsm" onclick="filterWert('negativ')" id="wf-neg">▼ Negativ</button>
+        </div>
+        <div id="wert-list"></div>
+      </div>
+
+      <!-- EXPORT -->
+      <div class="view" id="view-export">
+        <div id="adm-back-export" style="display:none;margin-bottom:8px;"><button class="adm-back-btn" onclick="admGoHome()">← Hauptmenü</button></div>
+        <div class="vtit">📤 Export &amp; Buchhaltung</div>
+        <div class="dcols">
+          <div>
+            <div class="card">
+              <div class="ctit">📋 CSV-Export (MobiOffice)</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Exportiere deinen Bestand, Verkäufe oder Transaktionen als CSV-Datei – kompatibel mit MobiOffice, LibreOffice und Excel.</div>
+              <div class="fg"><label class="flbl">Was exportieren?</label>
+                <select class="fi" id="exp-typ">
+                  <option value="bestand">Aktueller Bestand</option>
+                  <option value="verkaufe">Alle Verkäufe</option>
+                  <option value="trades">Alle Trades</option>
+                  <option value="transaktionen">Alle Transaktionen</option>
+                  <option value="grading">Grading-Sendungen</option>
+                </select>
+              </div>
+              <button class="btn bgold" onclick="exportCSV()">📥 CSV herunterladen</button>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <div class="ctit">🧾 Steuer-Export</div>
+              <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Exportiert Verkäufe mit EK, VK, Gewinn und Datum – steuerrelevante Felder für §25a UStG.</div>
+              <div class="fg"><label class="flbl">Zeitraum</label>
+                <select class="fi" id="exp-jahr">
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                  <option value="alle">Alle Jahre</option>
+                </select>
+              </div>
+              <button class="btn bgrn" onclick="exportSteuer()">📥 Steuer-CSV herunterladen</button>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="ctit">🔗 Lexoffice-Anbindung</div>
+              <div style="background:rgba(26,95,168,.08);border:1px solid rgba(26,95,168,.3);border-radius:10px;padding:12px;margin-bottom:12px;">
+                <div style="font-size:12px;color:var(--text2);line-height:1.6;">Lexoffice hat eine offene REST-API. Mit deinem API-Key werden Verkäufe automatisch als Belege in Lexoffice übertragen.</div>
+              </div>
+              <div class="fg"><label class="flbl">Lexoffice API-Key</label><input class="fi" id="lex-key" type="password" placeholder="Dein Lexoffice API-Key..."></div>
+              <div class="fg"><label class="flbl">Gespeicherter Key</label>
+                <div style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--text3);padding:8px;background:var(--surface2);border-radius:6px;" id="lex-key-status">Kein Key gespeichert</div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn bgold" style="flex:2;" onclick="saveLexKey()">Key speichern</button>
+                <button class="btn bout" style="flex:1;" onclick="clearLexKey()">Löschen</button>
+              </div>
+              <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+                <div class="fg"><label class="flbl">Zeitraum exportieren</label>
+                  <select class="fi" id="lex-zeitraum">
+                    <option value="heute">Heute</option>
+                    <option value="woche">Diese Woche</option>
+                    <option value="monat">Dieser Monat</option>
+                    <option value="alle">Alle</option>
+                  </select>
+                </div>
+                <button class="btn bgrn" onclick="exportToLexoffice()">🔗 Zu Lexoffice exportieren</button>
+                <div id="lex-result" style="margin-top:10px;font-size:12px;"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1303,8 +1393,18 @@ function rKarten(){var li=el('klist');if(!li)return;
   // Recht r1: Karten erfassen
   var nkBtn=el('btn-nk');if(nkBtn)nkBtn.style.display=hatRecht('r1')?'':'none';
   var zeigePreise=hatRecht('r9');var zeigeEdit=hatRecht('r2');
-  var q=(el('ks')?el('ks').value:'').toLowerCase();var lq=(el('kl')?el('kl').value:'').toLowerCase();var sel=el('rsel');var kk=el('kk-karte');var vfk=el('vfk');var tfk=el('tfk');var sfka=el('sfka');var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(sel)sel.innerHTML='<option value="">-- auswählen --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.nr?' ('+k.nr+')':'')+'</option>';}).join('');if(kk)kk.innerHTML='<option value="">-- Manuell --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(vfk)vfk.innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(tfk)tfk.innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(sfka)sfka.innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');
-  var filtered=db.karten.filter(function(k){if(!k)return false;if(q&&!(k.name||'').toLowerCase().includes(q)&&!(k.serie||'').toLowerCase().includes(q)&&!(k.set||'').toLowerCase().includes(q))return false;if(lq&&!(k.lager||'').toLowerCase().includes(lq))return false;return true;}).sort(function(a,b){return pSort(b.kaufdatum)-pSort(a.kaufdatum);});
+  var q=(el('ks')?el('ks').value:'').toLowerCase();var lq=(el('kl')?el('kl').value:'').toLowerCase();
+  var fSerie=el('k-filter-serie')?el('k-filter-serie').value:'';
+  var fKond=el('k-filter-kond')?el('k-filter-kond').value:'';
+  var sel=el('rsel');var kk=el('kk-karte');var vfk=el('vfk');var tfk=el('tfk');var sfka=el('sfka');var av=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});if(sel)sel.innerHTML='<option value="">-- auswählen --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+(k.kondition!=='Raw'?'['+k.kondition+' '+k.note+'] ':'')+k.name+(k.nr?' ('+k.nr+')':'')+'</option>';}).join('');if(kk)kk.innerHTML='<option value="">-- Manuell --</option>'+av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(vfk)vfk.innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(tfk)tfk.innerHTML=av.map(function(k){return '<option value="'+k.id+'">'+k.name+'</option>';}).join('');if(sfka)sfka.innerHTML='<option value="">-- Karte --</option>'+av.map(function(k){var label=k.name+(k.set?' · '+k.set:'');return '<option value="'+k.id+'">'+label+'</option>';}).join('');
+  var filtered=db.karten.filter(function(k){
+    if(!k)return false;
+    if(q&&!(k.name||'').toLowerCase().includes(q)&&!(k.serie||'').toLowerCase().includes(q)&&!(k.set||'').toLowerCase().includes(q))return false;
+    if(lq&&!(k.lager||'').toLowerCase().includes(lq))return false;
+    if(fSerie&&k.serie!==fSerie)return false;
+    if(fKond&&k.kondition!==fKond)return false;
+    return true;
+  }).sort(function(a,b){return pSort(b.kaufdatum)-pSort(a.kaufdatum);});
   if(!filtered.length){li.innerHTML='<div class="rph"><div class="rphi">📦</div><div>Keine Karten gefunden</div></div>';return;}
   li.innerHTML=filtered.map(function(k){var sc=k.status==='Im Bestand'?'bg':(k.status==='Zum Grading'?'by':'br');
     return '<div class="li"><div class="lim"><div class="lit">'+(k.kondition!=='Raw'?'<span class="bd bp" style="margin-right:4px;">'+k.kondition+(k.note?' '+k.note:'')+'</span>':'')+k.name+'</div><div class="lis">'+(k.serie||'-')+(k.set?' · '+k.set:'')+(k.lager?' · 📍'+k.lager:'')+'</div></div><span class="bd '+sc+'" style="margin-right:6px;">'+k.status+'</span>'+
@@ -1563,7 +1663,231 @@ document.addEventListener('DOMContentLoaded',function(){
   el('btn-feedback')&&el('btn-feedback').addEventListener('click',function(){os('ovFeedback');});
   document.querySelectorAll('.sov').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)cs(ov.id);});});
   loadDB();
+  // Lexoffice Key laden
+  var lk=db.einstellungen&&db.einstellungen._lexKey;if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';
 });
+
+// ── STATISTIK ─────────────────────────────────────────────────────
+function rStatistik(){
+  var c=el('stat-content');if(!c)return;
+  var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';});
+  var tr=db.transaktionen.filter(function(t){return t&&t.typ==='trade';});
+  var totalUm=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);
+  var totalGw=vk.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);
+  var totalEk=vk.reduce(function(s,t){return s+parseFloat(t.ek||0);},0);
+  var roi=totalEk>0?(totalGw/totalEk*100).toFixed(1):0;
+  var bestand=db.karten.filter(function(k){return k&&k.status==='Im Bestand';});
+  var totalMW=bestand.reduce(function(s,k){return s+parseFloat(k.marktwert||k.ek||0);},0);
+  // Top 5 Verkäufe nach Gewinn
+  var top5=vk.slice().sort(function(a,b){return parseFloat(b.gewinn||0)-parseFloat(a.gewinn||0);}).slice(0,5);
+  // Monatliche Gewinne
+  var byMonth={};vk.forEach(function(t){var d=t.datum||'';var m=d.substring(0,7);if(!byMonth[m])byMonth[m]=0;byMonth[m]+=parseFloat(t.gewinn||0);});
+  var months=Object.keys(byMonth).sort();
+  // Grading-Statistik
+  var gradedKarten=db.karten.filter(function(k){return k&&k.note&&(k.kondition==='PSA'||k.kondition==='BGS');});
+  var noteCount={};gradedKarten.forEach(function(k){var n=k.note||'?';noteCount[n]=(noteCount[n]||0)+1;});
+  // Rendite pro Sendung
+  var sendungen=db.sendungen.filter(function(s){return s&&s.status==='Abgeschlossen';});
+
+  var html='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'+
+    '<div class="kpi" style="border-top-color:var(--gold)"><div class="klbl">Gesamtumsatz</div><div class="kval">'+fmt(totalUm)+' €</div></div>'+
+    '<div class="kpi" style="border-top-color:#1a7a3c"><div class="klbl">Gesamtgewinn</div><div class="kval">'+fmt(totalGw)+' €</div></div>'+
+    '<div class="kpi" style="border-top-color:#1a5276"><div class="klbl">Gesamt ROI</div><div class="kval">'+roi+'%</div></div>'+
+    '<div class="kpi" style="border-top-color:var(--purple)"><div class="klbl">Bestandswert</div><div class="kval">'+fmt(totalMW)+' €</div></div>'+
+  '</div>';
+
+  // Monatliche Gewinnentwicklung (Chart per SVG)
+  if(months.length>0){
+    var maxVal=Math.max.apply(null,months.map(function(m){return Math.abs(byMonth[m]);}));
+    var barW=Math.floor(Math.min(60,600/months.length));
+    var chartW=months.length*(barW+4)+40;
+    html+='<div class="card" style="margin-bottom:16px;"><div class="ctit">📈 Gewinnentwicklung (monatlich)</div>';
+    html+='<div style="overflow-x:auto"><svg width="'+chartW+'" height="160" style="display:block;">';
+    months.forEach(function(m,i){
+      var val=byMonth[m];var h=maxVal>0?Math.abs(val/maxVal*100):0;
+      var x=i*(barW+4)+30;var col=val>=0?'#1a7a3c':'#c0392b';
+      html+='<rect x="'+x+'" y="'+(130-h)+'" width="'+barW+'" height="'+h+'" fill="'+col+'" rx="3"/>';
+      html+='<text x="'+(x+barW/2)+'" y="148" text-anchor="middle" font-size="8" fill="#8c7a5a">'+m.substring(5)+'</text>';
+      html+='<text x="'+(x+barW/2)+'" y="'+(130-h-3)+'" text-anchor="middle" font-size="7" fill="'+col+'">'+(val>=0?'+':'')+Math.round(val)+'</text>';
+    });
+    html+='</svg></div></div>';
+  }
+
+  // Top 5 Verkäufe
+  if(top5.length){
+    html+='<div class="card" style="margin-bottom:16px;"><div class="ctit">🏆 Top Verkäufe (nach Gewinn)</div>';
+    top5.forEach(function(t,i){
+      html+='<div class="li"><span style="font-family:Syne,sans-serif;font-weight:800;color:var(--gold);margin-right:8px;">#'+(i+1)+'</span><div class="lim"><div class="lit">'+esc(t.kartenName||'-')+'</div><div class="lis">'+t.datum+' · VK: '+fmt(t.vk)+' €</div></div><div class="liamt" style="color:#1a7a3c;">+'+fmt(t.gewinn)+' €</div></div>';
+    });
+    html+='</div>';
+  }
+
+  // Grading-Statistik
+  if(gradedKarten.length){
+    html+='<div class="card" style="margin-bottom:16px;"><div class="ctit">⭐ Grading-Statistik ('+gradedKarten.length+' Karten)</div>';
+    var noteSorted=Object.keys(noteCount).sort(function(a,b){return parseFloat(b)-parseFloat(a);});
+    noteSorted.forEach(function(n){
+      var pct=Math.round(noteCount[n]/gradedKarten.length*100);
+      html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'+
+        '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;width:35px;color:var(--gold)">'+n+'</div>'+
+        '<div style="flex:1;background:var(--surface2);border-radius:20px;height:10px;overflow:hidden;">'+
+          '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#b8860b,#d4a017);border-radius:20px;"></div>'+
+        '</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--text3);width:50px;text-align:right;">'+noteCount[n]+'x ('+pct+'%)</div>'+
+      '</div>';
+    });
+    html+='</div>';
+  }
+
+  // Rendite pro Grading-Sendung
+  if(sendungen.length){
+    html+='<div class="card"><div class="ctit">💰 Rendite pro Grading-Sendung</div>';
+    sendungen.forEach(function(snd){
+      var kosten=db.einstellungen._gradingkosten||[];
+      var k=kosten.filter(function(x){return x.sendung===snd.name;}).reduce(function(s,x){return s+(x.betrag||0);},0);
+      var mwVorher=(snd.karten||[]).reduce(function(s,ki){var karte=db.karten.find(function(x){return x.id===ki.id;});return s+(karte?parseFloat(karte.mwKauf||karte.ek||0):0);},0);
+      var mwNachher=(snd.karten||[]).reduce(function(s,ki){return s+parseFloat(ki.marktwert||0);},0);
+      var rendite=mwNachher-mwVorher-k;
+      html+='<div class="li"><div class="lim"><div class="lit">'+esc(snd.name)+'</div><div class="lis">Kosten: '+fmt(k)+' € · '+snd.dienst+'</div></div>'+
+        '<div style="text-align:right;flex-shrink:0"><div class="liamt" style="color:'+(rendite>=0?'#1a7a3c':'#c0392b')+'">'+(rendite>=0?'+':'')+fmt(rendite)+' €</div><div style="font-size:9px;color:var(--text3);">MW: '+fmt(mwVorher)+' → '+fmt(mwNachher)+'</div></div></div>';
+    });
+    html+='</div>';
+  }
+
+  if(!vk.length&&!gradedKarten.length)html='<div class="rph"><div>Noch keine Daten für Statistiken</div></div>';
+  c.innerHTML=html;
+}
+
+// ── WERTVERÄNDERUNG ───────────────────────────────────────────────
+var _wertFilter='alle';
+function rWertveraend(){
+  var li=el('wert-list');if(!li)return;
+  var karten=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.mwKauf&&k.marktwert;});
+  karten.sort(function(a,b){return Math.abs(b.marktwert-b.mwKauf)-Math.abs(a.marktwert-a.mwKauf);});
+  if(_wertFilter==='positiv')karten=karten.filter(function(k){return k.marktwert>=k.mwKauf;});
+  if(_wertFilter==='negativ')karten=karten.filter(function(k){return k.marktwert<k.mwKauf;});
+  if(!karten.length){li.innerHTML='<div class="rph"><div>Keine Daten – bitte Marktwert bei Kauf eintragen</div></div>';return;}
+  li.innerHTML=karten.map(function(k){
+    var diff=k.marktwert-k.mwKauf;
+    var pct=k.mwKauf>0?((diff/k.mwKauf)*100).toFixed(1):0;
+    var col=diff>=0?'#1a7a3c':'#c0392b';
+    var icon=diff>=0?'▲':'▼';
+    return '<div class="li"><div class="lim"><div class="lit">'+esc(k.name)+'</div><div class="lis">'+esc(k.serie||'')+(k.set?' · '+esc(k.set):'')+'</div></div>'+
+      '<div style="text-align:right;flex-shrink:0">'+
+        '<div style="font-family:JetBrains Mono,monospace;font-weight:800;font-size:13px;color:'+col+'">'+icon+' '+fmt(Math.abs(diff))+' €</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:'+col+';">'+pct+'%</div>'+
+        '<div style="font-size:9px;color:var(--text3);">'+fmt(k.mwKauf)+' → '+fmt(k.marktwert)+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  // Notification wenn >10% Veränderung
+  karten.filter(function(k){return Math.abs((k.marktwert-k.mwKauf)/k.mwKauf*100)>=10;}).forEach(function(k){
+    var pct=((k.marktwert-k.mwKauf)/k.mwKauf*100).toFixed(1);
+    showAdminNotification((pct>0?'▲':'▼')+' '+esc(k.name)+': '+pct+'% Wertveränderung');
+  });
+}
+function filterWert(f){
+  _wertFilter=f;
+  ['alle','pos','neg'].forEach(function(id){var b=el('wf-'+id);if(b){b.className='btn bout bsm';}});
+  var map={alle:'wf-alle',positiv:'wf-pos',negativ:'wf-neg'};
+  var active=el(map[f]);if(active)active.className='btn bgold bsm';
+  rWertveraend();
+}
+
+// ── CSV EXPORT ────────────────────────────────────────────────────
+function csvEscape(v){v=String(v||'').replace(/"/g,'""');return '"'+v+'"';}
+function downloadCSV(rows,filename){
+  var csv=rows.map(function(r){return r.map(csvEscape).join(';');}).join('\r\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+}
+function exportCSV(){
+  var typ=el('exp-typ')?el('exp-typ').value:'bestand';
+  var today2=new Date().toLocaleDateString('de-DE');
+  if(typ==='bestand'){
+    var rows=[['Name','Serie','Set','Kondition','Note','EK (€)','MW bei Kauf (€)','MW aktuell (€)','Wertveränd. (€)','Lager','Status','Kaufdatum']];
+    db.karten.filter(function(k){return k&&k.status==='Im Bestand';}).forEach(function(k){
+      rows.push([k.name,k.serie,k.set,k.kondition,k.note,k.ek,k.mwKauf||'',k.marktwert||'',(k.marktwert&&k.mwKauf?k.marktwert-k.mwKauf:''),k.lager,k.status,k.kaufdatum]);
+    });
+    downloadCSV(rows,'MADCollectables_Bestand_'+today2+'.csv');
+  } else if(typ==='verkaufe'){
+    var rows2=[['Datum','Kartenname','EK (€)','VK (€)','Gewinn (€)','Plattform']];
+    db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';}).forEach(function(t){rows2.push([t.datum,t.kartenName,t.ek,t.vk,t.gewinn,t.plattform]);});
+    downloadCSV(rows2,'MADCollectables_Verkäufe_'+today2+'.csv');
+  } else if(typ==='trades'){
+    var rows3=[['Datum','Karte abgegeben','Wert raus (€)','Karte erhalten','Wert rein (€)','Differenz (€)']];
+    db.transaktionen.filter(function(t){return t&&t.typ==='trade';}).forEach(function(t){rows3.push([t.datum,t.kartenName,t.wertRaus,t.karteRein,t.wertRein,t.diff]);});
+    downloadCSV(rows3,'MADCollectables_Trades_'+today2+'.csv');
+  } else if(typ==='transaktionen'){
+    var rows4=[['Datum','Typ','Kartenname','EK (€)','VK/WertRaus (€)','Gewinn/Diff (€)','Plattform/WertRein']];
+    db.transaktionen.forEach(function(t){rows4.push([t.datum,t.typ,t.kartenName,t.ek,t.typ==='verkauf'?t.vk:t.wertRaus,t.typ==='verkauf'?t.gewinn:t.diff,t.typ==='verkauf'?t.plattform:t.karteRein]);});
+    downloadCSV(rows4,'MADCollectables_Transaktionen_'+today2+'.csv');
+  } else if(typ==='grading'){
+    var rows5=[['Sendungsname','Dienst','Datum','Anzahl Karten','Kosten (€)','Status']];
+    db.sendungen.forEach(function(s){
+      var k=( db.einstellungen._gradingkosten||[]).filter(function(x){return x.sendung===s.name;}).reduce(function(a,x){return a+(x.betrag||0);},0);
+      rows5.push([s.name,s.dienst,s.datum,(s.karten||[]).length,k,s.status]);
+    });
+    downloadCSV(rows5,'MADCollectables_Grading_'+today2+'.csv');
+  }
+  toast('CSV heruntergeladen!');
+}
+function exportSteuer(){
+  var jahr=el('exp-jahr')?el('exp-jahr').value:'alle';
+  var rows=[['Datum','Kartenname','Einkaufsart','EK netto (€)','VK (€)','Gewinn (€)','USt-Regelung','Plattform']];
+  db.transaktionen.filter(function(t){return t&&t.typ==='verkauf'&&(jahr==='alle'||( t.datum||'').includes(jahr));}).forEach(function(t){
+    var karte=db.karten.find(function(x){return x.id===t.kartenId;})||{};
+    rows.push([t.datum,t.kartenName,karte.einkauf||'privat',t.ek,t.vk,t.gewinn,karte.einkauf==='gewerbe'?'§19 UStG':'§25a UStG (Differenzbesteuerung)',t.plattform]);
+  });
+  downloadCSV(rows,'MADCollectables_Steuer_'+jahr+'_'+new Date().toLocaleDateString('de-DE')+'.csv');
+  toast('Steuer-CSV heruntergeladen!');
+}
+
+// ── LEXOFFICE ─────────────────────────────────────────────────────
+function saveLexKey(){
+  var k=el('lex-key')?el('lex-key').value.trim():'';
+  if(!k){toast('API-Key eingeben',false);return;}
+  db.einstellungen._lexKey=k;saveDB();
+  if(el('lex-key-status'))el('lex-key-status').textContent='Key gespeichert ('+k.substring(0,8)+'...)';
+  if(el('lex-key'))el('lex-key').value='';
+  toast('Lexoffice API-Key gespeichert!');
+}
+function clearLexKey(){
+  delete db.einstellungen._lexKey;saveDB();
+  if(el('lex-key-status'))el('lex-key-status').textContent='Kein Key gespeichert';
+  toast('Key gelöscht');
+}
+function exportToLexoffice(){
+  var key=db.einstellungen&&db.einstellungen._lexKey;
+  if(!key){toast('Bitte zuerst API-Key speichern',false);return;}
+  var zeitraum=el('lex-zeitraum')?el('lex-zeitraum').value:'monat';
+  var now=new Date();var filterFn=function(){return true;};
+  if(zeitraum==='heute'){var td=now.toLocaleDateString('de-DE');filterFn=function(t){return (t.datum||'')=== td;};}
+  else if(zeitraum==='woche'){var weekAgo=new Date(now-7*86400000);filterFn=function(t){var d=parseGermanDate(t.datum);return d&&d>=weekAgo;};}
+  else if(zeitraum==='monat'){var monthAgo=new Date(now-30*86400000);filterFn=function(t){var d=parseGermanDate(t.datum);return d&&d>=monthAgo;};}
+  var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf'&&filterFn(t);});
+  if(!vk.length){toast('Keine Verkäufe im gewählten Zeitraum',false);return;}
+  var res=el('lex-result');if(res)res.innerHTML='<span style="color:var(--text3)">Übertrage '+vk.length+' Belege...</span>';
+  var done=0;var errs=0;
+  vk.forEach(function(t){
+    var body={type:'salesinvoice',voucherDate:isoDate(t.datum),introduction:'Kartenverkauf: '+(t.kartenName||'Karte'),remark:'Plattform: '+(t.plattform||''),lineItems:[{type:'custom',name:t.kartenName||'Handelskarte',quantity:1,unitName:'Stück',unitPrice:{currency:'EUR',netAmount:t.ek||0,taxRatePercentage:0},discountPercentage:0}],totalPrice:{currency:'EUR'},taxConditions:{taxType:'constructedReduced'},shippingConditions:{shippingDate:isoDate(t.datum),shippingType:'none'},voucher:{}};
+    fetch('https://api.lexoffice.io/v1/vouchers',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(body)}).then(function(r){done++;if(!r.ok)errs++;if(done===vk.length&&res)res.innerHTML='<span style="color:'+(errs?'#c0392b':'#1a7a3c')+'">✓ '+( done-errs)+' übertragen'+(errs?' · '+errs+' Fehler':'')+'</span>';}).catch(function(){errs++;done++;if(done===vk.length&&res)res.innerHTML='<span style="color:#c0392b">Fehler – API nicht erreichbar. CORS-Proxy nötig.</span>';});
+  });
+}
+function parseGermanDate(s){if(!s)return null;var p=s.split('.');return p.length===3?new Date(p[2],p[1]-1,p[0]):null;}
+function isoDate(s){var d=parseGermanDate(s);return d?d.toISOString().substring(0,10):new Date().toISOString().substring(0,10);}
+
+// Statistik und Wertveränderung in go() einbinden
+var _origGo=go;
+function go(v){
+  _origGo(v);
+  if(v==='statistik')rStatistik();
+  if(v==='wertveraend'){rWertveraend();filterWert('alle');}
+  if(v==='export'){
+    var lk=db.einstellungen&&db.einstellungen._lexKey;
+    if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';
+  }
+}
 </script>
 <script>
 if('serviceWorker' in navigator){
