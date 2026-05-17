@@ -344,8 +344,11 @@ button{transition:opacity .1s}button:active{opacity:0.75}
       <div class="vrow"><div class="vtit">Karten</div><button class="btn bgold bsm" id="btn-nk">+ Karte</button></div>
       <div class="srow"><input id="ks" class="fi" placeholder="Suche..." oninput="rKarten()"><input id="kl" class="fi" placeholder="Lager..." style="max-width:100px" oninput="rKarten()"></div>
       <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
-        <select id="k-filter-serie" class="fi" style="flex:1;font-size:12px;padding:7px;" onchange="rKarten()"><option value="">Alle Serien</option><option>Pokemon</option><option>One Piece</option><option>Yu-Gi-Oh</option><option>Sonstige</option></select>
-        <select id="k-filter-kond" class="fi" style="flex:1;font-size:12px;padding:7px;" onchange="rKarten()"><option value="">Alle Konditionen</option><option>Raw</option><option>PSA</option><option>BGS</option></select>
+        <button class="btn bsm" id="kf-alle" onclick="setSerieFilter('')" style="background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Alle</button>
+        <button class="btn bout bsm" id="kf-poke" onclick="setSerieFilter('Pokemon')" style="font-size:11px">Pokémon</button>
+        <button class="btn bout bsm" id="kf-op" onclick="setSerieFilter('One Piece')" style="font-size:11px">One Piece</button>
+        <button class="btn bout bsm" id="kf-yugi" onclick="setSerieFilter('Yu-Gi-Oh')" style="font-size:11px">Yu-Gi-Oh</button>
+        <select id="k-filter-kond" class="fi" style="flex:1;font-size:11px;padding:5px;min-width:80px" onchange="rKarten()"><option value="">Alle</option><option>Raw</option><option>PSA</option><option>BGS</option></select>
       </div>
       <div id="klist"></div>
     </div>
@@ -987,6 +990,9 @@ function go(v){
   if(v==='dashboard')rDash();if(v==='karten')rKarten();if(v==='trans')rTrans();
   if(v==='grading')rGrading();if(v==='research')rResearch();if(v==='kalkulation')rKalk();
   if(v==='profil')rProfil();if(v==='gadgets')rGadgets();
+  if(v==='statistik')rStatistik();
+  if(v==='wertveraend'){rWertveraend();filterWert('alle');}
+  if(v==='export'){var lk=db.einstellungen&&db.einstellungen._lexKey;if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';}
 }
 function renderAll(){rDash();rKarten();rTrans();rGrading();applyNavRights();}
 
@@ -1289,7 +1295,18 @@ function rStatistik(){
 }
 
 // ── WERTVERÄNDERUNG ───────────────────────────────────────────────
-var _wertFilter='alle';
+var _serieFilter='';
+function setSerieFilter(s){
+  _serieFilter=s;
+  ['alle','poke','op','yugi'].forEach(function(id){
+    var b=el('kf-'+id);
+    if(b){b.style.background='var(--surface2)';b.style.color='var(--text2)';b.style.border='1px solid var(--border)';}
+  });
+  var map={'':'kf-alle','Pokemon':'kf-poke','One Piece':'kf-op','Yu-Gi-Oh':'kf-yugi'};
+  var active=el(map[s]);
+  if(active){active.style.background='linear-gradient(135deg,#b8860b,#d4a017)';active.style.color='#1a1208';active.style.border='none';}
+  rKarten();
+}
 function rWertveraend(){
   var li=el('wert-list');if(!li)return;
   var karten=db.karten.filter(function(k){return k&&k.status==='Im Bestand'&&k.mwKauf&&k.marktwert;});
@@ -1347,14 +1364,7 @@ function exportToLexoffice(){
   });
 }
 
-// go() erweitern für neue Views
-var _goOrig=go;
-function go(v){
-  _goOrig(v);
-  if(v==='statistik')rStatistik();
-  if(v==='wertveraend'){rWertveraend();filterWert('alle');}
-  if(v==='export'){var lk=db.einstellungen&&db.einstellungen._lexKey;if(el('lex-key-status'))el('lex-key-status').textContent=lk?'Key gespeichert ('+lk.substring(0,8)+'...)':'Kein Key gespeichert';}
-}
+// go() erweitern für neue Views – direkt integriert oben
 
 function rProfil(){if(!cu)return;var R={1:'Admin',2:'Einkauf/Trade',3:'Buchhaltung',4:'Angestellter'};var av=el('pav');if(av)av.textContent=(cu.name||cu.username||'?')[0].toUpperCase();if(el('pnd'))el('pnd').textContent=cu.name||cu.username||'-';
   // Rolle mit Farbe anzeigen
@@ -1564,13 +1574,12 @@ function rKarten(){
   // Recht r1: Karten erfassen Button
   var nkBtn=el('btn-nk');if(nkBtn)nkBtn.style.display=hatRecht('r1')?'':'none';
   var sv=(el('ks')?el('ks').value:'').toLowerCase(),lv=(el('kl')?el('kl').value:'').toLowerCase(),li=el('klist');if(!li)return;
-  var fSerie=el('k-filter-serie')?el('k-filter-serie').value:'';
   var fKond=el('k-filter-kond')?el('k-filter-kond').value:'';
   var f=db.karten.filter(function(k){
     if(!k||!(k.status==='Im Bestand'||k.status==='Zum Grading'))return false;
     if(sv&&!(k.name||'').toLowerCase().includes(sv))return false;
     if(lv&&!(k.lager||'').toLowerCase().includes(lv))return false;
-    if(fSerie&&k.serie!==fSerie)return false;
+    if(_serieFilter&&k.serie!==_serieFilter)return false;
     if(fKond&&k.kondition!==fKond)return false;
     return true;
   });
