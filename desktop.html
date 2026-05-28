@@ -993,7 +993,19 @@ function doLogin(){
     if(u.einmalPw){checkEinmalPw();}
     else{goHome();}
     saveDB();
-    setInterval(function(){loadDB().then(function(){renderAll();checkFeedbackNotification();});},30000);
+    setInterval(function(){loadDB().then(function(){
+      renderAll();checkFeedbackNotification();
+      // Prüfe ob aktueller Benutzer noch aktiv/vorhanden ist
+      var stillActive=db.benutzer.find(function(x){return x.id===cu.id&&x.aktiv;});
+      if(!stillActive){
+        cu=null;
+        el('app').style.display='none';
+        el('loginScreen').style.display='flex';
+        var err=el('lerr');
+        if(err){err.textContent='Ihr Zugang wurde deaktiviert oder gelöscht.';err.style.display='block';}
+        toast('Zugang deaktiviert – bitte wenden Sie sich an den Admin.', false);
+      }
+    });},30000);
   }
   if(db.benutzer.length>0){tryLogin();}
   else{loadDB().then(function(){if(db.benutzer.length===0){var salt='admin'+Date.now().toString(16);db.benutzer=[{id:'U1',username:'admin',name:'Admin',passHash:hashPass('admin123',salt),salt:salt,rolle:1,aktiv:true}];}tryLogin();}).catch(function(){clearTimeout(btnTimer);if(btn){btn.textContent='Anmelden';btn.disabled=false;}if(err){err.textContent='Verbindungsfehler – bitte nochmal versuchen';err.style.display='block';}});}
@@ -1858,7 +1870,12 @@ function buildBuchDashboard(cont){
   var einzelKosten=(db.einstellungen._einzelkosten||[])
     .filter(function(x){return (x.datum||'').includes(jahrStr);})
     .reduce(function(s,x){return s+(x.betrag||0);},0);
-  var gesamtKosten=sumMoMonat+sumJa+gradingKosten+einzelKosten;var alleAufwaende=gradingKosten+einzelKosten;
+  var wsKosten=db.einstellungen._warensendungen?db.einstellungen._warensendungen.reduce(function(s,x){return s+(x.gesamtkosten||0);},0):0;
+  var vmKosten=db.einstellungen._verkaufsmaterialien?db.einstellungen._verkaufsmaterialien.filter(function(x){return (x.datum||'').includes(jahrStr);}).reduce(function(s,x){return s+(x.gesamtkosten||0);},0):0;
+  var privEinDB=(db.einstellungen._privateinlagen||[]).filter(function(x){return (x.datum||'').includes(jahrStr);}).reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var privEntDB=(db.einstellungen._privatentnahmen||[]).filter(function(x){return (x.datum||'').includes(jahrStr);}).reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var gesamtKosten=sumMoMonat+sumJa+gradingKosten+einzelKosten+wsKosten+vmKosten;
+  var alleAufwaende=gradingKosten+einzelKosten;
 
   // GuV
   var rohertrag=umsatz-wareneinsatz;
@@ -1884,9 +1901,16 @@ function buildBuchDashboard(cont){
       +buchRow('− Wareneinsatz (EK)',wareneinsatz,'#c0392b',false)
       +'<div style="border-top:2px solid var(--border);margin:8px 0"></div>'
       +buchRow('= Rohertrag',rohertrag,rohertrag>=0?'#1a7a3c':'#c0392b',true)
+      +buchRow('− Warensendungen',db.einstellungen._warensendungen?db.einstellungen._warensendungen.reduce(function(s,x){return s+(x.gesamtkosten||0);},0):0,'#c0392b',false)
+      +buchRow('− Verkaufsmaterialien',db.einstellungen._verkaufsmaterialien?db.einstellungen._verkaufsmaterialien.filter(function(x){return (x.datum||'').includes(jahrStr);}).reduce(function(s,x){return s+(x.gesamtkosten||0);},0):0,'#c0392b',false)
+      +buchRow('− Gradingkosten '+jahr,gradingKosten,'#c0392b',false)
+      +buchRow('− Sonstige Aufwände '+jahr,einzelKosten,'#8e44ad',false)
       +buchRow('− Lfd. Kosten ('+aktuellerMonat+' Monate × '+fmtKo(sumMoMonat)+'/Mo)',sumMoJahr,'#c0392b',false)
       +buchRow('− Lfd. Kosten (jährl.)',sumJa,'#c0392b',false)
-      +buchRow('− Betriebsbedingte Aufwände '+jahr,alleAufwaende,'#c0392b',false)
+      +'<div style="border-top:2px solid var(--border);margin:8px 0"></div>'
+      +'<div style="border-top:1px solid var(--border);margin:4px 0"></div>'
+      +buchRow('+ Privateinlagen (Kto.122)',privEinDB,'#1a7a3c',false)
+      +buchRow('− Privatentnahmen (Kto.027)',privEntDB,'#c0392b',false)
       +'<div style="border-top:2px solid var(--border);margin:8px 0"></div>'
       +buchRow('= Betriebsergebnis (YTD)',betriebsErgebnis,betriebsErgebnis>=0?'#1a7a3c':'#c0392b',true)
     +'</div>'
@@ -1975,11 +1999,17 @@ function buildBuchKosten(cont){
       +'<div class="kpi" style="border-top-color:#1a5276"><div class="klbl">Jährliche Kosten</div><div class="kval" style="font-size:15px" id="ko-sum-ja">–</div></div>'
       +'<div class="kpi" style="border-top-color:#1a7a3c"><div class="klbl">Rücklagen gesamt</div><div class="kval" style="font-size:15px" id="ko-sum-rl">–</div></div>'
     +'</div>'
-    +'<div id="ko-wareneinsatz" class="card" style="margin-bottom:12px;padding:11px"></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+    +'<div id="ko-wareneinsatz" class="card" style="padding:11px;margin-bottom:0"></div>'
+    +'<div id="ko-privatkonten" class="card" style="padding:11px;margin-bottom:0"></div>'
+    +'</div>'
     +'<div id="ko-tab-buttons" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap"></div>'
     +'<div id="ko-tab-monat"><div id="ko-list-mo"></div></div>'
     +'<div id="ko-tab-jahr" style="display:none"><div id="ko-list-ja"></div></div>'
     +'<div id="ko-tab-einzel" style="display:none"><div id="ko-list-einzel"></div></div>'
+    +'<div id="ko-tab-priv" style="display:none">'
+    +'<button id="ko-priv-add-btn" class="btn bgold" style="width:100%;margin-bottom:10px">+ 📥 Investition / 📤 Unternehmerlohn erfassen</button>'
+    +'<div id="ko-list-priv"></div></div>'
     +'<div id="ko-tab-rl" style="display:none"><div id="ko-list-rl"></div></div>';
   cont.appendChild(div);
 
@@ -1988,6 +2018,7 @@ function buildBuchKosten(cont){
     {id:'monat',lbl:'Monatliche Kosten',addFn:function(){openKoOv('mo','');}},
     {id:'jahr',lbl:'Jährliche Kosten',addFn:function(){openKoOv('ja','');}},
     {id:'einzel',lbl:'Betr. Aufwände',addFn:function(){openEinzelKosten();}},
+    {id:'priv',lbl:'Privatkonten',addFn:null},
     {id:'rl',lbl:'Rücklagen',addFn:function(){openKoOv('rl','');}}
   ];
   var tabBtnCont=el('ko-tab-buttons');
@@ -1998,15 +2029,17 @@ function buildBuchKosten(cont){
     btn.style.cssText='padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:Syne,sans-serif;font-weight:700;'+(i===0?'background:linear-gradient(135deg,#b8860b,#d4a017);color:#1a1208;border:none':'background:var(--surface2);color:var(--text2);border:1px solid var(--border)');
     btn.onclick=function(){kostTab(t.id,btn);};
     tabBtnCont.appendChild(btn);
-    // Add "+" button for each tab
-    var addBtn=document.createElement('button');
-    addBtn.className='btn bgold bsm';
-    addBtn.textContent='+ '+t.lbl+' erfassen';
-    addBtn.style.cssText='display:none;margin-bottom:10px;width:100%';
-    addBtn.id='ko-add-'+t.id;
-    addBtn.onclick=t.addFn;
-    el('ko-tab-'+t.id).insertBefore(addBtn,el('ko-tab-'+t.id).firstChild);
-    if(i===0)addBtn.style.display='block';
+    // Add "+" button for each tab (skip priv - has own button)
+    if(t.id!=='priv'){
+      var addBtn=document.createElement('button');
+      addBtn.className='btn bgold bsm';
+      addBtn.textContent='+ '+t.lbl+' erfassen';
+      addBtn.style.cssText='display:none;margin-bottom:10px;width:100%';
+      addBtn.id='ko-add-'+t.id;
+      addBtn.onclick=t.addFn;
+      el('ko-tab-'+t.id).insertBefore(addBtn,el('ko-tab-'+t.id).firstChild);
+      if(i===0)addBtn.style.display='block';
+    }
   });
 
   // Wareneinsatz
@@ -2015,6 +2048,23 @@ function buildBuchKosten(cont){
   var wei=ekJahr.reduce(function(s,t){return s+parseFloat(t.gesamtEK||0);},0);
   var wd=el('ko-wareneinsatz');
   if(wd)wd.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark)">Wareneinsatz '+jahrStr+'</div><div style="font-size:10px;color:var(--text3)">Summe aller Einkäufe im aktuellen Jahr</div></div><div style="font-family:JetBrains Mono,monospace;font-size:16px;font-weight:800;color:#c0392b">'+fmtKo(wei)+'</div></div>';
+
+  // Privatkonten KPI
+  var privEin=(db.einstellungen._privateinlagen||[]).reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var privEnt=(db.einstellungen._privatentnahmen||[]).reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var wpk=el('ko-privatkonten');
+  if(wpk)wpk.innerHTML=
+    '<div style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--dark);margin-bottom:8px">Privatkonten</div>'
+    +'<div style="display:flex;justify-content:space-between">'
+      +'<div>'
+        +'<div style="font-size:10px;color:var(--text3)">📥 Investitionen (Kto.122)</div>'
+        +'<div style="font-family:JetBrains Mono,monospace;font-size:14px;font-weight:800;color:#1a7a3c">'+fmtKo(privEin)+' €</div>'
+      +'</div>'
+      +'<div style="text-align:right">'
+        +'<div style="font-size:10px;color:var(--text3)">📤 Entnahmen (Kto.027)</div>'
+        +'<div style="font-family:JetBrains Mono,monospace;font-size:14px;font-weight:800;color:#c0392b">'+fmtKo(privEnt)+' €</div>'
+      +'</div>'
+    +'</div>';
 
   rKosten();
 }
@@ -2210,46 +2260,105 @@ function exportGuV(){
   var jahrSel=el('exp-guv-jahr')?el('exp-guv-jahr').value:String(new Date().getFullYear());
   var jahrStr=jahrSel==='Alle'?'':jahrSel;
   var filterD=function(datum){return !jahrStr||(datum||'').includes(jahrStr);};
+  var td=new Date().toLocaleDateString('de-DE');
 
+  // Daten sammeln
   var vk=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf'&&filterD(t.datum);});
+  var tr=db.transaktionen.filter(function(t){return t&&t.typ==='trade'&&filterD(t.datum);});
   var ek=db.transaktionen.filter(function(t){return t&&t.typ==='einkauf'&&filterD(t.datum);});
   var k=getKosten();
   var grdK=(db.einstellungen._gradingkosten||[]).filter(function(x){return filterD(x.datum);});
   var einK=(db.einstellungen._einzelkosten||[]).filter(function(x){return filterD(x.datum);});
+  var ws=(db.einstellungen._warensendungen||[]).filter(function(x){return filterD(x.kdatum||'');});
+  var vm=(db.einstellungen._verkaufsmaterialien||[]).filter(function(x){return filterD(x.datum||'');});
 
-  var rows=[['Datum','Buchungsart','Bezeichnung','Betrag (EUR)','Kategorie','Notiz']];
-  // Umsätze
-  vk.forEach(function(t){rows.push([t.datum,'Erlös',t.kartenName||'Kartenverkauf',t.vk,'Umsatzerlöse',t.plattform||'']);});
-  // Wareneinsatz
-  ek.forEach(function(t){rows.push([t.datum,'Aufwand',t.kartenName||'Karteneinkauf','-'+parseFloat(t.gesamtEK||0).toFixed(2),'Wareneinsatz',t.quelle||'']);});
-  // Lfd. Kosten
-  k.monat.forEach(function(x){rows.push(['lfd.','Aufwand',x.name,'-'+parseFloat(x.betrag||0).toFixed(2),'Betriebl. Aufwand (monatl.)',x.notiz||'']);});
-  k.jahr.forEach(function(x){rows.push([jahrStr,'Aufwand',x.name,'-'+parseFloat(x.betrag||0).toFixed(2),'Betriebl. Aufwand (jährl.)',x.notiz||'']);});
-  // Grading
-  grdK.forEach(function(x){rows.push([x.datum,'Aufwand','Grading: '+esc(x.sendung||''),'-'+parseFloat(x.betrag||0).toFixed(2),'Grading-Aufwand',x.notiz||'']);});
-  // Einzelkosten
-  einK.forEach(function(x){rows.push([x.datum,'Aufwand',x.name,'-'+parseFloat(x.betrag||0).toFixed(2),'Betriebsbedingte Aufwände',x.notiz||'']);});
+  // Summen
+  var sumVK=vk.reduce(function(s,t){return s+parseFloat(t.vk||0);},0);
+  var sumTrade=tr.reduce(function(s,t){return s+parseFloat(t.diff||0);},0);
+  var sumEK=ek.reduce(function(s,t){return s+parseFloat(t.gesamtEK||0);},0);
+  var sumVM=vm.reduce(function(s,x){return s+parseFloat(x.gesamtkosten||0);},0);
+  var sumWS=ws.reduce(function(s,x){return s+parseFloat(x.gesamtkosten||0);},0);
+  var sumGrd=grdK.reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var sumEinzel=einK.reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var sumMo=k.monat.reduce(function(s,x){return s+parseFloat(x.betrag||0);},0)*12;
+  var sumJa=k.jahr.reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var privein=(db.einstellungen._privateinlagen||[]).filter(function(x){return filterD(x.datum);}).reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var privent=(db.einstellungen._privatentnahmen||[]).filter(function(x){return filterD(x.datum);}).reduce(function(s,x){return s+parseFloat(x.betrag||0);},0);
+  var gesamtKosten=sumEK+sumVM+sumWS+sumGrd+sumEinzel+sumMo+sumJa;
+  var gesamtGuV=sumVK+sumTrade-gesamtKosten;
 
-  dlCSV(rows,'MAD_GuV_'+jahrSel+'_'+new Date().toLocaleDateString('de-DE')+'.csv');
+  var rows=[
+    ['Kontonr.','Konto','Betrag (EUR)','Buchungsart','Hinweis'],
+    ['','MADCollectables GbR – GuV '+jahrSel+' (Stand: '+td+')','','',''],
+    ['','','','',''],
+    // ── Gesamtergebnis ──
+    ['GUV020','Gesamtes Betriebsergebnis '+jahrSel,fmtCSV(gesamtGuV),'Ergebnis','Umsätze - Kosten gesamt'],
+    ['','','','',''],
+    // ── Erlöse ──
+    ['120','Umsatzerlöse',fmtCSV(sumVK),'Erlös','Summe aller Verkäufe'],
+    ['121','Gewinn/Verlust Tauschgeschäfte',fmtCSV(sumTrade),'Erlös','Differenz aus Trades'],
+    ['122','Privateinlagen / Unternehmerinvestition',fmtCSV(privein),'Einlage',''],
+    ['','','','',''],
+    // ── Aufwände ──
+    ['021','Wareneinsatz (EK)',fmtCSV(-sumEK),'Aufwand','Summe Karteneinkäufe'],
+    ['022','Verkaufsmaterialien',fmtCSV(-sumVM),'Aufwand','Verpackung, Binder etc.'],
+    ['023','Warensendungen',fmtCSV(-sumWS),'Aufwand','Versandkosten Sendungen'],
+    ['024','Gradingkosten',fmtCSV(-sumGrd),'Aufwand','PSA / BGS Grading'],
+    ['025','Sonstige betriebl. Aufwendungen',fmtCSV(-sumEinzel),'Aufwand','Einzelbuchungen'],
+    ['026','Lfd. Fixkosten (monatl. × 12 + jährl.)',fmtCSV(-(sumMo+sumJa)),'Aufwand','Monatl. auf Jahr + Jährl.'],
+    ['027','Privatentnahmen / Unternehmerlohn',fmtCSV(-privent),'Entnahme',''],
+    ['','','','',''],
+  ];
+
+  // Einzelbuchungen anhängen
+  rows.push(['','── EINZELPOSITIONEN ──','','','']);
+  vk.forEach(function(t){rows.push(['120',t.kartenName||'Kartenverkauf',fmtCSV(t.vk||0),'Erlös',t.datum||'']);});
+  tr.forEach(function(t){rows.push(['121','Trade: '+(t.kartenName||''),fmtCSV(t.diff||0),'Trade',t.datum||'']);});
+  ek.forEach(function(t){rows.push(['021',t.kartenName||'Karteneinkauf',fmtCSV(-(t.gesamtEK||0)),'Aufwand',t.datum||'']);});
+  vm.forEach(function(x){rows.push(['022','VM: '+(x.shop||''),fmtCSV(-(x.gesamtkosten||0)),'Aufwand',x.datum||'']);});
+  ws.forEach(function(x){rows.push(['023','WS: '+(x.haendler||''),fmtCSV(-(x.gesamtkosten||0)),'Aufwand',x.kdatum||'']);});
+  grdK.forEach(function(x){rows.push(['024','Grading: '+(x.sendung||''),fmtCSV(-(x.betrag||0)),'Aufwand',x.datum||'']);});
+  einK.forEach(function(x){rows.push(['025',x.name||'',fmtCSV(-(x.betrag||0)),'Aufwand',x.datum||'']);});
+  k.monat.forEach(function(x){rows.push(['026',x.name,fmtCSV(-((x.betrag||0)*12)),'Fixkosten monatl.','×12']);});
+  k.jahr.forEach(function(x){rows.push(['026',x.name,fmtCSV(-(x.betrag||0)),'Fixkosten jährl.','']);});
+  (db.einstellungen._privateinlagen||[]).filter(function(x){return filterD(x.datum);}).forEach(function(x){rows.push(['122',x.bezeichnung||'Privateinlage',fmtCSV(x.betrag||0),'Einlage',x.datum||'']);});
+  (db.einstellungen._privatentnahmen||[]).filter(function(x){return filterD(x.datum);}).forEach(function(x){rows.push(['027',x.bezeichnung||'Privatentnahme',fmtCSV(-(x.betrag||0)),'Entnahme',x.datum||'']);});
+
+  dlCSV(rows,'MAD_GuV_'+jahrSel+'_'+td+'.csv');
   toast('GuV CSV heruntergeladen!');
 }
 
 function exportBilanz(){
   var heute=new Date().toLocaleDateString('de-DE');
-  var bestandsEK=db.karten.filter(function(x){return x&&x.status==='Im Bestand';}).reduce(function(s,x){return s+parseFloat(x.ek||0);},0);
   var bestandsMW=db.karten.filter(function(x){return x&&x.status==='Im Bestand';}).reduce(function(s,x){return s+parseFloat(x.marktwert||x.ek||0);},0);
-  var kumGewinn=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';}).reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);
+  var kumGewinnGes=db.transaktionen.filter(function(t){return t&&t.typ==='verkauf';}).reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0);
+  // §25a: privat eingekaufte Karten → Steuer nur auf Gewinn
+  var vk25a=db.transaktionen.filter(function(t){if(!t||t.typ!=='verkauf')return false;var k=db.karten.find(function(x){return x.id===t.kartenId;})||{};return (k.einkauf||'privat')!=='gewerbe';});
+  var ust25a=vk25a.reduce(function(s,t){return s+parseFloat(t.gewinn||0);},0)*0.19;
+  // §19: gewerbliche Karten → Steuer auf Verkaufswert
+  var vk19=db.transaktionen.filter(function(t){if(!t||t.typ!=='verkauf')return false;var k=db.karten.find(function(x){return x.id===t.kartenId;})||{};return (k.einkauf||'')==='gewerbe';});
+  var ust19=vk19.reduce(function(s,t){return s+parseFloat(t.vk||0);},0)*0.19;
+  // Vorsteuer: aus gewerblichen Einkäufen
+  var ekGew=db.transaktionen.filter(function(t){return t&&t.typ==='einkauf'&&t.einkaufsart==='gewerbe';});
+  var vorsteuer=ekGew.reduce(function(s,t){return s+parseFloat(t.gesamtEK||0);},0)*0.19;
+  var eigenkapital=bestandsMW+kumGewinnGes;
+  var kasse=parseFloat((db.einstellungen._kosten||{}).kasse||0);
 
   var rows=[
-    ['MADCollectables GbR – Bilanz per '+heute,'',''],
-    ['','',''],
-    ['AKTIVA','Betrag (EUR)','Hinweis'],
-    ['Warenbestand (EK-Wert)',bestandsEK.toFixed(2),'Aktueller Bestand zu Anschaffungskosten'],
-    ['Warenbestand (Marktwert)',bestandsMW.toFixed(2),'Aktueller Bestand zu Marktwerten'],
-    ['','',''],
-    ['PASSIVA','Betrag (EUR)','Hinweis'],
-    ['Kumulierter Gewinn',kumGewinn.toFixed(2),'Summe aller realisierten Gewinne'],
-    ['Eigenkapital (vereinfacht)',(bestandsEK+kumGewinn).toFixed(2),'Warenbestand EK + kumulierter Gewinn'],
+    ['Kontonr.','Position','Betrag (EUR)','Hinweis'],
+    ['','MADCollectables GbR – Bilanz per '+heute,'',''],
+    ['','','',''],
+    ['','── AKTIVA ──','',''],
+    ['031','Warenwert zum 31.12. (Marktwert)',fmtCSV(bestandsMW),'Aktueller Bestand zu Marktwerten'],
+    ['032','Kasse zum 31.12. (nach Inventur)',fmtCSV(kasse),'Kassenbestand laut Inventur'],
+    ['033','Vorsteuer (§19 gew. EK)',fmtCSV(vorsteuer),'19% aus gewerbl. Einkäufen'],
+    ['','','',''],
+    ['','── PASSIVA ──','',''],
+    ['130','Eigenkapital',fmtCSV(eigenkapital),'Warenwert + kum. Gewinn'],
+    ['131','USt. §25a (Gewinnbesteuerung)',fmtCSV(ust25a),'19% auf Gewinn privater VK'],
+    ['132','USt. §19 (Verkaufswertbesteuerung)',fmtCSV(ust19),'19% auf VK gewerblicher Karten'],
+    ['','','',''],
+    ['030','Warenwert (EK-Basis)',fmtCSV(db.karten.filter(function(x){return x&&x.status==="Im Bestand";}).reduce(function(s,x){return s+parseFloat(x.ek||0);},0)),'Anschaffungskosten Bestand'],
   ];
   dlCSV(rows,'MAD_Bilanz_'+heute+'.csv');
   toast('Bilanz CSV heruntergeladen!');
@@ -2686,7 +2795,33 @@ function getAllVorgaenge(){
       source:'grading', ref:snd
     });
   });
-    return items.sort(function(a,b){return (b.datum||'').localeCompare(a.datum||'');});
+      // Privateinlagen
+  (db.einstellungen._privateinlagen||[]).forEach(function(x){
+    if(!x)return;
+    items.push({
+      id:x.id,typ:'privateinlage',
+      name:'Investition: '+(x.bezeichnung||''),
+      datum:x.datum||'–',
+      betrag:parseFloat(x.betrag||0),
+      details:'Kto.122 · '+fmtKo(x.betrag||0)+' €',
+      crm:'',ersteller:'–',
+      source:'privateinlage',ref:x
+    });
+  });
+  // Privatentnahmen
+  (db.einstellungen._privatentnahmen||[]).forEach(function(x){
+    if(!x)return;
+    items.push({
+      id:x.id,typ:'privatentnahme',
+      name:'Entnahme: '+(x.bezeichnung||''),
+      datum:x.datum||'–',
+      betrag:-parseFloat(x.betrag||0),
+      details:'Kto.027 · '+fmtKo(x.betrag||0)+' €',
+      crm:'',ersteller:'–',
+      source:'privatentnahme',ref:x
+    });
+  });
+  return items.sort(function(a,b){return (b.datum||'').localeCompare(a.datum||'');});
 }
 
 function renderVorgaenge(){
@@ -2836,48 +2971,30 @@ function deleteVorgang(id,typ,source){
 }
 
 function _executeDelete(id,typ,source,grund,datum){
-  var user=cu?cu.name:'-';
   var name=''; var wertaend=0;
+  var user=cu?cu.name:'-';
 
   if(source==='transaktion'){
-    var t=db.transaktionen.find(function(x){return x.id===id;});
-    if(!t){toast('Vorgang nicht gefunden',false);return;}
-    name=t.kartenName||(t.abgabeKarten||[]).join(', ')||id;
-    wertaend=t.typ==='einkauf'?-(parseFloat(t.gesamtEK)||0):t.typ==='verkauf'?(parseFloat(t.gewinn)||0):0;
+    var t=(db.transaktionen||[]).find(function(x){return x.id===id;});
+    if(t){
+      name=t.kartenName||'Transaktion';
+      wertaend=t.typ==='verkauf'?-(parseFloat(t.vk)||0):(parseFloat(t.gesamtEK)||0);
+    }
     sbDelete('transaktionen',id);
-    db.transaktionen=db.transaktionen.filter(function(x){return x.id!==id;});
-  } else if(source==='warensendung'){
+    db.transaktionen=(db.transaktionen||[]).filter(function(x){return x.id!==id;});
+  }
+  else if(source==='warensendung'){
     var ws=(db.einstellungen._warensendungen||[]).find(function(x){return x.id===id;});
     if(ws){
-      name=(ws.positionen||[]).map(function(p){return p.name;}).join(', ')||id;
+      name='Warensendung: '+((ws.positionen||[]).map(function(p){return p.name;}).join(', ')||ws.haendler||id);
       wertaend=-(parseFloat(ws.versand)||0);
       db.einstellungen._einzelkosten=(db.einstellungen._einzelkosten||[]).filter(function(x){
         return !(x.typ==='warensendung'&&x.datum===ws.kdatum);
       });
     }
     db.einstellungen._warensendungen=(db.einstellungen._warensendungen||[]).filter(function(x){return x.id!==id;});
-  } else if(source==='grading'){
-    var snd=(db.sendungen||[]).find(function(x){return x.id===id;});
-    if(snd){
-      name=snd.name||('Grading-Sendung');
-      // _gradingkosten: match by sendungId (primär) oder Name
-      var gkAlle=db.einstellungen._gradingkosten||[];
-      var gkDieser=gkAlle.filter(function(x){
-        return x.sendungId===snd.id||(x.sendung&&snd.name&&x.sendung===snd.name);
-      });
-      wertaend=-gkDieser.reduce(function(sum,x){return sum+(parseFloat(x.betrag)||0);},0);
-      // Entferne aus _gradingkosten
-      db.einstellungen._gradingkosten=gkAlle.filter(function(x){
-        return x.sendungId!==snd.id&&!(x.sendung&&snd.name&&x.sendung===snd.name);
-      });
-      // Entferne auch aus _einzelkosten falls dort vorhanden
-      db.einstellungen._einzelkosten=(db.einstellungen._einzelkosten||[]).filter(function(x){
-        return !(x.typ==='grading'&&x.name&&x.name.indexOf(snd.name)>=0);
-      });
-    }
-    sbDelete('sendungen',id);
-    db.sendungen=(db.sendungen||[]).filter(function(x){return x.id!==id;});
-  } else if(source==='verkaufsmaterial'){
+  }
+  else if(source==='verkaufsmaterial'){
     var vm=(db.einstellungen._verkaufsmaterialien||[]).find(function(x){return x.id===id;});
     if(vm){
       name=(vm.positionen||[]).map(function(p){return p.artikel;}).join(', ')||vm.artikel||id;
@@ -2888,15 +3005,46 @@ function _executeDelete(id,typ,source,grund,datum){
     }
     db.einstellungen._verkaufsmaterialien=(db.einstellungen._verkaufsmaterialien||[]).filter(function(x){return x.id!==id;});
   }
+  else if(source==='grading'){
+    var snd=(db.sendungen||[]).find(function(x){return x.id===id;});
+    if(snd){
+      name=snd.name||('Grading-Sendung');
+      var gkAlle=db.einstellungen._gradingkosten||[];
+      var gkDieser=gkAlle.filter(function(x){
+        return x.sendungId===snd.id||(x.sendung&&snd.name&&x.sendung===snd.name);
+      });
+      wertaend=-gkDieser.reduce(function(sum,x){return sum+(parseFloat(x.betrag)||0);},0);
+      db.einstellungen._gradingkosten=gkAlle.filter(function(x){
+        if(x.sendungId&&x.sendungId===snd.id)return false;
+        if(snd.name&&x.sendung&&x.sendung===snd.name)return false;
+        return true;
+      });
+      db.einstellungen._einzelkosten=(db.einstellungen._einzelkosten||[]).filter(function(x){
+        return !(x.typ==='grading'&&x.name&&x.name.indexOf(snd.name)>=0);
+      });
+    }
+    sbDelete('sendungen',id);
+    db.sendungen=(db.sendungen||[]).filter(function(x){return x.id!==id;});
+  }
+  else if(source==='privateinlage'){
+    var pe=(db.einstellungen._privateinlagen||[]).find(function(x){return x.id===id;});
+    if(pe){name='Investition: '+(pe.bezeichnung||'');wertaend=-(parseFloat(pe.betrag)||0);}
+    db.einstellungen._privateinlagen=(db.einstellungen._privateinlagen||[]).filter(function(x){return x.id!==id;});
+  }
+  else if(source==='privatentnahme'){
+    var pn=(db.einstellungen._privatentnahmen||[]).find(function(x){return x.id===id;});
+    if(pn){name='Entnahme: '+(pn.bezeichnung||'');wertaend=(parseFloat(pn.betrag)||0);}
+    db.einstellungen._privatentnahmen=(db.einstellungen._privatentnahmen||[]).filter(function(x){return x.id!==id;});
+  }
 
   if(!db.einstellungen._buchungslog)db.einstellungen._buchungslog=[];
   db.einstellungen._buchungslog.push({
     id:'KR'+Date.now(),typ:'korrektur',name:name,
-    wertaend:wertaend,grund:grund,vorgangTyp:typ,datum:datum,user:user
+    wertaend:wertaend,grund:grund,vorgangTyp:typ,datum:datum||new Date().toLocaleDateString('de-DE'),user:user
   });
 
   saveDB();
-  toast('Vorgang geloscht & GuV bereinigt');
+  toast('Vorgang gelöscht & GuV bereinigt');
   renderVorgaenge();
 }
 
@@ -4035,7 +4183,41 @@ function saveAdmUser(){
   else{var pw=el('adm-u-pw').value;if(!pw||pw.length<4){se('Passwort mind. 4 Zeichen');return;}if(db.benutzer.find(function(x){return x.username===user;})){se('Benutzername bereits vergeben');return;}var salt=user+Date.now().toString(16);db.benutzer.push({id:'U'+Date.now(),username:user,name:name,email:email,passHash:hashPass(pw,salt),salt:salt,rolle:2,rolleId:rolleId,aktiv:true});}
   saveDB();cs('ovAdmUser');renderBVList();toast(id?'Benutzer aktualisiert!':'Benutzer angelegt!');
 }
-function delBVUser(id){if(!confirm('Benutzer löschen?'))return;db.benutzer=db.benutzer.filter(function(x){return x.id!==id;});saveDB();renderBVList();toast('Gelöscht');}
+function delBVUser(id){
+  var user=db.benutzer.find(function(x){return x.id===id;});
+  if(!user)return;
+  // Separates Confirm-Overlay
+  var ovId='del-user-confirm-ov';
+  var old=document.getElementById(ovId);if(old)old.remove();
+  var ov=document.createElement('div');
+  ov.id=ovId;
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center';
+  ov.innerHTML=
+    '<div style="background:var(--surface);border-radius:16px;padding:24px;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3);border-top:3px solid #c0392b">'
+      +'<div style="font-family:Syne,sans-serif;font-size:16px;font-weight:800;margin-bottom:8px;color:#c0392b">Benutzer löschen</div>'
+      +'<div style="font-size:13px;margin-bottom:16px;color:var(--text2)">Soll <b>'+esc(user.name||user.username)+'</b> wirklich gelöscht werden?<br><br>'
+        +'<span style="font-size:11px;color:var(--text3)">Der Zugang wird sofort deaktiviert. Der Benutzer kann sich nicht mehr anmelden.</span></div>'
+      +'<div style="display:flex;gap:8px">'
+        +'<button id="del-user-nein" class="btn bout" style="flex:1">Nein, Abbrechen</button>'
+        +'<button id="del-user-ja" class="btn" style="flex:1;background:#c0392b;color:#fff;border:none">Ja, Löschen</button>'
+      +'</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  document.getElementById('del-user-nein').onclick=function(){ov.remove();};
+  document.getElementById('del-user-ja').onclick=function(){
+    ov.remove();
+    // 1. Sofort deaktivieren (aktiv:false) - Login prüft x.aktiv
+    var idx=db.benutzer.findIndex(function(x){return x.id===id;});
+    if(idx>=0)db.benutzer[idx].aktiv=false;
+    // 2. Aus Supabase löschen
+    sbDelete('benutzer',id);
+    // 3. Aus lokalem Array entfernen
+    db.benutzer=db.benutzer.filter(function(x){return x.id!==id;});
+    saveDB();
+    renderBVList();
+    toast('Benutzer gelöscht und Zugang deaktiviert');
+  };
+}
 function openBVPwReset(id){el('pw-reset-uid').value=id;var u=db.benutzer.find(function(x){return x.id===id;});if(el('pw-reset-user'))el('pw-reset-user').textContent=u?(u.name||u.username):'?';if(el('pw-reset-val'))el('pw-reset-val').value='';os('ovPwReset');}
 function doAdmPwReset(){var id=el('pw-reset-uid').value;var pw=el('pw-reset-val').value;if(!pw||pw.length<4){toast('Mind. 4 Zeichen',false);return;}var u=db.benutzer.find(function(x){return x.id===id;});if(!u)return;u.einmalPw=pw;var ns=u.username+Date.now().toString(16);u.salt=ns;u.passHash=hashPass(pw,ns);saveDB();cs('ovPwReset');toast('Einmalpasswort gesetzt!');renderBVList();}
 function openPwReset(id){openBVPwReset(id);}
@@ -4165,13 +4347,15 @@ function exportCSV(){
   toast('CSV heruntergeladen!');
 }
 function exportSteuer(){
-  var jahr=el('exp-jahr')?el('exp-jahr').value:'alle';var td=new Date().toLocaleDateString('de-DE');
-  var r=[['Datum','Kartenname','Einkaufsart','EK (€)','VK (€)','Gewinn (€)','USt-Regelung','Plattform']];
+  var jahr=el('exp-jahr')?el('exp-jahr').value:'alle';
+  var td=new Date().toLocaleDateString('de-DE');
+  var r=[['Datum','Kartenname','Einkaufsart','EK','VK','Gewinn','USt-Regelung','Plattform']];
   db.transaktionen.filter(function(t){return t&&t.typ==='verkauf'&&(jahr==='alle'||(t.datum||'').includes(jahr));}).forEach(function(t){
     var karte=db.karten.find(function(x){return x.id===t.kartenId;})||{};
-    r.push([t.datum,t.kartenName,karte.einkauf||'privat',t.ek,t.vk,t.gewinn,karte.einkauf==='gewerbe'?'§19 UStG':'§25a UStG',t.plattform]);
+    r.push([t.datum||'',t.kartenName||'',karte.einkauf||'privat',fmtCSV(t.ek||0),fmtCSV(t.vk||0),fmtCSV(t.gewinn||0),karte.einkauf==='gewerbe'?'§19 UStG':'§25a UStG',t.plattform||'']);
   });
-  downloadCSV(r,'Steuer_'+jahr+'_'+td+'.csv');toast('Steuer-CSV heruntergeladen!');
+  dlCSV(r,'Steuer_'+jahr+'_'+td+'.csv');
+  toast('Steuer-CSV heruntergeladen!');
 }
 function saveLexKey(){var k=el('lex-key')?el('lex-key').value.trim():'';if(!k){toast('API-Key eingeben',false);return;}db.einstellungen._lexKey=k;saveDB();if(el('lex-key-status'))el('lex-key-status').textContent='Key gespeichert ('+k.substring(0,8)+'...)';if(el('lex-key'))el('lex-key').value='';toast('Gespeichert!');}
 function clearLexKey(){delete db.einstellungen._lexKey;saveDB();if(el('lex-key-status'))el('lex-key-status').textContent='Kein Key gespeichert';toast('Gelöscht');}
@@ -4208,10 +4392,15 @@ function fmtKo(n){return Number(n||0).toLocaleString('de-DE',{minimumFractionDig
 function uidKo(){return 'ko'+Date.now()+Math.random().toString(36).slice(2,5);}
 
 function kostTab(tab,btn){
-  ['monat','jahr','rl','einzel'].forEach(function(t){
+  ['monat','jahr','rl','einzel','priv'].forEach(function(t){
     var el2=el('ko-tab-'+t);if(el2)el2.style.display=t===tab?'block':'none';
     var addBtn=el('ko-add-'+t);if(addBtn)addBtn.style.display=t===tab?'block':'none';
   });
+  // Bind priv add button when tab becomes active
+  if(tab==='priv'){
+    var privBtn=el('ko-priv-add-btn');
+    if(privBtn)privBtn.onclick=function(){openPrivaterfassen();};
+  }
   document.querySelectorAll('.kost-tab-btn').forEach(function(b){
     b.style.background='var(--surface2)';b.style.color='var(--text2)';b.style.border='1px solid var(--border)';
   });
@@ -4321,6 +4510,31 @@ function rKosten(){
         '<button onclick="delKo(\'rl\',\''+item.id+'\')" style="padding:7px 10px;background:rgba(192,57,43,.1);color:#c0392b;border:1px solid rgba(192,57,43,.25);border-radius:7px;font-size:11px;cursor:pointer">✕</button>'+
       '</div>'+
     '</div>';}).join('');}}
+  // Privateinlagen / Privatentnahmen
+  // Erfassen-Button oben im Privatkonten-Tab
+  var privTabBtn=el('ko-priv-add-btn');
+  if(privTabBtn){privTabBtn.onclick=function(){openPrivaterfassen();};}
+  var lpriv=el('ko-list-priv');
+  if(lpriv){
+    var priveinArr=(db.einstellungen._privateinlagen||[]).map(function(x){return {id:x.id,bezeichnung:x.bezeichnung,betrag:x.betrag,datum:x.datum,typ:'privateinlage'};});
+    var priventArr=(db.einstellungen._privatentnahmen||[]).map(function(x){return {id:x.id,bezeichnung:x.bezeichnung,betrag:x.betrag,datum:x.datum,typ:'privatentnahme'};});
+    var allPriv=priveinArr.concat(priventArr).sort(function(a,b){return (b.datum||'').localeCompare(a.datum||'');});
+    if(!allPriv.length){lpriv.innerHTML='<div class="rph"><div>Noch keine Einlagen / Entnahmen</div></div>';}
+    else{lpriv.innerHTML=allPriv.map(function(item){
+      var isEin=item.typ==='privateinlage';
+      var col=isEin?'#1a7a3c':'#c0392b';
+      var kto=isEin?'Kto. 122':'Kto. 027';
+      return '<div class="li"><div class="lim">'+
+        '<div class="lit">'+(isEin?'📥 ':'📤 ')+esc(item.bezeichnung||'')+'</div>'+
+        '<div class="lis">'+esc(item.datum||'')+(isEin?' · Einlage':' · Entnahme')+' · '+kto+'</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+
+        '<span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:13px;color:'+col+'">'+fmtKo(item.betrag)+'</span>'+
+        '<button onclick="openPrivatBearbeiten(\"'+item.id+'\",\"'+item.typ+'\")" style="background:rgba(184,134,11,.1);color:#b8860b;border:1px solid rgba(184,134,11,.3);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;margin-left:4px">✎</button>'+
+        '<button onclick="delPrivat(\"'+item.id+'\",\"'+item.typ+'\")" style="background:rgba(192,57,43,.1);color:#c0392b;border:none;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer">🗑</button>'+
+        '</div></div>';
+    }).join('');}
+  }
   // Einzelkosten (Grading + manuell)
   var lei=el('ko-list-einzel');
   if(lei){
@@ -5759,6 +5973,92 @@ function openDienstleisterDetail(dienst,name,nr){
   setTopbar('crm');
   el('sarea').scrollTop=0;
 }
+function fmtCSV(v){
+  var n=parseFloat(v)||0;
+  // Buchhaltungsformat: 1.234,56
+  return n.toFixed(2).replace('.',',');
+}
+
+function openPrivaterfassen(){
+  // Separates Modal-Overlay
+  var ovId='priv-erfassen-ov';
+  var old=document.getElementById(ovId);if(old)old.remove();
+  var ov=document.createElement('div');
+  ov.id=ovId;
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center';
+  var typV='privateinlage';
+  ov.innerHTML=
+    '<div style="background:var(--surface);border-radius:16px;padding:20px;max-width:360px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.3)">'+
+      '<div style="font-family:Syne,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;color:var(--dark)">Privatkonten erfassen</div>'+
+      '<div style="display:flex;gap:6px;margin-bottom:12px">'+
+        '<div id="priv-btn-ein" class="rbtn on" style="flex:1;text-align:center;cursor:pointer;background:rgba(26,122,60,.12);border-color:#1a7a3c;color:#1a7a3c;font-weight:800">📥 Investition</div>'+
+        '<div id="priv-btn-ent" class="rbtn" style="flex:1;text-align:center;cursor:pointer">📤 Entnahme</div>'+
+      '</div>'+
+      '<div class="fg"><label class="flbl">Name / Bezeichnung *</label><input class="fi" id="priv-bez" placeholder="z.B. Binder-Kauf, Unternehmerlohn April..."></div>'+
+      '<div class="fg"><label class="flbl">Betrag (€) *</label><input class="fi" id="priv-betrag" type="number" step="0.01" placeholder="0.00" inputmode="decimal"></div>'+
+      '<div class="fg"><label class="flbl">Datum</label><input class="fi" id="priv-datum" value="'+new Date().toLocaleDateString('de-DE')+'"></div>'+
+      '<div style="display:flex;gap:8px;margin-top:12px">'+
+        '<button id="priv-abbruch" class="btn bout" style="flex:1">Abbrechen</button>'+
+        '<button id="priv-save" class="btn bgold" style="flex:2">✓ Speichern</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(ov);
+
+  var btnEin=document.getElementById('priv-btn-ein');
+  var btnEnt=document.getElementById('priv-btn-ent');
+  btnEin.onclick=function(){
+    typV='privateinlage';
+    btnEin.classList.add('on');btnEin.style.background='rgba(26,122,60,.12)';btnEin.style.borderColor='#1a7a3c';btnEin.style.color='#1a7a3c';
+    btnEnt.classList.remove('on');btnEnt.style.background='';btnEnt.style.borderColor='';btnEnt.style.color='';
+  };
+  btnEnt.onclick=function(){
+    typV='privatentnahme';
+    btnEnt.classList.add('on');btnEnt.style.background='rgba(192,57,43,.12)';btnEnt.style.borderColor='#c0392b';btnEnt.style.color='#c0392b';
+    btnEin.classList.remove('on');btnEin.style.background='';btnEin.style.borderColor='';btnEin.style.color='';
+  };
+  document.getElementById('priv-abbruch').onclick=function(){ov.remove();};
+  // Click outside to close
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+
+  document.getElementById('priv-save').onclick=function(){
+    var bez=document.getElementById('priv-bez').value.trim();
+    var bet=parseFloat(document.getElementById('priv-betrag').value)||0;
+    var dat=document.getElementById('priv-datum').value.trim();
+    if(!bez){toast('Bezeichnung erforderlich',false);return;}
+    if(!bet){toast('Betrag erforderlich',false);return;}
+    var entry={id:'PRIV'+Date.now(),bezeichnung:bez,betrag:bet,datum:dat,typ:typV};
+    if(typV==='privateinlage'){
+      if(!db.einstellungen._privateinlagen)db.einstellungen._privateinlagen=[];
+      db.einstellungen._privateinlagen.push(entry);
+    } else {
+      if(!db.einstellungen._privatentnahmen)db.einstellungen._privatentnahmen=[];
+      db.einstellungen._privatentnahmen.push(entry);
+    }
+    saveDB();ov.remove();rKosten();
+    toast('✓ '+(typV==='privateinlage'?'Investition':'Unternehmerlohn')+' gespeichert');
+  };
+}
+
+function openPrivatBearbeiten(id,typ){
+  var arr=typ==='privateinlage'?(db.einstellungen._privateinlagen||[]):(db.einstellungen._privatentnahmen||[]);
+  var item=arr.find(function(x){return x.id===id;});if(!item)return;
+  var bez=window.prompt('Bezeichnung:',item.bezeichnung||'');if(bez===null)return;
+  var bet=window.prompt('Betrag (€):',String(item.betrag||0));if(bet===null)return;
+  var dat=window.prompt('Datum:',item.datum||'');if(dat===null)return;
+  item.bezeichnung=bez.trim();item.betrag=parseFloat(bet)||0;item.datum=dat.trim();
+  saveDB();rKosten();toast('✓ Aktualisiert');
+}
+
+function delPrivat(id,typ){
+  if(!window.confirm('Eintrag wirklich löschen?'))return;
+  if(typ==='privateinlage'){
+    db.einstellungen._privateinlagen=(db.einstellungen._privateinlagen||[]).filter(function(x){return x.id!==id;});
+  } else {
+    db.einstellungen._privatentnahmen=(db.einstellungen._privatentnahmen||[]).filter(function(x){return x.id!==id;});
+  }
+  saveDB();rKosten();toast('✓ Gelöscht');
+}
+
 document.addEventListener('DOMContentLoaded',function(){
   el('loginBtn')&&el('loginBtn').addEventListener('click',doLogin);
   el('qnav-btn')&&el('qnav-btn').addEventListener('click',toggleQNav);
