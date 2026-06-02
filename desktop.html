@@ -1287,7 +1287,7 @@ function rKartenInline(){
     if(lager&&!(k.lager||'').toLowerCase().includes(lager))return false;
     if(kond&&k.kondition!==kond)return false;
     return true;
-  });
+  }).sort(function(a,b){return (a.name||'').localeCompare((b.name||''),'de',{sensitivity:'base',numeric:true});});
   if(!rows.length){li.innerHTML='<div class="rph"><div>Keine Karten gefunden</div></div>';return;}
   var h='';
   rows.forEach(function(k){
@@ -1331,9 +1331,9 @@ function buildGradingInline(cont){
     +'</div>'
     +'<div style="display:flex;gap:8px;margin-bottom:10px">'
       +'<select id="grd-filter-status" class="fi" style="flex:1" onchange="rGrading()">'
+        +'<option value="aktiv" selected>Aktive Sendungen</option>'
+        +'<option value="abgeschlossen">Abgeschlossene</option>'
         +'<option value="">Alle Sendungen</option>'
-        +'<option value="aktiv">Nur aktive</option>'
-        +'<option value="abgeschlossen">Nur abgeschlossene</option>'
       +'</select>'
     +'</div>'
     +'<div id="glist"></div>';
@@ -4164,7 +4164,7 @@ function fbToNotiz(i){
 // ── BENUTZERVERWALTUNG ────────────────────────────────────────────
 // ── ROLLEN SYSTEM (Supabase) ───────────────────────────────────────
 var ROLLE_FARBEN=['#c0392b','#e74c3c','#e67e22','#f39c12','#f1c40f','#2ecc71','#27ae60','#1abc9c','#3498db','#2980b9','#9b59b6','#8e44ad','#34495e','#7f8c8d','#ecf0f1','#1a1208'];
-var ROLLE_RECHTE=[{id:'m1',label:'Handel'},{id:'m2',label:'Bestand & Logistik'},{id:'m3',label:'Buchhaltung'},{id:'m4',label:'KI-Research'},{id:'m5',label:'Administrativ'},{id:'m6',label:'Ticket'},{id:'m7',label:'Viewer-Modus'},{id:'m8',label:'Test-System'},{id:'m9',label:'CRM'},{id:'m10',label:'Team HQ'}];
+var ROLLE_RECHTE=[{id:'m1',label:'Handel'},{id:'m2',label:'Bestand & Logistik'},{id:'m3',label:'Buchhaltung'},{id:'m4',label:'KI-Research'},{id:'m5',label:'Administrativ'},{id:'m6',label:'Ticket'},{id:'m7',label:'Viewer-Modus'},{id:'m8',label:'Test-System'},{id:'m9',label:'CRM'},{id:'m10',label:'Team HQ'},{id:'r1',label:'Karten erfassen'},{id:'r2',label:'Karten bearbeiten & verkaufen'},{id:'r3',label:'Transaktionen (Ein-/Verkauf)'},{id:'r4',label:'Grading-Sendungen'},{id:'r5',label:'Marktwert sehen'},{id:'r6',label:'Bestand-KPI sehen'},{id:'r7',label:'Umsatz-KPI sehen'},{id:'r8',label:'Gewinn-KPI sehen'},{id:'r9',label:'Preise sehen'},{id:'r10',label:'Grading verwalten'},{id:'r11',label:'Verkäufe erfassen'},{id:'r12',label:'KI-Research nutzen'},{id:'r13',label:'Kalkulation nutzen'}];
 function getRollen(){return db.einstellungen._rollen||[];}
 function saveRollen(r){db.einstellungen._rollen=r;saveDB();}
 
@@ -4875,12 +4875,12 @@ function rGrading(){
   // Recht r10: Grading-Funktionen
   var nsdgBtn=el('btn-nsdg');if(nsdgBtn)nsdgBtn.style.display=hatRecht('r10')?'':'none';
   var li=el('glist');if(!li)return;
-  var grdFilter=el('grd-filter-status')?el('grd-filter-status').value:'';
+  var grdFilter=el('grd-filter-status')?el('grd-filter-status').value:'aktiv';
   var s=db.sendungen.filter(function(snd){
     if(!snd)return false;
-    if(grdFilter==='aktiv')return snd.status!=='Abgeschlossen';
     if(grdFilter==='abgeschlossen')return snd.status==='Abgeschlossen';
-    return true; // alle
+    if(grdFilter==='')return true; // alle
+    return snd.status!=='Abgeschlossen'; // Default 'aktiv': abgeschlossene ausblenden
   }).sort(function(a,b){return pSort(b.datum)-pSort(a.datum);});
   if(!s.length){li.innerHTML='<div class="rph"><div>Keine Sendungen gefundenen</div></div>';return;}
   li.innerHTML=s.map(function(snd){
@@ -4907,9 +4907,12 @@ function rGrading(){
     }).join('');
     return '<div class="card">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'+
-        '<div>'+
-          '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">'+esc(snd.name)+'</div>'+
-          '<div style="font-size:10px;color:var(--text3);margin-top:2px">'+snd.dienst+' · '+(snd.karten||[]).length+' Karten · '+fmt(snd.gesamt)+' EUR</div>'+
+        '<div style="display:flex;align-items:flex-start;gap:8px;flex:1;cursor:pointer" class="grd-toggle" data-sndid="'+snd.id+'">'+
+          '<span class="grd-arrow" data-sndid="'+snd.id+'" style="font-size:13px;color:var(--text3);transition:transform .2s;display:inline-block;margin-top:1px">▸</span>'+
+          '<div>'+
+            '<div style="font-family:Syne,sans-serif;font-size:13px;font-weight:700">'+esc(snd.name)+'</div>'+
+            '<div style="font-size:10px;color:var(--text3);margin-top:2px">'+snd.dienst+' · '+(snd.karten||[]).length+' Karten · '+fmt(snd.gesamt)+' EUR</div>'+
+          '</div>'+
         '</div>'+
         '<div style="display:flex;gap:6px;align-items:center">'+
           '<span class="bd '+sc+'">'+snd.status+'</span>'+
@@ -4917,10 +4920,22 @@ function rGrading(){
           '<button data-sndid="'+snd.id+'" class="btn bgrn grd-done" style="width:auto;padding:5px 10px;font-size:11px;margin-top:0;">✓ Erledigt</button>'+
         '</div>'+
       '</div>'+
-      kartenHTML+
+      '<div class="grd-cards" data-sndid="'+snd.id+'" style="display:none">'+kartenHTML+'</div>'+
     '</div>';
   }).join('');
 
+  // Toggle aufklappen/einklappen
+  li.querySelectorAll('.grd-toggle').forEach(function(tg){
+    tg.addEventListener('click',function(){
+      var sndId=this.dataset.sndid;
+      var cards=li.querySelector('.grd-cards[data-sndid="'+sndId+'"]');
+      var arrow=li.querySelector('.grd-arrow[data-sndid="'+sndId+'"]');
+      if(!cards)return;
+      var isOpen=cards.style.display!=='none';
+      cards.style.display=isOpen?'none':'block';
+      if(arrow)arrow.style.transform=isOpen?'rotate(0deg)':'rotate(90deg)';
+    });
+  });
   // Event listeners für Karte sichern
   li.querySelectorAll('.grd-save').forEach(function(btn){
     btn.addEventListener('click',function(){
